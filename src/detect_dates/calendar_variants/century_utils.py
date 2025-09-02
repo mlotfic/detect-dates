@@ -26,7 +26,7 @@ if __name__ == "__main__":
     print("This module is not intended to be run directly. Import it in your code.")
     setup_src_path()
 
-from detect_dates.utils import ordinal_suffix
+from detect_dates.calendar_variants import ordinal_suffix
 
 # ===================================================================================
 # UTILITY FUNCTIONS

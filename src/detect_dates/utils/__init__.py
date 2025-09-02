@@ -6,7 +6,7 @@ and calendar system conversions.
 
 # Data cleaning and preparation utilities
 from detect_dates.utils.deduplicate import remove_date_duplicates
-from detect_dates.utils.ordinal_suffix import get_ordinal_suffix
+from detect_dates.calendar_variants.ordinal_suffix import get_ordinal_suffix
 
 __all__ = [
     'remove_date_duplicates',

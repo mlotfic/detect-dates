@@ -55,7 +55,7 @@ if __name__ == "__main__":
     # Ensure the modules directory is in sys.path for imports
     add_modules_to_sys_path()
 
-from detect_dates.detector.classes.entity import ParsedDate
+from detect_dates.detector.classes import ParsedDate
 from detect_dates.normalizers import month, era, weekday
 from data._load_data import DateMapping
 
@@ -78,7 +78,7 @@ PRECISION_LEVELS = {
 }
 
 @dataclass
-class DateEntity(DateEntity):
+class DateEntity(ParsedDate):
     """
     Extended date class with calendar conversion and formatting capabilities.
 

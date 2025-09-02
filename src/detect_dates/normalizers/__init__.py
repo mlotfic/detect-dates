@@ -5,13 +5,14 @@ Created on Sun Jun 22 21:38:10 2025
 @description: This module provides calendar conversion utilities and functions to get calendar variants.
 '''
 
-from .key import normalize_key
 
 # Era normalization and keywords
 # ===================================================================================
 # This module provides functions to normalize era terms in different languages and calendars.
 from .era import (
     normalize_era,  # Main era normalization function
+    get_calendar, # 
+    get_era_info  # Get calendar and language info from era text
 )
 
 # Month normalization and keywords
