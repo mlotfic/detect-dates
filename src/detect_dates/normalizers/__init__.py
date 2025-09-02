@@ -62,5 +62,8 @@ __all__ = [
     "numeric_words_pattern_ar",  # Regex pattern for Arabic numeric words
 
     "normalize_calendar_name",
-    "get_calendar_info"
+    "get_calendar_info",
+    "get_calendar",
+    "get_era_info"
+    
 ]

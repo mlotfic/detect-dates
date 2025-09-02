@@ -11,7 +11,7 @@ Created on Sun Jun 22 21:38:10 2025
 # Calendar conversion utilities
 # ===================================================================================
 # These functions handle the conversion of years between different calendar systems
-from detect_dates.utils.year_calender_cal import (
+from detect_dates.utils.year_calendar_cal import (
     h_to_g_yr_cal,  # Convert Hijri year to Gregorian year
     g_to_h_yr_cal,  # Convert Gregorian year to Hijri year
     s_to_g_yr_cal,  # Convert julian year to Gregorian year

@@ -14,7 +14,7 @@ ar_date_module/
 │   ├── normalize_month.py
 │   ├── normalize_numeric_words.py
 │   ├── normalize_separators.py
-│   ├── calender_yr_to_yr_cal.py      # Calendar conversion routines
+│   ├── calendar_yr_to_yr_cal.py      # Calendar conversion routines
 │   └── ... (other normalization/conversion logic)
 │
 ├── utils/

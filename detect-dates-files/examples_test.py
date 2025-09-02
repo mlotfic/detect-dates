@@ -64,7 +64,7 @@ except Exception as e:
 
 # Comprehensive numeric patterns
 # ===================================================================================
-unknown_calender = {
+unknown_calendar = {
     "metadata" : {
         "priority": 0,
         "match_type": "ambiguity",

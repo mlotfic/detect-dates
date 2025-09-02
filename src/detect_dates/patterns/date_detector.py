@@ -10,11 +10,11 @@ if __name__ == "__main__":
 from detect_dates.regex_patterns import get_date_patterns
 from detect_dates.patterns.classes import DatePatterns
 from detect_dates.patterns.dicts import (
-    get_date_unknown_calender_patterns,
-    get_date_basic_patterns,
-    get_date_components_patterns,
-    get_date_mixed_patterns,
-    get_date_complex,
+    get_simple_unknown,
+    get_simple,
+    get_components,
+    get_composite,
+    get_complex,
 )
 
 
@@ -39,7 +39,7 @@ class DateDetector:
             indicator_patterns=indicator_patterns,
             numeric_patterns=numeric_patterns
         )
-        self.date_unknown_calender = get_date_unknown_calender_patterns(
+        self.date_unknown_calendar = get_date_unknown_calendar_patterns(
             self.date_patterns
         )
         self.date_basic_pattern_dict = get_date_basic_patterns(
@@ -58,7 +58,7 @@ class DateDetector:
             "complex"           : self.date_complex_dict,
             "mixed"             : self.date_mixed_patterns_dict,
             "components"        : self.date_components_patterns_dict,
-            "unknown_calender"  : self.date_unknown_calender,
+            "unknown_calendar"  : self.date_unknown_calendar,
         }
 
     def get_pipeline(self):

@@ -1,3 +1,6 @@
+from typing import Dict, Any
+import os
+
 # Module-level constants for supported calendar systems
 # Based on actual CSV structure: Week Day,Hijri Day,Hijri Month,Hijri Year,Gregorian Day,Gregorian Month,Gregorian Year,Solar Hijri Day,Solar Hijri Month,Solar Hijri Year
 SUPPORTED_CALENDARS = {

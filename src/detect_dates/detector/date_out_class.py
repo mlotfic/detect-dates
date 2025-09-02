@@ -907,7 +907,7 @@ class ParsedDate:
 @dataclass
 class DateAlternative:
     """
-    Represents a alternative between two calender system.
+    Represents a alternative between two calendar system.
 
     Examples:
     - "2023CE/1445AH"
