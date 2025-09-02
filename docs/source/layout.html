@@ -1,0 +1,21 @@
+{% extends "!layout.html" %}
+
+{%- block extrahead %}
+{{ super() }}
+<link rel="stylesheet" href="{{ pathto('_static/custom.css', 1) }}" type="text/css" />
+{% endblock %}
+
+{%- block footer %}
+{{ super() }}
+<div class="footer">
+  <span class="creativecommons">
+    {%- if show_copyright %}
+      {%- if hasdoc('copyright') %}
+        {% trans path=pathto('copyright'), copyright=copyright|e %}&copy; <a href="{{ path }}">Copyright</a> {{ copyright }}.{% endtrans %}
+      {%- else %}
+        {% trans copyright=copyright|e %}&copy; Copyright {{ copyright }}.{% endtrans %}
+      {%- endif %}
+    {%- endif %}
+  </span>
+</div>
+{% endblock %}

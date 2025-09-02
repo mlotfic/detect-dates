@@ -1,0 +1,10 @@
+pytest
+black
+flake8
+setuptools_scm
+pytest-cov
+isort
+pre-commit
+sphinx
+sphinx-rtd-theme 
+sphinx-autodoc-typehints

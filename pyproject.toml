@@ -1,0 +1,217 @@
+# -----------------------------
+# Build System (required)
+# -----------------------------
+[build-system]
+requires = ["setuptools>=45", "wheel", "setuptools_scm[toml]>=6.2"]
+build-backend = "setuptools.build_meta"
+
+# -----------------------------
+# Project Metadata
+# -----------------------------
+[project]
+name = "detect_dates"               # PyPI/package install name (`pip install detect_dates`)
+version = "0.1.0"
+authors = [
+    {name = "Your Name", email = "your.email@example.com"},
+]
+maintainers = [
+    {name = "Your Name", email = "your.email@example.com"},
+]
+description = "A portable Python package with multiple modules and data handling"
+readme = "README.md"
+license = {file = "LICENSE"}
+requires-python = ">=3.8"
+
+# Classifiers help PyPI categorize your package
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+keywords = ["python", "package", "modules", "portable"]
+
+# -----------------------------
+# Runtime dependencies
+# -----------------------------
+dependencies = [
+  "regex>=2021.8.3",
+  "numpy>=1.21.0",
+  "pandas>=1.3.0",
+]
+
+# -----------------------------
+# Optional dependencies
+# -----------------------------
+[project.optional-dependencies]
+
+# For local development
+dev = [
+    "pytest>=6.0",
+    "pytest-cov>=2.0",
+    "black>=22.0",
+    "flake8>=4.0",
+    "mypy>=0.900",
+    "pre-commit>=2.0",
+    "tox>=3.0",
+    "build>=0.10",
+    "twine>=4.0",
+    "setuptools_scm>=6.2",
+    "setuptools>=45",
+    "wheel",
+]
+
+# For testing specifically
+test = [
+    "pytest>=6.0",
+    "pytest-cov>=2.0",
+]
+
+# For documentation building
+docs = [
+    "sphinx>=4.0",
+    "sphinx-rtd-theme>=1.0",
+]
+
+# For linting only
+lint = [
+    "black>=22.0",
+    "flake8>=4.0",
+    "mypy>=0.900",
+]
+
+# Unified group
+all = [
+    "detect_dates[dev,test,docs,lint]",
+]
+
+# -----------------------------
+# Project URLs (for PyPI & docs)
+# -----------------------------
+[project.urls]
+Homepage = "https://github.com/mlotfic/detect_dates"
+Documentation = "https://github.com/mlotfic/detect_dates#readme"
+Repository = "https://github.com/mlotfic/detect_dates"
+"Bug Tracker" = "https://github.com/mlotfic/detect_dates/issues"
+Changelog = "https://github.com/mlotfic/detect_dates/blob/main/CHANGELOG.md"
+
+# -----------------------------
+# Console entry points (CLI)
+# -----------------------------
+[project.scripts]
+# CLI commands become available in terminal after install
+my-package = "detect_dates.main:main"
+my-package-cli = "detect_dates.main:cli_main"
+
+# -----------------------------
+# setuptools config
+# -----------------------------
+[tool.setuptools]
+package-dir = {"" = "src"}                   # Use src layout
+include-package-data = true                  # Include package data from MANIFEST or tool config
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["detect_dates*"]                # Changed from my_package*
+exclude = ["tests*"]
+
+# Include data files (e.g., *.json, *.csv)
+[tool.setuptools.package-data]
+"detect_dates.data" = ["*.json", "*.csv", "*.yml", "*.yaml", "*.txt"]
+
+# Versioning: extract version from Git tags and write to _version.py
+[tool.setuptools_scm]
+write_to = "src/detect_dates/_version.py"
+
+# -----------------------------
+# Pytest Configuration
+# -----------------------------
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "-v",
+    "--strict-markers",
+    "--strict-config",
+    "--cov=detect_dates",               # Updated for new package name
+    "--cov-report=term-missing",
+    "--cov-report=html:htmlcov",
+    "--cov-report=xml",
+]
+markers = [
+    "slow: marks tests as slow",
+    "integration: marks tests as integration tests",
+]
+
+# -----------------------------
+# Black Formatter Config
+# -----------------------------
+[tool.black]
+line-length = 88
+target-version = ["py38", "py39", "py310", "py311", "py312"]
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+  | src/detect_dates/_version\.py
+)/
+'''
+
+# -----------------------------
+# Flake8 Linter Config
+# -----------------------------
+[tool.flake8]
+max-line-length = 88
+extend-ignore = ["E203", "W503"]
+exclude = [
+    ".git",
+    "__pycache__",
+    "build",
+    "dist",
+    ".venv",
+    "src/detect_dates/_version.py"
+]
+
+# -----------------------------
+# MyPy Type Checker Config
+# -----------------------------
+[tool.mypy]
+python_version = "3.8"
+files = ["src/detect_dates", "tests"]
+strict = true
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+strict_equality = true
+
+# Loosened rules for test files
+[[tool.mypy.overrides]]
+module = "tests.*"
+disallow_untyped_defs = false
