@@ -172,10 +172,10 @@ if __name__ == "__main__":
         "era": "AD",
         "weekday": "Monday"
     }
-
+    
     normalized_date = normalize_date_output(example_date, lang="en")
     print(normalized_date)
-
+    
     # Example with Islamic date
     islamic_date = {
         "year": "1445",
@@ -183,6 +183,6 @@ if __name__ == "__main__":
         "day": "15",
         "era": "هـ"
     }
-
+    
     normalized_islamic_date = normalize_date_output(islamic_date, lang="ar")
     print(normalized_islamic_date)

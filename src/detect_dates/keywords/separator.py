@@ -434,4 +434,4 @@ separators_indicators_keywords = [
 # ===================================================================================
 # STRUCTURED INDICATORS DATA
 # ===================================================================================
-ndicators_keywords = date_indicators_keywords + separators_indicators_keywords
+indicators_keywords = date_indicators_keywords + separators_indicators_keywords

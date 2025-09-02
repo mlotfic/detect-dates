@@ -69,7 +69,9 @@ Requires: pandas>=1.3.0
 
 import os
 import pandas as pd
-from typing import Optional, Dict, List, Any, Union, Tuple
+from detect_dates.data import CalendarDataLoader
+from detect_dates.normalizers import normalize_calendar_name
+from typing import Optional, Dict, List, Union
 from dataclasses import dataclass
 import logging
 
@@ -87,9 +89,6 @@ SUPPORTED_CALENDARS = {
 
 # Column name for weekday information in the CSV file
 WEEKDAY_COLUMN = 'Week Day'
-
-# Default CSV file path relative to this module
-DEFAULT_CSV_PATH = "../mapping_date/Hijri-Gregorian-Solar_Hijri-V3.csv"
 
 # Calendar system aliases for user convenience
 CALENDAR_ALIASES = {
@@ -138,9 +137,7 @@ class DateMapping:
         module's location. If the file is not found, the class will raise a
         FileNotFoundError with helpful guidance.
     """
-
-    df: Optional[pd.DataFrame] = None
-    csv_path: str = DEFAULT_CSV_PATH
+    
     _data_loaded: bool = False
     _date_ranges: Optional[Dict[str, Dict[str, int]]] = None
 
@@ -164,7 +161,13 @@ class DateMapping:
             RuntimeError: If there are issues with data processing
         """
         try:
-            self.df = self._load_mapping_data()
+            loader = CalendarDataLoader()
+            print(f"   Supported calendars: {loader.get_supported_calendars()}")
+            
+            self.df = loader.load_data()
+            print(f"   Loaded {len(self.df):,} records (first call)")
+            print(f"   Retrieved {len(self.df):,} records (cached)")
+
             self._data_loaded = True
             logger.info(f"Successfully loaded {len(self.df):,} calendar mapping records")
         except Exception as e:
@@ -190,123 +193,9 @@ class DateMapping:
         """
         return self._data_loaded and self.df is not None and not self.df.empty
 
-    def _load_mapping_data(self) -> pd.DataFrame:
-        """
-        Load the calendar mapping data from CSV file with comprehensive validation.
-
-        This method handles the complete data loading pipeline:
-
-        * Constructs the absolute path to the CSV file
-        * Validates file existence and accessibility
-        * Loads CSV with appropriate encoding and error handling
-        * Validates required columns are present
-        * Performs data type conversions and cleaning
-        * Removes invalid or incomplete records
-
-        Returns:
-            pd.DataFrame: Validated and cleaned calendar mapping data
-
-        Raises:
-            FileNotFoundError: If the calendar data file is not found
-            ValueError: If required columns are missing or data is invalid
-            RuntimeError: If file loading or processing fails
-
-        Note:
-            This method is called automatically during initialization.
-            Direct calls are not typically necessary.
-        """
-        # Construct absolute path to the CSV file
-        file_path = os.path.join(os.path.dirname(__file__), self.csv_path)
-        file_path = os.path.abspath(file_path)
-
-        # Verify file exists and is readable
-        if not os.path.exists(file_path):
-            raise FileNotFoundError(
-                f"Calendar data file not found: {file_path}\n"
-                f"Please ensure the CSV file exists in the expected location.\n"
-                f"Expected structure: {DEFAULT_CSV_PATH}"
-            )
-
-        if not os.access(file_path, os.R_OK):
-            raise PermissionError(f"Cannot read calendar data file: {file_path}")
-
-        try:
-            # Load CSV with UTF-8 encoding to handle international characters
-            logger.info(f"Loading calendar data from: {file_path}")
-            df = pd.read_csv(file_path, encoding='utf-8')
-
-            # Log initial data info
-            logger.info(f"Loaded CSV with {len(df)} rows and {len(df.columns)} columns")
-
-            # Validate that all required columns are present
-            required_columns = set()
-            for calendar_cols in SUPPORTED_CALENDARS.values():
-                required_columns.update(calendar_cols)
-            required_columns.add(WEEKDAY_COLUMN)
-
-            missing_columns = required_columns - set(df.columns)
-            if missing_columns:
-                raise ValueError(
-                    f"Missing required columns in CSV: {missing_columns}\n"
-                    f"Required columns: {sorted(required_columns)}\n"
-                    f"Found columns: {sorted(df.columns.tolist())}"
-                )
-
-            # Clean and validate data
-            initial_rows = len(df)
-
-            # Remove rows with any missing values in required columns
-            df = df.dropna(subset=list(required_columns))
-            logger.info(f"Removed {initial_rows - len(df)} rows with missing values")
-
-            # Convert numeric columns to proper types with error handling
-            for calendar_name, calendar_cols in SUPPORTED_CALENDARS.items():
-                for col in calendar_cols:
-                    # Convert to numeric, replacing invalid values with NaN
-                    df[col] = pd.to_numeric(df[col], errors='coerce')
-
-                    # Check for conversion failures
-                    invalid_count = df[col].isna().sum()
-                    if invalid_count > 0:
-                        logger.warning(f"Found {invalid_count} invalid values in {col}")
-
-            # Remove any rows where numeric conversion failed
-            df = df.dropna(subset=[col for cols in SUPPORTED_CALENDARS.values() for col in cols])
-
-            # Validate date ranges are reasonable
-            self._validate_date_ranges(df)
-
-            # Convert numeric columns to integers
-            for calendar_cols in SUPPORTED_CALENDARS.values():
-                for col in calendar_cols:
-                    df[col] = df[col].astype(int)
-
-            # Validate weekday column contains valid values
-            valid_weekdays = {'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'}
-            invalid_weekdays = set(df[WEEKDAY_COLUMN].unique()) - valid_weekdays
-            if invalid_weekdays:
-                logger.warning(f"Found unexpected weekday values: {invalid_weekdays}")
-
-            # Sort by Gregorian date for consistent ordering
-            df = df.sort_values(['Gregorian Year', 'Gregorian Month', 'Gregorian Day'])
-            df = df.reset_index(drop=True)
-
-            logger.info(f"Successfully processed {len(df):,} valid calendar mapping records")
-            return df
-
-        except pd.errors.EmptyDataError:
-            raise ValueError(f"Calendar data file is empty: {file_path}")
-        except pd.errors.ParserError as e:
-            raise ValueError(f"Error parsing CSV file: {str(e)}")
-        except Exception as e:
-            raise RuntimeError(f"Failed to load calendar data: {str(e)}")
-
-    def _validate_date_ranges(self, df: pd.DataFrame) -> None:
+    def _validate_date_ranges(self) -> None:
         """
         Validate that date ranges in the DataFrame are reasonable.
-
-        Args:
-            df: DataFrame to validate
 
         Raises:
             ValueError: If date ranges are invalid or suspicious
@@ -315,50 +204,22 @@ class DateMapping:
             day_col, month_col, year_col = columns
 
             # Check day ranges (1-31)
-            day_min, day_max = df[day_col].min(), df[day_col].max()
+            day_min, day_max = self.df[day_col].min(), self.df[day_col].max()
             if not (1 <= day_min and day_max <= 31):
                 raise ValueError(f"Invalid day range for {calendar_name}: {day_min}-{day_max}")
 
             # Check month ranges (1-12)
-            month_min, month_max = df[month_col].min(), df[month_col].max()
+            month_min, month_max = self.df[month_col].min(), self.df[month_col].max()
             if not (1 <= month_min and month_max <= 12):
                 raise ValueError(f"Invalid month range for {calendar_name}: {month_min}-{month_max}")
 
             # Check year ranges (reasonable historical range)
-            year_min, year_max = df[year_col].min(), df[year_col].max()
+            year_min, year_max = self.df[year_col].min(), self.df[year_col].max()
             if calendar_name == 'gregorian':
                 if year_min < -5000 or year_max > 10000:
                     logger.warning(f"Unusual Gregorian year range: {year_min}-{year_max}")
 
-    def _normalize_calendar_name(self, calendar: str) -> str:
-        """
-        Normalize calendar name using aliases.
-
-        Args:
-            calendar: Calendar name to normalize
-
-        Returns:
-            str: Normalized calendar name
-
-        Raises:
-            ValueError: If calendar name is not recognized
-        """
-        calendar = calendar.lower().strip()
-
-        # Check aliases first
-        if calendar in CALENDAR_ALIASES:
-            return CALENDAR_ALIASES[calendar]
-
-        # Check direct matches
-        if calendar in SUPPORTED_CALENDARS:
-            return calendar
-
-        # Generate helpful error message
-        all_names = list(SUPPORTED_CALENDARS.keys()) + list(CALENDAR_ALIASES.keys())
-        raise ValueError(
-            f"Unsupported calendar system: '{calendar}'. "
-            f"Supported systems: {sorted(all_names)}"
-        )
+    
 
     def get_weekday_by_date(self, calendar: str, day: int, month: int, year: int) -> Optional[str]:
         """
@@ -475,7 +336,7 @@ class DateMapping:
                     hijri = result['hijri']
                     print(f"  Hijri: {hijri['day']}/{hijri['month']}/{hijri['year']}")
                     julian = result['julian']
-                    print(f"  Solar Hijri: {julian['day']}/{julian['month']}/{julian['year']}")
+                    print(f"  Julian : {julian['day']}/{julian['month']}/{julian['year']}")
                     print(f"  Weekday: {result['weekday']}")
 
                 # Convert from Hijri
@@ -490,7 +351,7 @@ class DateMapping:
             raise RuntimeError("Calendar mapping data is not loaded. Check initialization.")
 
         # Normalize and validate calendar name
-        calendar = self._normalize_calendar_name(calendar)
+        calendar = normalize_calendar_name(calendar)
 
         # Get column names for the specified calendar system
         day_col, month_col, year_col = SUPPORTED_CALENDARS[calendar]
@@ -681,92 +542,6 @@ class DateMapping:
         except Exception:
             # Any other error means the date is not valid
             return False
-    
-    def get_calendar_info(self) -> Dict[str, Any]:
-        """
-        Get comprehensive information about the loaded calendar data.
-        
-        This method provides detailed statistics and metadata about the calendar
-        mapping data, including data ranges, record counts, and sample entries.
-        It's useful for debugging, data analysis, and system monitoring.
-        
-        Returns:
-            Dict[str, Any]: Dictionary containing comprehensive data information::
-            
-                {
-                    'data_loaded': bool,
-                    'total_records': int,
-                    'supported_calendars': List[str],
-                    'calendar_aliases': Dict[str, str],
-                    'date_ranges': Dict[str, Dict[str, int]],
-                    'weekdays': List[str],
-                    'csv_columns': List[str],
-                    'sample_record': Dict[str, Any],
-                    'file_path': str,
-                    'data_quality': Dict[str, Any]
-                }
-                
-        Example:
-            Get system information::
-            
-                mapper = DateMapping()
-                info = mapper.get_calendar_info()
-                
-                print(f"Data loaded: {info['data_loaded']}")
-                print(f"Total records: {info['total_records']:,}")
-                print(f"Gregorian range: {info['date_ranges']['gregorian']['min_year']}-{info['date_ranges']['gregorian']['max_year']}")
-                
-                # Show sample record
-                sample = info['sample_record']
-                print(f"Sample: {sample['gregorian']} = {sample['hijri']} (Hijri)")
-        
-        Note:
-            This method always returns a dictionary, even if data loading failed.
-            Check the 'data_loaded' key to determine if the data is available.
-        """
-        base_info = {
-            'data_loaded': self.is_data_loaded(),
-            'supported_calendars': self.get_supported_calendars(),
-            'calendar_aliases': CALENDAR_ALIASES.copy(),
-            'file_path': os.path.abspath(os.path.join(os.path.dirname(__file__), self.csv_path))
-        }
-        
-        if not self.is_data_loaded():
-            base_info.update({
-                'error': 'Calendar data not loaded',
-                'total_records': 0,
-                'date_ranges': {},
-                'weekdays': [],
-                'csv_columns': [],
-                'sample_record': {},
-                'data_quality': {'status': 'data_not_loaded'}
-            })
-            return base_info
-        
-        # Get data statistics
-        info = {
-            **base_info,
-            'total_records': len(self.df),
-            'date_ranges': self.get_data_range(),
-            'weekdays': sorted(self.df[WEEKDAY_COLUMN].unique().tolist()),
-            'csv_columns': list(self.df.columns),
-            'sample_record': {}
-        }
-        
-        # Add a sample record for reference
-        if not self.df.empty:
-            sample_row = self.df.iloc[len(self.df)//2]  # Middle record for variety
-            info['sample_record'] = {
-                'gregorian': f"{sample_row['Gregorian Day']}/{sample_row['Gregorian Month']}/{sample_row['Gregorian Year']}",
-                'hijri': f"{sample_row['Hijri Day']}/{sample_row['Hijri Month']}/{sample_row['Hijri Year']}",
-                'julian': f"{sample_row['Solar Hijri Day']}/{sample_row['Solar Hijri Month']}/{sample_row['Solar Hijri Year']}",
-                'weekday': sample_row[WEEKDAY_COLUMN]
-            }
-        
-        # Add data quality information
-        info['data_quality'] = self._get_data_quality_metrics()
-        
-        return info
     
     def _get_data_quality_metrics(self) -> Dict[str, Any]:
         """

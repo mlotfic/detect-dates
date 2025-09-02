@@ -20,4 +20,4 @@ if __name__ == "__main__":
 from detect_dates.keywords import numeric_words_keywords
 from detect_dates.regex_patterns import get_numeric_words_pattern
 
-numeric_words_pattern_ar = get_numeric_words_pattern(numeric_words_k
+numeric_words_pattern_ar = get_numeric_words_pattern(numeric_words_keywords)

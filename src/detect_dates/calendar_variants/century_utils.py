@@ -11,13 +11,22 @@ from typing import Tuple
 # Import path helper to ensure modules directory is in sys.path
 # ===================================================================================
 if __name__ == "__main__":
-    print("This module is not intended to be run directly. Import it in your code.")
     # This is necessary for importing other modules in the package structure
-    from path_helper import add_modules_to_sys_path
-    # Ensure the modules directory is in sys.path for imports
-    add_modules_to_sys_path()
+    import sys
+    from pathlib import Path
+    def setup_src_path():
+        current_file = Path(__file__).resolve()
+        parts = current_file.parts
+        for i, part in enumerate(parts):
+            if part == 'src' and i + 2 < len(parts):
+                src_second_path = str(Path(*parts[:i + 3]))
+                if src_second_path not in sys.path:
+                    sys.path.insert(0, src_second_path)
+                break
+    print("This module is not intended to be run directly. Import it in your code.")
+    setup_src_path()
 
-from detect_dates.calendar_variants import get_ordinal_suffix
+from detect_dates.utils import ordinal_suffix
 
 # ===================================================================================
 # UTILITY FUNCTIONS

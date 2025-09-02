@@ -1,35 +1,29 @@
-# ...existing code...
-import os
-import pandas as pd
-from typing import Optional, Union
-
+# Import path helper to ensure modules directory is in sys.path
+# ===================================================================================
 if __name__ == "__main__":
+    # This is necessary for importing other modules in the package structure
+    import sys
+    from pathlib import Path
+    def setup_src_path():
+        current_file = Path(__file__).resolve()
+        parts = current_file.parts
+        for i, part in enumerate(parts):
+            if part == 'src' and i + 2 < len(parts):
+                src_second_path = str(Path(*parts[:i + 3]))
+                if src_second_path not in sys.path:
+                    sys.path.insert(0, src_second_path)
+                break
     print("This module is not intended to be run directly. Import it in your code.")
-    # This is necessary for importing other data in the package structure
-    from path_helper import add_data_to_sys_path
-    # Ensure the data directory is in sys.path for imports
-    add_data_to_sys_path()
+    setup_src_path()
+
+from detect_dates.data import load_mapping_date
+
+from typing import Optional
 
 class DateMapping:
 
     def __post_init__(self):
-        self.df = self.load_mapping_date(self)
-
-
-
-    def load_mapping_date(self) -> pd.DataFrame:
-        # Corrected path to the CSV file
-        file = os.path.join(
-            os.path.dirname(__file__),
-            "..", "mapping_date", "Hijri-Gregorian-Solar_Hijri-V3.csv"
-        )
-        file = os.path.abspath(file)
-        if not os.path.exists(file):
-            raise FileNotFoundError(f"Calendar data file not found: {file}")
-
-        df = pd.read_csv(file, encoding='utf-8')
-        return df
-
+        self.df = load_mapping_date()
 
     def get_weekday_by_date(era: str, day: int, month: int, year: int) -> Optional[str]:
         """

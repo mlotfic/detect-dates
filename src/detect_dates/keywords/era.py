@@ -1,39 +1,107 @@
-# -- -*- coding: utf-8 -*-
+#!/usr/bin/env python3
 """
+Era Keywords Configuration Module for Date Normalization
+
 Created on Fri Jul 25 23:01:21 2025
 
 @author: m.lotfi
 
-@description:
-    This module provides a function to normalize date components for different languages and calendar systems.
-    It handles both flat and nested structures, extracting and normalizing components like year, month, day, era, and weekday.
+This module provides comprehensive configuration for normalizing date components across
+different languages and calendar systems. It handles era detection for Hijri, Gregorian,
+and Persian/Solar Hijri calendars in both Arabic and English scripts.
+
+The module supports:
+- Hijri calendar (Islamic lunar calendar): AH/BAH eras
+- Gregorian calendar (Western solar calendar): CE/BCE eras  
+- Persian/Solar Hijri calendar (Iranian solar calendar): SH/BSH eras
+
+Keywords are organized by calendar system, era type (before/after), and language/script
+to enable accurate date parsing and normalization across different cultural contexts.
 """
 
 # ===================================================================================
-# ERA KEYWORDS CONFIGURATION
-# Support for different historical epochs across multiple languages and scripts
+# ERA STANDARD KEYWORDS - Quick reference mappings
 # ===================================================================================
+
+era_standard_keywords = {
+    """
+    Standard normalized representations for different era types.
+    
+    This dictionary provides the canonical short forms used after normalization
+    for each supported calendar system and language combination.
+    """
+    # Gregorian calendar - Arabic variations
+    "after_hijrah_ar": "هـ",        # After Hijrah (Arabic)
+    "before_hijrah_ar": "ق.هـ",     # Before Hijrah (Arabic) 
+    "after_christ_ar": "م",         # After Christ/Common Era (Arabic)
+    "before_christ_ar": "ق.م",      # Before Christ (Arabic)
+    "after_julian_ar": "هـ.ش",      # After Solar Hijrah (Persian in Arabic script)
+    "before_julian_ar": "ق.هـ.ش",   # Before Solar Hijrah (Persian in Arabic script)
+    
+    # Gregorian calendar - English variations
+    "after_hijrah_en": "AH",        # After Hijrah (English)
+    "before_hijrah_en": "BH",       # Before Hijrah (English)
+    "after_christ_en": "AD",        # Anno Domini (English)
+    "before_christ_en": "BC",       # Before Christ (English)
+    "after_julian_en": "SH",        # Solar Hijri (English)
+    "before_julian_en": "BSH"       # Before Solar Hijri (English)
+}
+
+# ===================================================================================
+# ERA KEYWORDS DICTIONARY - Hierarchical keyword organization
+# ===================================================================================
+
 era_keywords_dict = {
-    "ar": {
+    """
+    Comprehensive dictionary of era keywords organized by language, calendar, and era type.
+    
+    Structure:
+    {
+        "language_code": {
+            "calendar_system": {
+                "era_type": {
+                    "name": "unique_identifier",
+                    "description": "human_readable_description", 
+                    "keywords": ["list", "of", "variations"],
+                    "normalized": "standard_form"
+                }
+            }
+        }
+    }
+    
+    This structure allows for efficient lookup and expansion of era detection capabilities.
+    """
+    "ar": {  # Arabic script keywords
         "hijri": {
             "after_hijrah": {
                 "name": "hijri_after_hijrah_arabic_standard",
                 "description": "Keywords indicating Hijri era after Hijrah in Arabic",
                 "keywords": [
-                    "هجري", "هجرية", "هـ", "هــ", "هـــ", "ه", "بعد الهجرة", "بعد الهجره", 
-                    "بعد هجري", "بعد هجرت", "بعد هجري قمري", "بعد هجرت", "السنة الهجرية", 
-                    "سنة هجرية", "هجري", "هجره", "هجرية", "بالهجري", "بالهجرية", "للهجرة", 
-                    "هجری", "هجري قمري", "الهجري", "من الهجرة", "من الهجره", "من هجري",
+                    # Standard Hijri indicators
+                    "هجري", "هجرية", "هـ", "هــ", "هـــ", "ه", 
+                    # Explicit "after Hijrah" phrases
+                    "بعد الهجرة", "بعد الهجره", "بعد هجري", "بعد هجرت", 
+                    "بعد هجري قمري", "بعد هجرت",
+                    # Year forms
+                    "السنة الهجرية", "سنة هجرية", "هجري", "هجره", "هجرية",
+                    # Prepositional forms  
+                    "بالهجري", "بالهجرية", "للهجرة", "هجری", "هجري قمري", 
+                    "الهجري", "من الهجرة", "من الهجره", "من هجري"
                 ],
                 "normalized": "هـ"
             },
             "before_hijrah": {
-                "name": "hijri_before_hijrah_arabic_standard",
+                "name": "hijri_before_hijrah_arabic_standard", 
                 "description": "Keywords indicating Hijri era before Hijrah in Arabic",
-                "keywords": [                    
-                    "قبل هـ", "قبل هــ", "قبل هـــ", "قبل ه", "ق هـ", "ق هــ", "ق هـــ", 
-                    "ق ه", "قبل الهجرة", "قبل الهجره", "قبل هجري", "قبل هجرت", 
-                    "قبل هجري قمري", "قبل هجرت", "السنة الهجرية قبل", "سنة هجرية قبل",
+                "keywords": [
+                    # Short forms with "before" indicators
+                    "قبل هـ", "قبل هــ", "قبل هـــ", "قبل ه", 
+                    "ق هـ", "ق هــ", "ق هـــ", "ق ه",
+                    # Explicit "before Hijrah" phrases
+                    "قبل الهجرة", "قبل الهجره", "قبل هجري", "قبل هجرت",
+                    "قبل هجري قمري", "قبل هجرت", 
+                    # Year forms with "before" qualifier
+                    "السنة الهجرية قبل", "سنة هجرية قبل"
                 ],
                 "normalized": "ق.هـ"
             }
@@ -43,79 +111,95 @@ era_keywords_dict = {
                 "name": "gregorian_after_christ_arabic_standard",
                 "description": "Keywords indicating Gregorian era after Christ in Arabic",
                 "keywords": [
-                    "ميلاديًا", "ميلاديً", "السنة الميلادية", "سنة ميلادية", 
-                    "ميلادية", "ميلادي", "بالميلادي", "بالميلادية", 
-                    "للميلاد", "المسيحية", "المسيحي", "الإفرنجية", 
-                    "الإفرنجي", "الغربية", "الغربي", "مــ", "مـــ", 
-                    "مـ", "م", "بعد الميلاد", "بعد م", 
-                    "بعد الميلادي", "بعد مـ", "بعد مــ", "بعد مـــ", "الميلادي"
+                    # Standard Gregorian/Christian indicators
+                    "ميلاديًا", "ميلاديً", "السنة الميلادية", "سنة ميلادية",
+                    "ميلادية", "ميلادي", "بالميلادي", "بالميلادية", "للميلاد",
+                    # Christian era variants
+                    "المسيحية", "المسيحي", "الإفرنجية", "الإفرنجي",
+                    "الغربية", "الغربي",
+                    # Short forms and abbreviations
+                    "مــ", "مـــ", "مـ", "م",
+                    # Explicit "after birth" phrases  
+                    "بعد الميلاد", "بعد م", "بعد الميلادي", 
+                    "بعد مـ", "بعد مــ", "بعد مـــ", "الميلادي"
                 ],
                 "normalized": "م"
             },
             "before_christ": {
-                "name": "gregorian_before_christ_arabic_standard",
+                "name": "gregorian_before_christ_arabic_standard", 
                 "description": "Keywords indicating Gregorian era before Christ in Arabic",
                 "keywords": [
-                    "قبل ميلاديًا", "قبل ميلاديً",  # Fixed: Added missing diacritics variants
-                    "قبل الميلاد", "قبل م", "قبل الميلادي", "قبل مـ", "قبل مــ", "قبل مـــ", 
-                    "قبل المسيحية", "قبل المسيحي", "قبل الإفرنجية", "قبل الإفرنجي", 
-                    "قبل الغربية", "قبل الغربي", "ق.م", "ق م", "ق.مـ", "ق مـ", 
-                    "ق.مــ", "ق مــ", "ق.مـــ"
+                    # Explicit "before" with various forms
+                    "قبل ميلاديًا", "قبل ميلاديً", "قبل الميلاد", "قبل م",
+                    "قبل الميلادي", "قبل مـ", "قبل مــ", "قبل مـــ",
+                    # Before Christian era variants
+                    "قبل المسيحية", "قبل المسيحي", "قبل الإفرنجية", "قبل الإفرنجي",
+                    "قبل الغربية", "قبل الغربي", 
+                    # Abbreviated forms
+                    "ق.م", "ق م", "ق.مـ", "ق مـ", "ق.مــ", "ق مــ", "ق.مـــ"
                 ],
                 "normalized": "ق.م"
             }
         },
-        "julian": {
+        "julian": {  # Persian/Solar Hijri in Arabic script
             "after_hijrah": {
                 "name": "julian_after_hijrah_persian_arabic_script",
-                "description": "Keywords indicating julian era after Hijrah in Persian/Arabic script",
+                "description": "Keywords indicating Solar Hijri era after Hijrah in Persian/Arabic script",
                 "keywords": [
-                    "السنة الشمسية", "سنة شمسية", "شمسي", 
-                    "بالهجري الشمسي", "بالهجرية الشمسي", 
-                    "للهجرة الشمسية", "هـ.ش", "هجرية شمسية", 
-                    "بعد هجري شمسي", "بعد هجرت خورشيدي", 
-                    "بعد هجرت", "ه‍.ش", "هجري شمسي", 
-                    "هجری شمسی", "ش", "شمسية", "شمسية هجري"
+                    # Solar/Persian year indicators
+                    "السنة الشمسية", "سنة شمسية", "شمسي",
+                    "بالهجري الشمسي", "بالهجرية الشمسي", "للهجرة الشمسية",
+                    # Standard abbreviations
+                    "هـ.ش", "هجرية شمسية", "ه‍.ش", "هجري شمسي", "هجری شمسی",
+                    # Explicit "after" forms
+                    "بعد هجري شمسي", "بعد هجرت خورشيدي", "بعد هجرت",
+                    # Short forms
+                    "ش", "شمسية", "شمسية هجري"
                 ],
                 "normalized": "هـ.ش"
             },
             "before_hijrah": {
                 "name": "julian_before_hijrah_persian_arabic_script",
-                "description": "Keywords indicating julian era before Hijrah in Persian/Arabic script",
+                "description": "Keywords indicating Solar Hijri era before Hijrah in Persian/Arabic script", 
                 "keywords": [
-                    "قبل السنة الشمسية", "قبل سنة شمسية", 
-                    "قبل شمسي", "قبل الهجري الشمسي", 
-                    "قبل الهجرية الشمسي", 
-                    "قبل للهجرة الشمسية", 
-                    "ق.هـ.ش", "ق ه.ش", 
-                    "ق هجرية شمسية", 
-                    "قبل هجرت خورشيدي", 
-                    "قبل هجري شمسي"
+                    # "Before" + solar indicators
+                    "قبل السنة الشمسية", "قبل سنة شمسية", "قبل شمسي",
+                    "قبل الهجري الشمسي", "قبل الهجرية الشمسي", "قبل للهجرة الشمسية",
+                    # Abbreviated "before" forms
+                    "ق.هـ.ش", "ق ه.ش", "ق هجرية شمسية", 
+                    "قبل هجرت خورشيدي", "قبل هجري شمسي"
                 ],
                 "normalized": "ق.هـ.ش"
             }
         }
     },
-    "en": { 
+    "en": {  # English keywords
         "hijri": {
             "after_hijrah": {
                 "name": "hijri_after_hijrah_english_standard",
                 "description": "Keywords indicating Hijri era after Hijrah in English",
                 "keywords": [
-                    "AH", "Anno Hegirae", "After Hijrah", "After Hijra", "After Hijri", 
-                    "After Hegira", "After Hegiri", "H", "Hijri"
+                    # Standard abbreviations
+                    "AH", "H", "Hijri",
+                    # Latin forms
+                    "Anno Hegirae", 
+                    # English phrases
+                    "After Hijrah", "After Hijra", "After Hijri", 
+                    "After Hegira", "After Hegiri"
                 ],
                 "normalized": "AH"
             },
             "before_hijrah": {
                 "name": "hijri_before_hijrah_english_standard",
-                "description": "Keywords indicating Hijri era before Hijrah in English",
+                "description": "Keywords indicating Hijri era before Hijrah in English", 
                 "keywords": [
-                    "BAH", "before Anno Hegirae", "before Hijrah", 
-                    "before Hijra", "before Hijri", "before Hegira", 
-                    "before Hegiri", "BH"
+                    # Standard abbreviations
+                    "BAH", "BH",
+                    # Full forms with "before" 
+                    "before Anno Hegirae", "before Hijrah", "before Hijra",
+                    "before Hijri", "before Hegira", "before Hegiri"
                 ],
-                "normalized": "BAH"
+                "normalized": "BAH"  # Note: Original had "BAH" but structure suggests "BH"
             }
         },
         "gregorian": {
@@ -123,42 +207,50 @@ era_keywords_dict = {
                 "name": "gregorian_after_christ_english_standard",
                 "description": "Keywords indicating Gregorian era after Christ in English",
                 "keywords": [
-                    "AD", "CE", "Anno Domini", "Common Era", 
-                    "Anno Christiani", "Christian Era", "AC", 
-                    "A.D.", "C.E.", "A.C.", "Christian"
+                    # Standard abbreviations (secular and religious)
+                    "AD", "CE", "AC", "A.D.", "C.E.", "A.C.", 
+                    # Full forms
+                    "Anno Domini", "Common Era", "Anno Christiani", 
+                    "Christian Era", "Christian"
                 ],
-                "normalized": "CE"
+                "normalized": "CE"  # Using secular standard
             },
             "before_christ": {
                 "name": "gregorian_before_christ_english_standard",
                 "description": "Keywords indicating Gregorian era before Christ in English",
                 "keywords": [
-                    "BC", "BCE", "Before Christ", 
-                    "Before Common Era", "Before Christian Era", 
-                    "B.C.", "B.C.E.", "B.CE", "B.C.E.", "B.C.E", "Before Christian"
+                    # Standard abbreviations
+                    "BC", "BCE", "B.C.", "B.C.E.", "B.CE", "B.C.E.", "B.C.E",
+                    # Full forms
+                    "Before Christ", "Before Common Era", 
+                    "Before Christian Era", "Before Christian"
                 ],
-                "normalized": "BCE"
+                "normalized": "BCE"  # Using secular standard
             }
         },
-        "julian": {
+        "julian": {  # Persian/Solar Hijri in English script
             "after_hijrah": {
                 "name": "julian_after_hijrah_persian_english_script",
-                "description": "Keywords indicating julian era after Hijrah in Persian/English script",
+                "description": "Keywords indicating Solar Hijri era after Hijrah in Persian/English script",
                 "keywords": [
-                    "SH", "Solar Hijri", "Anno Persico", 
-                    "Jalali", "After Solar Hijri", 
-                    "After Hegira julian", "Persian", "AP", "S.H.", "Solar"
+                    # Standard abbreviations
+                    "SH", "S.H.", "AP", "Solar",
+                    # Full forms
+                    "Solar Hijri", "Anno Persico", "Jalali", "Persian",
+                    # Explicit "after" forms
+                    "After Solar Hijri", "After Hegira julian"
                 ],
                 "normalized": "SH"
             },
             "before_hijrah": {
                 "name": "julian_before_hijrah_persian_english_script",
-                "description": "Keywords indicating julian era before Hijrah in Persian/English script",
+                "description": "Keywords indicating Solar Hijri era before Hijrah in Persian/English script",
                 "keywords": [
-                    "BSH", "Before Solar Hijri", 
-                    "Before Jalali", "Before Anno Persico", 
-                    "Before Hegira julian", "B.SH", 
-                    "Before Persian", "B.P.", "B.Persian", "B.S.H."
+                    # Standard abbreviations
+                    "BSH", "B.SH", "B.S.H.", "B.P.", "B.Persian",
+                    # Full "before" forms
+                    "Before Solar Hijri", "Before Jalali", "Before Anno Persico",
+                    "Before Hegira julian", "Before Persian"
                 ],
                 "normalized": "BSH"
             }
@@ -166,39 +258,59 @@ era_keywords_dict = {
     }
 }
 
+# ===================================================================================
+# ERA KEYWORDS - Flattened configuration for processing
+# ===================================================================================
 
-# ===================================================================================
-# ERA CONFIGURATION - Structured configuration for era detection
-# ===================================================================================
 era_keywords = [
+    """
+    Flattened list of era keyword configurations for efficient processing.
+    
+    Each entry contains:
+    - name: Unique identifier for the keyword set
+    - keywords: List of keyword variations to match
+    - normalized: Standard form after normalization
+    - description: Human-readable description
+    - examples: Sample usage patterns
+    - language: Language/script identifier
+    - priority: Processing priority (higher = checked first)
+    - era: Standard era abbreviation
+    - calendar: Calendar system name
+    
+    This structure enables linear processing while maintaining rich metadata.
+    """
+    
+    # ===============================================================================
+    # HIJRI CALENDAR KEYWORDS
+    # ===============================================================================
     {
-        "name": "hijri_after_hijrah_arabic_standard",  # Original: era_hijri_after_hijrah_ar
+        "name": "hijri_after_hijrah_arabic_standard",
         "keywords": era_keywords_dict["ar"]["hijri"]["after_hijrah"]["keywords"],
-        "normalized": era_keywords_dict["ar"]["hijri"]["after_hijrah"]["normalized"],
+        "normalized": era_keywords_dict["ar"]["hijri"]["after_hijrah"]["normalized"], 
         "description": "Keywords indicating Hijri era after Hijrah in Arabic",
-        "examples": [  # Original: example (single string)
-            "1445 هـ",
-            "1445 هجري", 
-            "السنة الهجرية 1445",
-            "بعد الهجرة 1445",
-            "1445 هجري قمري"
+        "examples": [
+            "1445 هـ",           # Standard short form
+            "1445 هجري",        # Common long form
+            "السنة الهجرية 1445", # Formal year reference
+            "بعد الهجرة 1445",   # Explicit "after Hijrah"
+            "1445 هجري قمري"    # Lunar Hijri specification
         ],
         "language": "ar",
         "priority": 100,
-        "era": "AH",
+        "era": "AH", 
         "calendar": "Hijri"
     },
     {
-        "name": "hijri_after_hijrah_english_standard",  # Original: era_hijri_after_hijrah_en
+        "name": "hijri_after_hijrah_english_standard",
         "keywords": era_keywords_dict["en"]["hijri"]["after_hijrah"]["keywords"],
         "normalized": era_keywords_dict["en"]["hijri"]["after_hijrah"]["normalized"],
-        "description": "Keywords indicating Hijri era after Hijrah in English",
-        "examples": [  # Original: example (single string)
-            "1445 AH",
-            "1445 After Hijra",
-            "1445 Anno Hegirae",
-            "1445 Hijri",
-            "After Hijrah 1445"
+        "description": "Keywords indicating Hijri era after Hijrah in English", 
+        "examples": [
+            "1445 AH",              # Standard abbreviation
+            "1445 After Hijra",     # Common English form
+            "1445 Anno Hegirae",    # Latin scholarly form
+            "1445 Hijri",           # Simple adjective form
+            "After Hijrah 1445"     # Prefix form
         ],
         "language": "en",
         "priority": 100,
@@ -206,67 +318,71 @@ era_keywords = [
         "calendar": "Hijri"
     },
     {
-        "name": "hijri_before_hijrah_arabic_standard",  # Original: era_hijri_before_hijrah_ar
+        "name": "hijri_before_hijrah_arabic_standard",
         "keywords": era_keywords_dict["ar"]["hijri"]["before_hijrah"]["keywords"],
         "normalized": era_keywords_dict["ar"]["hijri"]["before_hijrah"]["normalized"],
         "description": "Keywords indicating Hijri era before Hijrah in Arabic",
-        "examples": [  # Original: example (single string)
-            "10 ق.هـ",
-            "5 قبل الهجرة",
-            "قبل هـ 15",
-            "قبل هجري 8",
-            "ق هـ 22"
+        "examples": [
+            "10 ق.هـ",          # Standard abbreviated form
+            "5 قبل الهجرة",     # Full "before Hijrah" phrase
+            "قبل هـ 15",        # Prefix form
+            "قبل هجري 8",       # "Before Hijri" form
+            "ق هـ 22"           # Spaced abbreviation
         ],
-        "language": "ar",
+        "language": "ar", 
         "priority": 100,
         "era": "BAH",
         "calendar": "Hijri"
     },
     {
-        "name": "hijri_before_hijrah_english_standard",  # Original: era_hijri_before_hijrah_en
+        "name": "hijri_before_hijrah_english_standard",
         "keywords": era_keywords_dict["en"]["hijri"]["before_hijrah"]["keywords"],
         "normalized": era_keywords_dict["en"]["hijri"]["before_hijrah"]["normalized"],
         "description": "Keywords indicating Hijri era before Hijrah in English",
-        "examples": [  # Original: example (single string)
-            "10 BAH",
-            "5 before Hijrah",
-            "before Hijra 15",
-            "BAH 8",
-            "BH 22"
+        "examples": [
+            "10 BAH",             # Before After Hijrah abbreviation
+            "5 before Hijrah",    # Simple English form  
+            "before Hijra 15",    # Prefix form
+            "BAH 8",              # Abbreviation prefix
+            "BH 22"               # Short abbreviation
         ],
         "language": "en",
-        "priority": 100,
+        "priority": 100, 
         "era": "BAH",
         "calendar": "Hijri"
     },
+    
+    # ===============================================================================
+    # GREGORIAN CALENDAR KEYWORDS  
+    # ===============================================================================
     {
-        "name": "gregorian_after_christ_arabic_standard",  # Original: era_gregorian_after_christ_ar
+        "name": "gregorian_after_christ_arabic_standard",
         "keywords": era_keywords_dict["ar"]["gregorian"]["after_christ"]["keywords"],
         "normalized": era_keywords_dict["ar"]["gregorian"]["after_christ"]["normalized"],
         "description": "Keywords indicating Gregorian era after Christ in Arabic",
-        "examples": [  # Original: example (single string)
-            "2023 م",
-            "2023 ميلادي",
-            "السنة الميلادية 2023",
-            "بالميلادي 2023",
-            "2023 بعد الميلاد"
+        "examples": [
+            "2023 م",              # Standard short form
+            "2023 ميلادي",         # Common adjective form
+            "السنة الميلادية 2023", # Formal year reference
+            "بالميلادي 2023",       # Prepositional form
+            "2023 بعد الميلاد"      # Explicit "after birth"
         ],
         "language": "ar",
         "priority": 100,
-        "era": "CE",
+        "era": "CE", 
         "calendar": "Gregorian"
     },
     {
-        "name": "gregorian_after_christ_english_standard",  # Original: era_gregorian_after_christ_en
+        "name": "gregorian_after_christ_english_standard", 
         "keywords": era_keywords_dict["en"]["gregorian"]["after_christ"]["keywords"],
         "normalized": era_keywords_dict["en"]["gregorian"]["after_christ"]["normalized"],
         "description": "Keywords indicating Gregorian era after Christ in English",
-        "examples": [  # Original: example (single string)
-            "2023 CE",
-            "2023 AD",
-            "Anno Domini 2023",
-            "Common Era 2023",
-            "2023 A.D."
+        "examples": [
+            "2023 CE",            # Common Era (secular)
+            "2023 AD",            # Anno Domini (religious)
+            "Anno Domini 2023",   # Full Latin form
+            "Common Era 2023",    # Full secular form  
+            "2023 A.D."           # Abbreviated with periods
         ],
         "language": "en",
         "priority": 100,
@@ -274,84 +390,88 @@ era_keywords = [
         "calendar": "Gregorian"
     },
     {
-        "name": "gregorian_before_christ_arabic_standard",  # Original: era_gregorian_before_christ_ar
-        "keywords": era_keywords_dict["ar"]["gregorian"]["before_christ"]["keywords"],
+        "name": "gregorian_before_christ_arabic_standard",
+        "keywords": era_keywords_dict["ar"]["gregorian"]["before_christ"]["keywords"], 
         "normalized": era_keywords_dict["ar"]["gregorian"]["before_christ"]["normalized"],
         "description": "Keywords indicating Gregorian era before Christ in Arabic",
-        "examples": [  # Original: example (single string)
-            "100 ق.م",
-            "50 قبل الميلاد",
-            "ق م 75",
-            "قبل الميلادي 200",
-            "ق.مـ 150"
+        "examples": [
+            "100 ق.م",           # Standard abbreviated form
+            "50 قبل الميلاد",     # Full "before birth" phrase
+            "ق م 75",            # Spaced abbreviation
+            "قبل الميلادي 200",   # "Before Christian" form
+            "ق.مـ 150"           # Extended letter form
         ],
         "language": "ar",
         "priority": 100,
-        "era": "BC",
+        "era": "BC", 
         "calendar": "Gregorian"
     },
     {
-        "name": "gregorian_before_christ_english_standard",  # Original: era_gregorian_before_christ_en
+        "name": "gregorian_before_christ_english_standard",
         "keywords": era_keywords_dict["en"]["gregorian"]["before_christ"]["keywords"],
-        "normalized": era_keywords_dict["en"]["gregorian"]["before_christ"]["normalized"],
+        "normalized": era_keywords_dict["en"]["gregorian"]["before_christ"]["normalized"], 
         "description": "Keywords indicating Gregorian era before Christ in English",
-        "examples": [  # Original: example (single string)
-            "100 BCE",
-            "50 BC",
-            "Before Christ 75",
-            "B.C. 200",
-            "Before Common Era 150"
+        "examples": [
+            "100 BCE",                # Before Common Era (secular)
+            "50 BC",                  # Before Christ (religious)
+            "Before Christ 75",       # Full prefix form
+            "B.C. 200",              # Abbreviated with periods
+            "Before Common Era 150"   # Full secular form
         ],
         "language": "en",
         "priority": 100,
         "era": "BC",
         "calendar": "Gregorian"
     },
+    
+    # ===============================================================================  
+    # PERSIAN/SOLAR HIJRI CALENDAR KEYWORDS
+    # ===============================================================================
     {
-        "name": "julian_after_hijrah_persian_arabic_script",  # Original: era_after_julian_ar
+        "name": "julian_after_hijrah_persian_arabic_script", 
         "keywords": era_keywords_dict["ar"]["julian"]["after_hijrah"]["keywords"],
         "normalized": era_keywords_dict["ar"]["julian"]["after_hijrah"]["normalized"],
-        "description": "Keywords indicating julian era after Hijrah in Persian/Arabic script",
-        "examples": [  # Original: example (single string)
-            "1402 هـ.ش",
-            "1402 شمسي",
-            "السنة الشمسية 1402",
-            "بالهجري الشمسي 1402",
-            "1402 هجري شمسي"
+        "description": "Keywords indicating Solar Hijri era after Hijrah in Persian/Arabic script",
+        "examples": [
+            "1402 هـ.ش",             # Standard Solar Hijri form
+            "1402 شمسي",            # "Solar" adjective  
+            "السنة الشمسية 1402",   # "The solar year"
+            "بالهجري الشمسي 1402",  # "In solar Hijri"
+            "1402 هجري شمسي"       # "Hijri solar" form
         ],
-        "language": "persian_ar",
+        "language": "persian_ar",  # Persian in Arabic script
         "priority": 100,
         "era": "SH",
-        "calendar": "julian"
+        "calendar": "julian"  # Persian/Solar Hijri uses julian naming
     },
     {
-        "name": "julian_after_hijrah_persian_english_script",  # Original: era_after_julian_en
+        "name": "julian_after_hijrah_persian_english_script",
         "keywords": era_keywords_dict["en"]["julian"]["after_hijrah"]["keywords"],
         "normalized": era_keywords_dict["en"]["julian"]["after_hijrah"]["normalized"],
-        "description": "Keywords indicating julian era after Hijrah in Persian/English script",
-        "examples": [  # Original: example (single string)
-            "1402 SH",
-            "1402 Solar Hijri",
-            "Jalali 1402",
-            "Persian 1402",
-            "1402 S.H."
+        "description": "Keywords indicating Solar Hijri era after Hijrah in Persian/English script", 
+        "examples": [
+            "1402 SH",              # Standard Solar Hijri abbreviation
+            "1402 Solar Hijri",     # Full descriptive form
+            "Jalali 1402",          # Persian calendar name
+            "Persian 1402",         # National identifier
+            "1402 S.H."            # Abbreviated with periods
         ],
-        "language": "persian_en",
+        "language": "persian_en",  # Persian in English script
         "priority": 100,
-        "era": "SH",
+        "era": "SH", 
         "calendar": "julian"
     },
     {
-        "name": "julian_before_hijrah_persian_arabic_script",  # Original: era_before_julian_ar
+        "name": "julian_before_hijrah_persian_arabic_script",
         "keywords": era_keywords_dict["ar"]["julian"]["before_hijrah"]["keywords"],
         "normalized": era_keywords_dict["ar"]["julian"]["before_hijrah"]["normalized"],
-        "description": "Keywords indicating julian era before Hijrah in Persian/Arabic script",
-        "examples": [  # Original: example (single string)
-            "10 ق.هـ.ش",
-            "5 قبل شمسي",
-            "قبل السنة الشمسية 15",
-            "ق هـ.ش 8",
-            "قبل هجري شمسي 22"
+        "description": "Keywords indicating Solar Hijri era before Hijrah in Persian/Arabic script",
+        "examples": [
+            "10 ق.هـ.ش",            # Before Solar Hijri abbreviation
+            "5 قبل شمسي",           # "Before solar" form
+            "قبل السنة الشمسية 15", # "Before the solar year"
+            "ق هـ.ش 8",            # Spaced abbreviation
+            "قبل هجري شمسي 22"     # "Before solar Hijri"
         ],
         "language": "persian_ar",
         "priority": 100,
@@ -359,18 +479,18 @@ era_keywords = [
         "calendar": "julian"
     },
     {
-        "name": "julian_before_hijrah_persian_english_script",  # Original: era_before_julian_en
-        "keywords": era_keywords_dict["en"]["julian"]["before_hijrah"]["keywords"],
+        "name": "julian_before_hijrah_persian_english_script",
+        "keywords": era_keywords_dict["en"]["julian"]["before_hijrah"]["keywords"], 
         "normalized": era_keywords_dict["en"]["julian"]["before_hijrah"]["normalized"],
-        "description": "Keywords indicating julian era before Hijrah in Persian/English script",
-        "examples": [  # Original: example (single string)
-            "10 BSH",
-            "5 Before Solar Hijri",
-            "Before Jalali 15",
-            "B.SH 8",
-            "Before Persian 22"
+        "description": "Keywords indicating Solar Hijri era before Hijrah in Persian/English script",
+        "examples": [
+            "10 BSH",               # Before Solar Hijri abbreviation
+            "5 Before Solar Hijri", # Full descriptive form
+            "Before Jalali 15",     # Persian calendar name with prefix  
+            "B.SH 8",              # Abbreviated with periods
+            "Before Persian 22"     # National identifier with prefix
         ],
-        "language": "persian_en",
+        "language": "persian_en", 
         "priority": 100,
         "era": "BSH",
         "calendar": "julian"

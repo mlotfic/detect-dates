@@ -56,7 +56,7 @@ if __name__ == "__main__":
     add_modules_to_sys_path()
 
 from detect_dates.detector.classes.entity import ParsedDate
-from detect_dates.normalizers import normalize_month, normalize_era, normalize_weekday
+from detect_dates.normalizers import month, era, weekday
 from data._load_data import DateMapping
 
 # Module-level constants
