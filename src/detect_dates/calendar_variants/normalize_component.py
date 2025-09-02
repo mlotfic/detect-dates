@@ -26,7 +26,7 @@ from detect_dates.normalizers import normalize_month
 from detect_dates.normalizers import normalize_era
 from detect_dates.normalizers import normalize_weekday
 
-from get_match_value import get_match_value
+from detect_dates.calendar_variants.regex_group_value import get_match_value
 
 from detect_dates.patterns import (
     ParsedDate,

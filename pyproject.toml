@@ -12,15 +12,16 @@ build-backend = "setuptools.build_meta"
 name = "detect_dates"               # PyPI/package install name (`pip install detect_dates`)
 version = "0.1.0"
 authors = [
-    {name = "Your Name", email = "your.email@example.com"},
+    {name = "m.lotfi", email = "m.lotfi@email.com"},
 ]
 maintainers = [
-    {name = "Your Name", email = "your.email@example.com"},
+    {name = "m.lotfi", email = "m.lotfi@email.com"},
 ]
 description = "A portable Python package with multiple modules and data handling"
 readme = "README.md"
 license = {file = "LICENSE"}
 requires-python = ">=3.8"
+
 
 # Classifiers help PyPI categorize your package
 classifiers = [
@@ -67,6 +68,8 @@ dev = [
     "setuptools_scm>=6.2",
     "setuptools>=45",
     "wheel",
+    "sphinx>=4.0",
+    "sphinx-rtd-theme>=1.0",
 ]
 
 # For testing specifically
@@ -90,7 +93,20 @@ lint = [
 
 # Unified group
 all = [
-    "detect_dates[dev,test,docs,lint]",
+    "pytest>=6.0",
+    "pytest-cov>=2.0",
+    "black>=22.0",
+    "flake8>=4.0",
+    "mypy>=0.900",
+    "pre-commit>=2.0",
+    "tox>=3.0",
+    "build>=0.10",
+    "twine>=4.0",
+    "setuptools_scm>=6.2",
+    "setuptools>=45",
+    "wheel",
+    "sphinx>=4.0",
+    "sphinx-rtd-theme>=1.0",
 ]
 
 # -----------------------------
@@ -126,6 +142,7 @@ exclude = ["tests*"]
 # Include data files (e.g., *.json, *.csv)
 [tool.setuptools.package-data]
 "detect_dates.data" = ["*.json", "*.csv", "*.yml", "*.yaml", "*.txt"]
+"*" = ["examples/*.py"]
 
 # Versioning: extract version from Git tags and write to _version.py
 [tool.setuptools_scm]
