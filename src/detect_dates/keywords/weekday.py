@@ -223,3 +223,4 @@ weekdays_keywords = [
         "component": "day",
         "calendar": "Persian"
     }
+]
