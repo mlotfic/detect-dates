@@ -288,4 +288,4 @@ class NumericPatterns:
             try:
                 re.compile(pattern, re.IGNORECASE | re.UNICODE)
             except re.error as e:
-               raise ValueError(f"Invalid regex pattern for {field_name}: {e}")      
+                raise ValueError(f"Invalid regex pattern for {field_name}: {e}")

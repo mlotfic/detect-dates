@@ -1172,4 +1172,4 @@ class NaturalLanguagePatterns(PatternValidator):
         )
 
         # Validate all generated patterns
-       self._validate_patterns()               
+        self._validate_patterns()

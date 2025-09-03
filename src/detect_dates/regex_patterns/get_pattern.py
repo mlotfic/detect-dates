@@ -342,4 +342,3 @@ def get_numeric_words_pattern(data, lang: str = "ar") -> str:
     return rf"(?:{keywords_to_regex(matching_keywords)})"  # Return regex pattern for century keywords
 
 
-                                                                                                                                                                                                                         
