@@ -1,4 +1,4 @@
-from typing import Dict, Any
+from typing import Dict, Any, List, Optional
 import os
 
 # Module-level constants for supported calendar systems
@@ -20,7 +20,7 @@ CALENDAR_ALIASES = {
     'greg': 'gregorian'
 }
 
-def normalize_calendar_name(calendar: str) -> str:
+def normalize_calendar_name(calendar: str) -> Optional[str]:
         """
         Normalize calendar name using aliases.
 

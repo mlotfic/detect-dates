@@ -1,4 +1,4 @@
-#!/usr/bin/env python3*-
+*-
 
 """
 Complex Date Pattern Recognition Module

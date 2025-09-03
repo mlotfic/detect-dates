@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+
 """
 Comprehensive examples for the date parsing library.
 Demonstrates various use cases and functionality.

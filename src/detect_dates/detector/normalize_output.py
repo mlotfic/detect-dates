@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+
 """
 Created on Fri Jul 25 23:01:21 2025
 
@@ -31,7 +31,7 @@ if __name__ == "__main__":
 from detect_dates.normalizers.era import normalize_era
 from detect_dates.normalizers.month import normalize_month
 from detect_dates.normalizers.weekday import normalize_weekday
-from detect_dates.calendar_variants.century_utils import get_century_from_year
+from detect_dates.calendar_variants.utils.century_utils import get_century_from_year
 
 # Import type hints for better code clarity
 from typing import Optional, Dict

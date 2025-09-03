@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+
 """
 Era Keywords Configuration Module for Date Normalization
 

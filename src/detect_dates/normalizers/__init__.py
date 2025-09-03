@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+
 '''
 Created on Sun Jun 22 21:38:10 2025
 @author: m.lotfi
@@ -38,7 +38,7 @@ from .numeric_words import (
     numeric_words_pattern_ar,  # Regex pattern for Arabic numeric words
 )
 
-from .calendar_name import (
+from .calendar import (
     normalize_calendar_name,
     get_calendar_info
 )

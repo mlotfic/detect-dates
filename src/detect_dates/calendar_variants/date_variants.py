@@ -22,7 +22,7 @@ Architecture:
     astronomical calculations rather than simple mathematical formulas.
 
 Classes:
-    DateMapping: Main class for calendar date conversions and lookups
+    DateVariants: Main class for calendar date conversions and lookups
 
 Constants:
     SUPPORTED_CALENDARS: Dictionary mapping calendar names to CSV column names
@@ -31,10 +31,10 @@ Constants:
 Example:
     Basic usage::
 
-        from calendar_mapping import DateMapping
+        from calendar_mapping import DateVariants
 
         # Initialize the mapper
-        mapper = DateMapping()
+        mapper = DateVariants()
 
         # Get weekday for a Gregorian date
         weekday = mapper.get_weekday_by_date('gregorian', 15, 3, 2024)
@@ -126,7 +126,7 @@ CALENDAR_ALIASES = {
 
 
 @dataclass
-class DateMapping:
+class DateVariants:
     """
     A class for mapping and converting dates between different calendar systems.
 
@@ -155,9 +155,9 @@ class DateMapping:
     Initialize and perform basic operations:
 
     >>> # Standard initialization (uses default CSV path)
-    >>> mapper = DateMapping()
+    >>> mapper = DateVariants()
     >>> # Custom CSV path
-    >>> mapper = DateMapping(csv_path="custom/path/to/calendar_data.csv")
+    >>> mapper = DateVariants(csv_path="custom/path/to/calendar_data.csv")
     >>> # Check if data loaded successfully
     >>> if mapper.is_data_loaded():
     ...     weekday = mapper.get_weekday_by_date('gregorian', 15, 3, 2024)
@@ -174,7 +174,7 @@ class DateMapping:
 
     def __post_init__(self, csv_path=None) -> None:
         """
-        Initialize the DateMapping instance by loading the calendar data.
+        Initialize the DateVariants instance by loading the calendar data.
 
         This method is automatically called after object creation to:
 
@@ -212,7 +212,7 @@ class DateMapping:
             self._data_loaded = True
             logger.info(f"Successfully loaded {len(self.df):,} calendar mapping records")
         except Exception as e:
-            logger.error(f"Failed to initialize DateMapping: {str(e)}")
+            logger.error(f"Failed to initialize DateVariants: {str(e)}")
             self._data_loaded = False
             # Don't re-raise to allow graceful degradation        
 
@@ -227,7 +227,7 @@ class DateMapping:
 
         Examples
         --------
-        >>> mapper = DateMapping()
+        >>> mapper = DateVariants()
         >>> if mapper.is_data_loaded():
         ...     # Safe to use mapping functions
         ...     result = mapper.get_weekday_by_date('gregorian', 1, 1, 2024)
@@ -402,7 +402,7 @@ class DateMapping:
         --------
         Get weekdays for different calendar systems:
 
-        >>> mapper = DateMapping()
+        >>> mapper = DateVariants()
         >>> # Gregorian calendar
         >>> weekday = mapper.get_weekday_by_date('gregorian', 15, 3, 2024)
         >>> print(f"March 15, 2024 is a {weekday}")  # "Friday"
@@ -489,7 +489,7 @@ class DateMapping:
         --------
         Convert between different calendar systems:
 
-        >>> mapper = DateMapping()
+        >>> mapper = DateVariants()
         >>> # Convert Gregorian to all systems
         >>> result = mapper.get_date_alternative_calendar('gregorian', 1, 1, 2024)
         >>> if result:
@@ -586,7 +586,7 @@ class DateMapping:
         --------
         Validate dates before conversion:
 
-        >>> mapper = DateMapping()
+        >>> mapper = DateVariants()
         >>> # Valid date
         >>> is_valid = mapper.validate_date('gregorian', 29, 2, 2024)  # Leap year
         >>> print(f"Feb 29, 2024 is valid: {is_valid}")
@@ -658,7 +658,7 @@ class DateMapping:
                       
         Examples
         --------
-        >>> mapper = DateMapping()
+        >>> mapper = DateVariants()
         >>> calendars = mapper.get_supported_calendars()
         >>> print(f"Supported calendars: {', '.join(calendars)}")
         # Output: "Supported calendars: gregorian, hijri, julian"
@@ -693,7 +693,7 @@ class DateMapping:
         --------
         Check available date ranges:
         
-        >>> mapper = DateMapping()
+        >>> mapper = DateVariants()
         >>> ranges = mapper.get_data_range()
         >>> greg_range = ranges['gregorian']
         >>> print(f"Gregorian dates available: {greg_range['min_year']} to {greg_range['max_year']}")
@@ -757,7 +757,7 @@ class DateMapping:
 
         Examples
         --------
-        >>> mapper = DateMapping()
+        >>> mapper = DateVariants()
         >>> march_2024 = mapper.get_dates_by_month_year('gregorian', 3, 2024)
         >>> print(f"March 2024 has {len(march_2024)} days")
         """
@@ -830,7 +830,7 @@ class DateMapping:
             
         Examples
         --------
-        >>> mapper = DateMapping()
+        >>> mapper = DateVariants()
         >>> info = mapper.get_month_info('gregorian', 2, 2024)  # February 2024
         >>> print(f"February 2024 has {info['day_count']} days")
         >>> print(f"Starts on {info['first_weekday']}, ends on {info['last_weekday']}")
@@ -911,7 +911,7 @@ class DateMapping:
             
         Examples
         --------
-        >>> mapper = DateMapping()
+        >>> mapper = DateVariants()
         >>> # Find first Monday of March 2024
         >>> first_monday = mapper.find_date_by_weekday('gregorian', 'Monday', 3, 2024, 1)
         >>> # Find last Friday of December 2023
@@ -1074,7 +1074,7 @@ class DateMapping:
             
         Examples
         --------
-        >>> mapper = DateMapping()
+        >>> mapper = DateVariants()
         >>> info = mapper.get_calendar_info()
         >>> print(f"Total records: {info['total_records']:,}")
         >>> print(f"Supported calendars: {', '.join(info['supported_calendars'])}")
@@ -1115,9 +1115,9 @@ class DateMapping:
 
 if __name__ == "__main__":
     """
-    Main function demonstrating usage of the DateMapping class.
+    Main function demonstrating usage of the DateVariants class.
     
-    This function provides comprehensive examples of how to use the DateMapping 
+    This function provides comprehensive examples of how to use the DateVariants 
     class for various calendar conversion operations, serving as both documentation
     and a test suite for the module's functionality.
     """
@@ -1127,15 +1127,15 @@ if __name__ == "__main__":
     print()
     
     try:
-        # Initialize the DateMapping instance
-        print("1. Initializing DateMapping...")
-        mapper = DateMapping()
+        # Initialize the DateVariants instance
+        print("1. Initializing DateVariants...")
+        mapper = DateVariants()
         
         if not mapper.is_data_loaded():
             print("❌ Failed to load calendar data. Please check the CSV file path.")
 
         else:
-            print("✓ DateMapping initialized successfully")
+            print("✓ DateVariants initialized successfully")
             print()
             
             # Display calendar information
@@ -1255,4 +1255,4 @@ if __name__ == "__main__":
     
     print()
     print("=" * 50)
-    print("Demonstration completed. Import this module to use DateMapping in your code.")
+    print("Demonstration completed. Import this module to use DateVariants in your code.")

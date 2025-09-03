@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+
 """
 Example usage script for the Date Extraction Configuration System
 """

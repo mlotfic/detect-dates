@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+
 """
 Created on Fri Jul 25 23:01:21 2025
 
@@ -135,7 +135,7 @@ def normalize_era(
         logger.error(f"Error normalizing era: {e}")
         return None
 
-def get_calendar(era: str) -> Set[str]:
+def get_calendar(era: str) -> Optional[str]:
     """
     Get the calendar system(s) associated with an era.
 
@@ -146,21 +146,21 @@ def get_calendar(era: str) -> Set[str]:
 
     Returns
     -------
-    set
+    str or None
         Set of calendar system names ('gregorian', 'hijri', 'julian')
 
     Examples
     --------
     >>> get_calendar('CE')
-    {'gregorian'}
+    'gregorian'
     
     >>> get_calendar('هـ')
-    {'hijri'}
+    'hijri'
     """
     calendar, _, _ = get_era_info(era)
     if calendar:
-        return {calendar}
-    return set()
+        return calendar
+    return None
 
 if __name__ == "__main__":
     # Example usage
