@@ -26,7 +26,7 @@ if __name__ == "__main__":
     print("INFO: Run Main File : adding file parent src to path ...")
     setup_src_path()
 
-from detect_dates.calendar_variants import ordinal_suffix
+from ordinal_suffix import get_ordinal_suffix
 
 # ===================================================================================
 # UTILITY FUNCTIONS
