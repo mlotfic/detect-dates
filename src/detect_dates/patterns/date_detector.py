@@ -19,7 +19,7 @@ if __name__ == "__main__":
     setup_src_path()
 
 from detect_dates.regex_patterns import get_date_patterns
-from ..classes.date import DatePatterns
+from detect_dates.patterns.classes import DatePatterns
 from detect_dates.patterns.dicts import (
     _fetch_numeric_words,
     _fetch_components,

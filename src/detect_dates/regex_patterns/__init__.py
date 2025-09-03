@@ -1,7 +1,7 @@
-from detect_dates.regex_patterns.keywords_to_regex import keywords_to_regex
+from .keywords_to_regex import keywords_to_regex
 
 # Pattern generation functions
-from detect_dates.regex_patterns.get_pattern import (
+from .get_pattern import (
     get_era_pattern,  # Era pattern matching
     get_month_pattern,  # Month pattern matching
     get_day_pattern,  # Day pattern matching
