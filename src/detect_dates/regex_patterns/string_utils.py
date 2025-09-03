@@ -64,4 +64,4 @@ if __name__ == "__main__":
     sorted_hijri_keywords = sort_strings_by_word_char_count(Hijri_keywords)
     print("\nSorted Hijri keywords:")
     for s in sorted_hijri_keywords:
-       print(f"'{s}' - Words: {len(s.split())}, Chars: {len(s)}")
+        print(f"'{s}' - Words: {len(s.split())}, Chars: {len(s)}")

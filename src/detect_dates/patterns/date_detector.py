@@ -3,18 +3,30 @@ import re
 # Import path helper to ensure modules directory is in sys.path
 # ===================================================================================
 if __name__ == "__main__":
+    # This is necessary for importing other modules in the package structure
+    import sys
+    from pathlib import Path
+    def setup_src_path():
+        current_file = Path(__file__).resolve()
+        parts = current_file.parts
+        for i, part in enumerate(parts):
+            if part == 'src' and i + 2 < len(parts):
+                src_second_path = str(Path(*parts[:i + 1]))
+                if src_second_path not in sys.path:
+                    sys.path.insert(0, src_second_path)
+                break
     print("This module is not intended to be run directly. Import it in your code.")
-    from path_helper import add_modules_to_sys_path
-    add_modules_to_sys_path()
+    setup_src_path()
 
 from detect_dates.regex_patterns import get_date_patterns
-from detect_dates.patterns.classes import DatePatterns
+from ..classes.date import DatePatterns
 from detect_dates.patterns.dicts import (
-    get_simple_unknown,
-    get_simple,
-    get_components,
-    get_composite,
-    get_complex,
+    _fetch_numeric_words,
+    _fetch_components,
+    _fetch_simple_unknown,
+    _fetch_simple,
+    _fetch_composite,
+    _fetch_complex
 )
 
 

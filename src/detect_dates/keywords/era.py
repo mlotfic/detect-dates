@@ -24,12 +24,10 @@ to enable accurate date parsing and normalization across different cultural cont
 # ===================================================================================
 
 era_standard_keywords = {
-    """
-    Standard normalized representations for different era types.
+    # Standard normalized representations for different era types.
+    # This dictionary provides the canonical short forms used after normalization
+    # for each supported calendar system and language combination.
     
-    This dictionary provides the canonical short forms used after normalization
-    for each supported calendar system and language combination.
-    """
     # Gregorian calendar - Arabic variations
     "after_hijrah_ar": "هـ",        # After Hijrah (Arabic)
     "before_hijrah_ar": "ق.هـ",     # Before Hijrah (Arabic) 
@@ -52,25 +50,24 @@ era_standard_keywords = {
 # ===================================================================================
 
 era_keywords_dict = {
-    """
-    Comprehensive dictionary of era keywords organized by language, calendar, and era type.
+    # Comprehensive dictionary of era keywords organized by language, calendar, and era type.
+    #
+    # Structure:
+    # {
+    #     "language_code": {
+    #         "calendar_system": {
+    #             "era_type": {
+    #                 "name": "unique_identifier",
+    #                 "description": "human_readable_description",
+    #                 "keywords": ["list", "of", "variations"], 
+    #                 "normalized": "standard_form"
+    #             }
+    #         }
+    #     }
+    # }
+    #
+    # This structure allows for efficient lookup and expansion of era detection capabilities.
     
-    Structure:
-    {
-        "language_code": {
-            "calendar_system": {
-                "era_type": {
-                    "name": "unique_identifier",
-                    "description": "human_readable_description", 
-                    "keywords": ["list", "of", "variations"],
-                    "normalized": "standard_form"
-                }
-            }
-        }
-    }
-    
-    This structure allows for efficient lookup and expansion of era detection capabilities.
-    """
     "ar": {  # Arabic script keywords
         "hijri": {
             "after_hijrah": {
@@ -263,22 +260,20 @@ era_keywords_dict = {
 # ===================================================================================
 
 era_keywords = [
-    """
-    Flattened list of era keyword configurations for efficient processing.
-    
-    Each entry contains:
-    - name: Unique identifier for the keyword set
-    - keywords: List of keyword variations to match
-    - normalized: Standard form after normalization
-    - description: Human-readable description
-    - examples: Sample usage patterns
-    - language: Language/script identifier
-    - priority: Processing priority (higher = checked first)
-    - era: Standard era abbreviation
-    - calendar: Calendar system name
-    
-    This structure enables linear processing while maintaining rich metadata.
-    """
+    # Flattened list of era keyword configurations for efficient processing.
+    #
+    # Each entry contains:
+    # - name: Unique identifier for the keyword set
+    # - keywords: List of keyword variations to match
+    # - normalized: Standard form after normalization
+    # - description: Human-readable description
+    # - examples: Sample usage patterns
+    # - language: Language/script identifier
+    # - priority: Processing priority (higher = checked first)
+    # - era: Standard era abbreviation
+    # - calendar: Calendar system name
+    #
+    # This structure enables linear processing while maintaining rich metadata.
     
     # ===============================================================================
     # HIJRI CALENDAR KEYWORDS

@@ -19,7 +19,7 @@ if __name__ == "__main__":
         parts = current_file.parts
         for i, part in enumerate(parts):
             if part == 'src' and i + 2 < len(parts):
-                src_second_path = str(Path(*parts[:i + 3]))
+                src_second_path = str(Path(*parts[:i + 1]))
                 if src_second_path not in sys.path:
                     sys.path.insert(0, src_second_path)
                 break

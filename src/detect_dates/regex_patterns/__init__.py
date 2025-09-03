@@ -36,4 +36,5 @@ __all__ = [
     "get_range_connector_pattern",
     "get_range_starter_pattern",
     "get_date_patterns",
-    "get_numeric_words_pat
+    "get_numeric_words_pattern"
+]
