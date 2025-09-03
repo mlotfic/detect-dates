@@ -1,13 +1,11 @@
-#!/usr/bin/env python3
+
 """
 Date Pattern Recognition Module
+
 A comprehensive module for recognizing date patterns across multiple calendar systems
-including Hijri (Islamic), Gregorian (Western), and julian (Persian) calendars.
+including Hijri (Islamic), Gregorian (Western), and Julian (Persian) calendars.
 This module provides structured dataclasses for building complex regex patterns
 to match various date formats in natural language text.
-
-@description:
-    This module defines various dataclasses for date patterns used in the date detection module.
 
 :author: m.lotfi
 :version: 1.0.0
@@ -23,37 +21,50 @@ from typing import Optional, Dict, Any, Union
 # =================================
 # These classes define the base patterns used across different date formats.
 
+
 @dataclass
 class BasePatterns:
-    """Base regex patterns for fundamental date components.
+    r"""
+    Base regex patterns for fundamental date components.
 
     This class contains the core regex patterns that are shared across all
     calendar systems in the date detection framework. These patterns form
     the foundation for more specialized date parsing functionality.
 
-    Attributes:
-        weekday (str): Regex pattern matching weekday names in various languages
-            and formats (e.g., "Monday", "Mon", "الاثنين").
-        numeric_words (str): Regex pattern matching written numbers
-            (e.g., "first", "second", "الأول", "دوم").
+    Parameters
+    ----------
+    weekday : str
+        Regex pattern matching weekday names in various languages
+        and formats (e.g., "Monday", "Mon", "الاثنين")
+    numeric_words : str
+        Regex pattern matching written numbers
+        (e.g., "first", "second", "الأول", "دوم")
 
-    Example:
-        .. code-block:: python
+    Examples
+    --------
+    >>> patterns = BasePatterns(
+    ...     weekday=r"(?:Monday|Tuesday|الاثنين|الثلاثاء)",
+    ...     numeric_words=r"(?:first|second|الأول|الثاني)"
+    ... )
 
-            patterns = BasePatterns(
-                weekday=r"(?:Monday|Tuesday|الاثنين|الثلاثاء)",
-                numeric_words=r"(?:first|second|الأول|الثاني)"
-            )
-
-    See Also:
-        :class:`MonthPatterns`: Calendar-specific month patterns
-        :class:`EraPatterns`: Era and calendar system indicators
+    See Also
+    --------
+    MonthPatterns : Calendar-specific month patterns
+    EraPatterns : Era and calendar system indicators
     """
     weekday: str
     numeric_words: str
 
     def __post_init__(self):
-        """Compile regex patterns to ensure they are valid."""
+        """
+        Compile regex patterns to ensure they are valid.
+        
+        Raises
+        ------
+        ValueError
+            If any regex pattern is invalid or cannot be compiled
+        """
+        # Validate each pattern by attempting to compile it
         for field_name, pattern in [
             ("weekday", self.weekday),
             ("numeric_words", self.numeric_words)
@@ -66,39 +77,52 @@ class BasePatterns:
 
 @dataclass
 class MonthPatterns:
-    """Regex patterns for month names across different calendar systems.
+    r"""
+    Regex patterns for month names across different calendar systems.
 
     Provides comprehensive month name matching for the three major calendar
     systems supported by the date detection framework. Each pattern handles
     multiple languages and abbreviated forms.
 
-    Attributes:
-        hijri (str): Islamic calendar months pattern. Matches Arabic month names
-            like "محرم" (Muharram), "صفر" (Safar), "ربيع الأول" (Rabi' al-awwal).
-        gregorian (str): Western calendar months pattern. Matches English month
-            names and abbreviations like "January", "Jan", "February", "Feb".
-        julian (str): Persian solar calendar months pattern. Matches Farsi month
-            names like "فروردین" (Farvardin), "اردیبهشت" (Ordibehesht).
+    Parameters
+    ----------
+    hijri : str
+        Islamic calendar months pattern. Matches Arabic month names
+        like "محرم" (Muharram), "صفر" (Safar), "ربيع الأول" (Rabi' al-awwal)
+    gregorian : str
+        Western calendar months pattern. Matches English month
+        names and abbreviations like "January", "Jan", "February", "Feb"
+    julian : str
+        Persian solar calendar months pattern. Matches Farsi month
+        names like "فروردین" (Farvardin), "اردیبهشت" (Ordibehesht)
 
-    Example:
-        .. code-block:: python
+    Examples
+    --------
+    >>> months = MonthPatterns(
+    ...     hijri=r"(?:محرم|صفر|ربیع‌الاول)",
+    ...     gregorian=r"(?:January|Jan|February|Feb)",
+    ...     julian=r"(?:فروردین|اردیبهشت|خرداد)"
+    ... )
 
-            months = MonthPatterns(
-                hijri=r"(?:محرم|صفر|ربیع‌الاول)",
-                gregorian=r"(?:January|Jan|February|Feb)",
-                julian=r"(?:فروردین|اردیبهشت|خرداد)"
-            )
-
-    Note:
-        All patterns are case-insensitive and handle common variations
-        and transliterations of month names.
+    Notes
+    -----
+    All patterns are case-insensitive and handle common variations
+    and transliterations of month names.
     """
     hijri: str
     gregorian: str
     julian: str
 
     def __post_init__(self):
-        """Compile regex patterns to ensure they are valid."""
+        """
+        Compile regex patterns to ensure they are valid.
+        
+        Raises
+        ------
+        ValueError
+            If any regex pattern is invalid or cannot be compiled
+        """
+        # Validate each calendar system's month pattern
         for field_name, pattern in [
             ("hijri", self.hijri),
             ("gregorian", self.gregorian),
@@ -112,39 +136,52 @@ class MonthPatterns:
 
 @dataclass
 class EraPatterns:
-    """Regex patterns for calendar era indicators and system identifiers.
+    r"""
+    Regex patterns for calendar era indicators and system identifiers.
 
     Era patterns help distinguish between different calendar systems and
     historical periods. These patterns are essential for accurate date
     interpretation in multi-calendar environments.
 
-    Attributes:
-        hijri (str): Islamic calendar era indicators. Matches "AH" (Anno Hegirae),
-            "هـ" (Hijri marker), and variations like "A.H.", "ه.ق".
-        gregorian (str): Western calendar era indicators. Matches "AD", "CE",
-            "BC", "BCE" and their variations with optional periods and spacing.
-        julian (str): Persian solar calendar indicators. Matches "ش.ه"
-            (Solar Hijri), "هجری شمسی" and related Persian era markers.
+    Parameters
+    ----------
+    hijri : str
+        Islamic calendar era indicators. Matches "AH" (Anno Hegirae),
+        "هـ" (Hijri marker), and variations like "A.H.", "ه.ق"
+    gregorian : str
+        Western calendar era indicators. Matches "AD", "CE",
+        "BC", "BCE" and their variations with optional periods and spacing
+    julian : str
+        Persian solar calendar indicators. Matches "ش.ه"
+        (Solar Hijri), "هجری شمسی" and related Persian era markers
 
-    Example:
-        .. code-block:: python
+    Examples
+    --------
+    >>> eras = EraPatterns(
+    ...     hijri=r"(?:AH|A\.H\.|هـ|ه\.ق)",
+    ...     gregorian=r"(?:AD|A\.D\.|CE|BC|BCE)",
+    ...     julian=r"(?:ش\.ه|هجری\s*شمسی)"
+    ... )
 
-            eras = EraPatterns(
-                hijri=r"(?:AH|A\.H\.|هـ|ه\.ق)",
-                gregorian=r"(?:AD|A\.D\.|CE|BC|BCE)",
-                julian=r"(?:ش\.ه|هجری\s*شمسی)"
-            )
-
-    Warning:
-        Era detection is crucial for disambiguation when dates could
-        belong to multiple calendar systems.
+    Warnings
+    --------
+    Era detection is crucial for disambiguation when dates could
+    belong to multiple calendar systems.
     """
     hijri: str
     gregorian: str
     julian: str
 
     def __post_init__(self):
-        """Compile regex patterns to ensure they are valid."""
+        """
+        Compile regex patterns to ensure they are valid.
+        
+        Raises
+        ------
+        ValueError
+            If any regex pattern is invalid or cannot be compiled
+        """
+        # Validate each era pattern for compilation errors
         for field_name, pattern in [
             ("hijri", self.hijri),
             ("gregorian", self.gregorian),
@@ -158,48 +195,58 @@ class EraPatterns:
 
 @dataclass
 class IndicatorPatterns:
-    """Comprehensive patterns for date component indicators and structural elements.
+    r"""
+    Comprehensive patterns for date component indicators and structural elements.
 
     This class provides regex patterns for identifying and parsing various
     structural elements within date expressions, including component indicators,
     separators, and range connectors across multiple languages.
 
-    Attributes:
-        day (str): Day component indicators like "day", "يوم", "روز", including
-            ordinal suffixes and abbreviated forms.
-        month (str): Month component indicators such as "month", "شهر", "ماه",
-            with common abbreviations and linguistic variations.
-        year (str): Year component indicators including "year", "سال", "عام",
-            and related temporal markers.
-        century (str): Century indicators like "century", "قرن", "سده",
-            supporting ordinal and cardinal forms.
-        separator (str): Date separator patterns matching "/", "-", ".",
-            whitespace, and Unicode separators.
-        parentheses_start (str): Opening parenthetical markers for date ranges
-            or additional date information. Defaults to ``r'(?:[\\(\\[])'``.
-        parentheses_end (str): Closing parenthetical markers.
-            Defaults to ``r'(?:[\\)\\]])'``.
-        range_connector (str): Range connecting patterns like "to", "until",
-            "تا", "-", "إلى" for date ranges.
-        range_starter (str): Range starting indicators such as "from", "since",
-            "من", "از" that begin date range expressions.
+    Parameters
+    ----------
+    day : str
+        Day component indicators like "day", "يوم", "روز", including
+        ordinal suffixes and abbreviated forms
+    month : str
+        Month component indicators such as "month", "شهر", "ماه",
+        with common abbreviations and linguistic variations
+    year : str
+        Year component indicators including "year", "سال", "عام",
+        and related temporal markers
+    century : str
+        Century indicators like "century", "قرن", "سده",
+        supporting ordinal and cardinal forms
+    separator : str
+        Date separator patterns matching "/", "-", ".",
+        whitespace, and Unicode separators
+    range_connector : str
+        Range connecting patterns like "to", "until",
+        "تا", "-", "إلى" for date ranges
+    range_starter : str
+        Range starting indicators such as "from", "since",
+        "من", "از" that begin date range expressions
+    parentheses_start : str, optional
+        Opening parenthetical markers for date ranges
+        or additional date information, by default r'(?:[\(\[])'
+    parentheses_end : str, optional
+        Closing parenthetical markers, by default r'(?:[\)\]])'
 
-    Example:
-        .. code-block:: python
+    Examples
+    --------
+    >>> indicators = IndicatorPatterns(
+    ...     day=r"(?:day|يوم|روز|يوماً)",
+    ...     month=r"(?:month|شهر|ماه|شهری)",
+    ...     year=r"(?:year|سال|عام|سنة)",
+    ...     century=r"(?:century|قرن|سده)",
+    ...     separator=r"[/\\-\\.\\s]+",
+    ...     range_connector=r"(?:to|until|تا|إلى|-)",
+    ...     range_starter=r"(?:from|since|من|از)"
+    ... )
 
-            indicators = IndicatorPatterns(
-                day=r"(?:day|يوم|روز|يوماً)",
-                month=r"(?:month|شهر|ماه|شهری)",
-                year=r"(?:year|سال|عام|سنة)",
-                century=r"(?:century|قرن|سده)",
-                separator=r"[/\\-\\.\\s]+",
-                range_connector=r"(?:to|until|تا|إلى|-)",
-                range_starter=r"(?:from|since|من|از)"
-            )
-
-    See Also:
-        :class:`NumericPatterns`: Numeric component patterns
-        :class:`BasePattern`: Foundation pattern class
+    See Also
+    --------
+    NumericPatterns : Numeric component patterns
+    BasePatterns : Foundation pattern class
     """
     day: str
     month: str
@@ -212,16 +259,28 @@ class IndicatorPatterns:
     parentheses_end: str = r'(?:[\)\]])'
 
     def __post_init__(self):
-        """Compile regex patterns to ensure they are valid."""
-        for field_name, pattern in [
+        """
+        Compile regex patterns to ensure they are valid.
+        
+        Raises
+        ------
+        ValueError
+            If any regex pattern is invalid or cannot be compiled
+        """
+        # Validate all indicator patterns including defaults
+        patterns_to_validate = [
             ("day", self.day),
             ("month", self.month),
             ("year", self.year),
             ("century", self.century),
             ("separator", self.separator),
             ("range_connector", self.range_connector),
-            ("range_starter", self.range_starter)
-        ]:
+            ("range_starter", self.range_starter),
+            ("parentheses_start", self.parentheses_start),
+            ("parentheses_end", self.parentheses_end)
+        ]
+        
+        for field_name, pattern in patterns_to_validate:
             try:
                 re.compile(pattern, re.IGNORECASE | re.UNICODE)
             except re.error as e:
@@ -230,47 +289,54 @@ class IndicatorPatterns:
 
 @dataclass
 class NumericPatterns:
-    """Regex capture patterns for numeric date components.
+    r"""
+    Regex capture patterns for numeric date components.
 
     Defines standardized capture groups for extracting numeric values
     from date strings. All patterns use capturing groups to facilitate
     easy extraction of matched values.
 
-    Attributes:
-        year (str): Year capture pattern matching 1-4 digits. Handles years
-            from single digits (e.g., "5" for 2005) to full 4-digit years.
-            Default: ``r"(\\d{1,4})"``.
-        month (str): Month number capture pattern for values 1-12.
-            Supports both single and double-digit months.
-            Default: ``r"(\\d{1,2})"``.
-        day (str): Day number capture pattern for values 1-31.
-            Handles single and double-digit day values.
-            Default: ``r"(\\d{1,2})"``.
-        century (str): Century number capture pattern for values 1-99.
-            Supports ordinal century references.
-            Default: ``r"(\\d{1,2})"``.
+    Parameters
+    ----------
+    year : str, optional
+        Year capture pattern matching 1-4 digits. Handles years
+        from single digits (e.g., "5" for 2005) to full 4-digit years,
+        by default r"(\d{1,4})"
+    month : str, optional
+        Month number capture pattern for values 1-12.
+        Supports both single and double-digit months,
+        by default r"(\d{1,2})"
+    day : str, optional
+        Day number capture pattern for values 1-31.
+        Handles single and double-digit day values,
+        by default r"(\d{1,2})"
+    century : str, optional
+        Century number capture pattern for values 1-99.
+        Supports ordinal century references,
+        by default r"(\d{1,2})"
 
-    Example:
-        .. code-block:: python
+    Examples
+    --------
+    >>> # Using default patterns
+    >>> numeric = NumericPatterns()
+    
+    >>> # Custom patterns with validation
+    >>> custom_numeric = NumericPatterns(
+    ...     year=r"(\d{4})",  # Only 4-digit years
+    ...     month=r"(0?[1-9]|1[0-2])",  # Months 1-12 with validation
+    ...     day=r"(0?[1-9]|[12]\d|3[01])"  # Days 1-31 with validation
+    ... )
 
-            # Using default patterns
-            numeric = NumericPatterns()
+    Notes
+    -----
+    All patterns use capturing groups ``()`` to enable extraction
+    of matched numeric values for further processing.
 
-            # Custom patterns with validation
-            custom_numeric = NumericPatterns(
-                year=r"(\\d{4})",  # Only 4-digit years
-                month=r"(0?[1-9]|1[0-2])",  # Months 1-12 with validation
-                day=r"(0?[1-9]|[12]\\d|3[01])"  # Days 1-31 with validation
-            )
-
-    Note:
-        All patterns use capturing groups ``()`` to enable extraction
-        of matched numeric values for further processing.
-
-    Warning:
-        These patterns capture raw numeric strings without validation.
-        Additional logic should verify that captured values represent
-        valid dates (e.g., month ≤ 12, day ≤ 31).
+    Warnings
+    --------
+    These patterns capture raw numeric strings without validation.
+    Additional logic should verify that captured values represent
+    valid dates (e.g., month ≤ 12, day ≤ 31).
     """
     year: str = r"(\d{1,4})"
     month: str = r"(\d{1,2})"
@@ -278,7 +344,15 @@ class NumericPatterns:
     century: str = r"(\d{1,2})"
 
     def __post_init__(self):
-        """Validate regex patterns after initialization."""
+        """
+        Validate regex patterns after initialization.
+        
+        Raises
+        ------
+        ValueError
+            If any regex pattern is invalid or cannot be compiled
+        """
+        # Validate all numeric patterns for proper regex syntax
         for field_name, pattern in [
             ("year", self.year),
             ("month", self.month),
