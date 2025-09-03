@@ -40,7 +40,7 @@ if __name__ == "__main__":
                 if src_second_path not in sys.path:
                     sys.path.insert(0, src_second_path)
                 break
-    print("This module is not intended to be run directly. Import it in your code.")
+    print("INFO: Run Main File : adding file parent src to path ...")
     setup_src_path()
 
 from detect_dates.keywords import (

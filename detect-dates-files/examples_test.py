@@ -1,7 +1,7 @@
 # Import path helper to ensure modules directory is in sys.path
 # ===================================================================================
 if __name__ == "__main__":
-    print("This module is not intended to be run directly. Import it in your code.")
+    print("INFO: Run Main File : adding file parent src to path ...")
     from path_helper import add_modules_to_sys_path
     add_modules_to_sys_path()
 

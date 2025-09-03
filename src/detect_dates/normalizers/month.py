@@ -13,7 +13,6 @@ Created on Fri Jul 25 23:01:21 2025
 # Import path helper to ensure modules directory is in sys.path
 # ===================================================================================
 if __name__ == "__main__":
-    # This is necessary for importing other modules in the package structure
     import sys
     from pathlib import Path
     def setup_src_path():
@@ -25,7 +24,7 @@ if __name__ == "__main__":
                 if src_second_path not in sys.path:
                     sys.path.insert(0, src_second_path)
                 break
-    print("This module is not intended to be run directly. Import it in your code.")
+    print("INFO: Run Main File : adding file parent src to path ...")
     setup_src_path()
 
 # Import necessary modules
@@ -34,6 +33,8 @@ from detect_dates.keywords import (
     months_variations_list,  # All month keywords for normalization
     search_in_keywords
 )
+
+
 
 def normalize_key(input_key: str):
     """
@@ -132,10 +133,12 @@ def get_month_info(month: Union[str, int]) -> Tuple[Optional[str], Optional[str]
         if 1 > month > 12:
             logger.warning(f"Invalid month number '{month}'. Must be between 1 and 12.")
             return None, None, None
+        else:
+            month = str(month)
 
     # Input validation for string
     if not isinstance(month, str) or not month.strip():
-        logger.error(f"Invalid input type '{type(month)}'. Expected str or int.")
+        logger.error(f"Invalid input type {month} '{type(month)}'. Expected str or int.")
         return None, None, None
 
     # Normalize inputs

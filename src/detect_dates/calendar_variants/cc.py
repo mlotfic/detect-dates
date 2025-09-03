@@ -83,7 +83,7 @@ if __name__ == "__main__":
                     sys.path.insert(0, src_second_path)
                     print(f"Added to sys.path: {src_second_path}")
                 break
-    print("This module is not intended to be run directly. Import it in your code.")
+    print("INFO: Run Main File : adding file parent src to path ...")
     setup_src_path()
 
 import os
@@ -267,14 +267,14 @@ class DateMapping:
                 if year_min < -5000 or year_max > 10000:
                     logger.warning(f"Unusual Gregorian year range: {year_min}-{year_max}")
 
-    def get_calendar(self, era: str) -> str:
+    def get_calendar(self, era: str) -> Optional[str]:
         """
-        Get the normalized calendar name from an era string.
+        Get the normalized calendar name from an era string or calendar name.
 
         Parameters
         ----------
         era : str
-            Era string (e.g., 'AD', 'AH', 'CE', 'BCE')
+            Era string (e.g., 'AD', 'AH', 'CE', 'BCE') or calendar name/alias
 
         Returns
         -------
@@ -286,13 +286,21 @@ class DateMapping:
         ValueError
             If the era string is not recognized
         """
-        era = normalize_era(era)  # Normalize the input era string
-        if era:
-            calendar = get_calendar(era)  # Convert to calendar name
-        else:
-            # Fallback to direct normalization if era is not recognized
-            calendar = normalize_calendar_name(era)
-        return calendar
+        # First, check if input is a calendar name or alias
+        era_lower = era.lower()
+        if era_lower in SUPPORTED_CALENDARS:
+            return era_lower
+        if era_lower in CALENDAR_ALIASES:
+            return CALENDAR_ALIASES[era_lower]
+
+        # Otherwise, treat as era abbreviation
+        n_era = normalize_era(era)
+        if n_era:
+            calendar = get_calendar(n_era)
+            if calendar:
+                return normalize_calendar_name(calendar)
+        # Fallback: return input as-is
+        return None
     
     def validate_input_date(self, era: str, day: int, month: Union[int, str], year: int) -> Tuple[str, int, int, int]:
         """
@@ -323,10 +331,10 @@ class DateMapping:
         """        
         if not self.is_data_loaded():
             raise RuntimeError("Calendar mapping data is not loaded. Check initialization.")
-
+        # print(era)
         # Normalize and validate calendar name
         calendar = self.get_calendar(era)  
-        
+        # print(calendar)
         if calendar not in SUPPORTED_CALENDARS:
             raise ValueError(f"Unsupported calendar system: '{calendar}'. Supported systems: {list(SUPPORTED_CALENDARS.keys())}")
         
@@ -344,9 +352,17 @@ class DateMapping:
         elif not isinstance(month, int) or not (1 <= month <= 12):
             raise ValueError(f"Invalid month value: {month}. Must be an integer between 1 and 12.")
 
-        # Validate year range
-        if not isinstance(year, int) or not (1900 <= year <= 2077):
-            raise ValueError(f"Unusual year value: {year}. Must be an integer between 1900 and 2077.")
+        # Validate year range based on calendar system
+        year_ranges = {
+            'gregorian': (1900, 2077),
+            'hijri': (1318, 1500),
+            'julian': (1278, 1456)
+        }
+        min_year, max_year = year_ranges.get(calendar, (None, None))
+        if not isinstance(year, int) or year < min_year or year > max_year:
+            raise ValueError(
+                f"Unusual year value: {year}. Must be an integer between {min_year} and {max_year} for {calendar} calendar."
+            )
         
         return calendar, day, month, year
         
@@ -1097,8 +1113,7 @@ class DateMapping:
             'data_quality': self._get_data_quality_metrics()
         }
 
-
-def main():
+if __name__ == "__main__":
     """
     Main function demonstrating usage of the DateMapping class.
     
@@ -1118,122 +1133,122 @@ def main():
         
         if not mapper.is_data_loaded():
             print("❌ Failed to load calendar data. Please check the CSV file path.")
-            return
-        
-        print("✓ DateMapping initialized successfully")
-        print()
-        
-        # Display calendar information
-        print("2. Calendar Data Information:")
-        info = mapper.get_calendar_info()
-        print(f"   📊 Total records: {info['total_records']:,}")
-        print(f"   📅 Supported calendars: {', '.join(info['supported_calendars'])}")
-        print(f"   🌍 Available weekdays: {', '.join(info['weekdays'])}")
-        
-        if info['sample_record']:
-            sample = info['sample_record']
-            print(f"   📝 Sample record:")
-            print(f"      Gregorian: {sample['gregorian']}")
-            print(f"      Hijri: {sample['hijri']}")
-            print(f"      Solar Hijri: {sample['julian']}")
-            print(f"      Weekday: {sample['weekday']}")
-        print()
-        
-        # Display data ranges
-        print("3. Available Date Ranges:")
-        ranges = mapper.get_data_range()
-        for calendar, range_info in ranges.items():
-            print(f"   {calendar.title()}: {range_info['min_year']} - {range_info['max_year']} "
-                  f"({range_info['total_years']:,} years)")
-        print()
-        
-        # Example 1: Get weekday for specific dates
-        print("4. Weekday Lookup Examples:")
-        test_dates = [
-            ('gregorian', 1, 1, 2024, 'New Year 2024'),
-            ('hijri', 1, 1, 1445, 'Islamic New Year 1445'),
-            ('julian', 1, 1, 1403, 'Persian New Year 1403')
-        ]
-        
-        for calendar, day, month, year, description in test_dates:
-            weekday = mapper.get_weekday_by_date(calendar, day, month, year)
-            if weekday:
-                print(f"   📅 {description} ({calendar} {day}/{month}/{year}): {weekday}")
-            else:
-                print(f"   ❓ {description}: Date not found in mapping data")
-        print()
-        
-        # Example 2: Calendar system conversions
-        print("5. Calendar System Conversion Examples:")
-        conversion_examples = [
-            ('gregorian', 1, 1, 2024, 'January 1, 2024 (Gregorian)'),
-            ('hijri', 1, 1, 1445, 'Muharram 1, 1445 (Hijri)'),
-            ('julian', 1, 1, 1403, 'Farvardin 1, 1403 (Solar Hijri)')
-        ]
-        
-        for calendar, day, month, year, description in conversion_examples:
-            alternatives = mapper.get_date_alternative_calendar(calendar, day, month, year)
-            if alternatives:
-                print(f"   🔄 {description} converts to:")
-                for cal_name, cal_date in alternatives.items():
-                    if cal_name != 'weekday' and cal_name != calendar:
-                        print(f"      {cal_name.title()}: {cal_date['day']}/{cal_date['month']}/{cal_date['year']}")
-                print(f"      Weekday: {alternatives['weekday']}")
-                print()
-        
-        # Example 3: Month analysis
-        print("6. Month Analysis Example:")
-        month_info = mapper.get_month_info('gregorian', 2, 2024)  # February 2024
-        if 'error' not in month_info:
-            print(f"   📅 February 2024 Analysis:")
-            print(f"      Days in month: {month_info['day_count']}")
-            print(f"      First day: {month_info['first_day']} ({month_info['first_weekday']})")
-            print(f"      Last day: {month_info['last_day']} ({month_info['last_weekday']})")
-            print(f"      Weekday distribution: {month_info['weekday_distribution']}")
-        print()
-        
-        # Example 4: Find specific weekdays
-        print("7. Weekday Search Example:")
-        # Find first Monday of March 2024
-        first_monday = mapper.find_date_by_weekday('gregorian', 'Monday', 3, 2024, 1)
-        if first_monday:
-            greg_date = first_monday['gregorian']
-            print(f"   🔍 First Monday of March 2024: {greg_date['day']}/{greg_date['month']}/{greg_date['year']}")
-        
-        # Find last Friday of December 2023
-        last_friday = mapper.find_date_by_weekday('gregorian', 'Friday', 12, 2023, -1)
-        if last_friday:
-            greg_date = last_friday['gregorian']
-            print(f"   🔍 Last Friday of December 2023: {greg_date['day']}/{greg_date['month']}/{greg_date['year']}")
-        print()
-        
-        # Example 5: Date validation
-        print("8. Date Validation Examples:")
-        validation_tests = [
-            ('gregorian', 29, 2, 2024, 'Feb 29, 2024 (leap year)'),
-            ('gregorian', 29, 2, 2023, 'Feb 29, 2023 (non-leap year)'),
-            ('hijri', 30, 12, 1445, 'Dhu al-Hijjah 30, 1445'),
-            ('julian', 31, 12, 1403, 'Esfand 31, 1403 (invalid - max 29/30)')
-        ]
-        
-        for calendar, day, month, year, description in validation_tests:
-            is_valid = mapper.validate_date(calendar, day, month, year)
-            status = "✅ Valid" if is_valid else "❌ Invalid"
-            print(f"   {status}: {description}")
-        print()
-        
-        # Example 6: Performance demonstration
-        print("9. Performance Test:")
-        import time
-        
-        start_time = time.time()
-        for i in range(100):
-            mapper.get_weekday_by_date('gregorian', 15, 3, 2024)
-        end_time = time.time()
-        
-        print(f"   ⚡ 100 weekday lookups completed in {(end_time - start_time)*1000:.2f}ms")
-        print(f"   📈 Average lookup time: {(end_time - start_time)*10:.2f}ms per lookup")
-        
+
+        else:
+            print("✓ DateMapping initialized successfully")
+            print()
+            
+            # Display calendar information
+            print("2. Calendar Data Information:")
+            info = mapper.get_calendar_info()
+            print(f"   📊 Total records: {info['total_records']:,}")
+            print(f"   📅 Supported calendars: {', '.join(info['supported_calendars'])}")
+            print(f"   🌍 Available weekdays: {', '.join(info['weekdays'])}")
+            
+            if info['sample_record']:
+                sample = info['sample_record']
+                print(f"   📝 Sample record:")
+                print(f"      Gregorian: {sample['gregorian']}")
+                print(f"      Hijri: {sample['hijri']}")
+                print(f"      Solar Hijri: {sample['julian']}")
+                print(f"      Weekday: {sample['weekday']}")
+            print()
+            
+            # Display data ranges
+            print("3. Available Date Ranges:")
+            ranges = mapper.get_data_range()
+            for calendar, range_info in ranges.items():
+                print(f"   {calendar.title()}: {range_info['min_year']} - {range_info['max_year']} "
+                      f"({range_info['total_years']:,} years)")
+            print()
+            
+            # Example 1: Get weekday for specific dates
+            print("4. Weekday Lookup Examples:")
+            test_dates = [
+                ('gregorian', 1, 1, 2024, 'New Year 2024'),
+                ('hijri', 1, 1, 1445, 'Islamic New Year 1445'),
+                ('julian', 1, 1, 1403, 'Persian New Year 1403')
+            ]
+            
+            for calendar, day, month, year, description in test_dates:
+                weekday = mapper.get_weekday_by_date(calendar, day, month, year)
+                if weekday:
+                    print(f"   📅 {description} ({calendar} {day}/{month}/{year}): {weekday}")
+                else:
+                    print(f"   ❓ {description}: Date not found in mapping data")
+            print()
+            
+            # Example 2: Calendar system conversions
+            print("5. Calendar System Conversion Examples:")
+            conversion_examples = [
+                ('gregorian', 1, 1, 2024, 'January 1, 2024 (Gregorian)'),
+                ('hijri', 1, 1, 1445, 'Muharram 1, 1445 (Hijri)'),
+                ('julian', 1, 1, 1403, 'Farvardin 1, 1403 (Solar Hijri)')
+            ]
+            
+            for calendar, day, month, year, description in conversion_examples:
+                alternatives = mapper.get_date_alternative_calendar(calendar, day, month, year)
+                if alternatives:
+                    print(f"   🔄 {description} converts to:")
+                    for cal_name, cal_date in alternatives.items():
+                        if cal_name != 'weekday' and cal_name != calendar:
+                            print(f"      {cal_name.title()}: {cal_date['day']}/{cal_date['month']}/{cal_date['year']}")
+                    print(f"      Weekday: {alternatives['weekday']}")
+                    print()
+            
+            # Example 3: Month analysis
+            print("6. Month Analysis Example:")
+            month_info = mapper.get_month_info('gregorian', 2, 2024)  # February 2024
+            if 'error' not in month_info:
+                print(f"   📅 February 2024 Analysis:")
+                print(f"      Days in month: {month_info['day_count']}")
+                print(f"      First day: {month_info['first_day']} ({month_info['first_weekday']})")
+                print(f"      Last day: {month_info['last_day']} ({month_info['last_weekday']})")
+                print(f"      Weekday distribution: {month_info['weekday_distribution']}")
+            print()
+            
+            # Example 4: Find specific weekdays
+            print("7. Weekday Search Example:")
+            # Find first Monday of March 2024
+            first_monday = mapper.find_date_by_weekday('gregorian', 'Monday', 3, 2024, 1)
+            if first_monday:
+                greg_date = first_monday['gregorian']
+                print(f"   🔍 First Monday of March 2024: {greg_date['day']}/{greg_date['month']}/{greg_date['year']}")
+            
+            # Find last Friday of December 2023
+            last_friday = mapper.find_date_by_weekday('gregorian', 'Friday', 12, 2023, -1)
+            if last_friday:
+                greg_date = last_friday['gregorian']
+                print(f"   🔍 Last Friday of December 2023: {greg_date['day']}/{greg_date['month']}/{greg_date['year']}")
+            print()
+            
+            # Example 5: Date validation
+            print("8. Date Validation Examples:")
+            validation_tests = [
+                ('gregorian', 29, 2, 2024, 'Feb 29, 2024 (leap year)'),
+                ('gregorian', 29, 2, 2023, 'Feb 29, 2023 (non-leap year)'),
+                ('hijri', 30, 12, 1445, 'Dhu al-Hijjah 30, 1445'),
+                ('julian', 31, 12, 1403, 'Esfand 31, 1403 (invalid - max 29/30)')
+            ]
+            
+            for calendar, day, month, year, description in validation_tests:
+                is_valid = mapper.validate_date(calendar, day, month, year)
+                status = "✅ Valid" if is_valid else "❌ Invalid"
+                print(f"   {status}: {description}")
+            print()
+            
+            # Example 6: Performance demonstration
+            print("9. Performance Test:")
+            import time
+            
+            start_time = time.time()
+            for i in range(100):
+                mapper.get_weekday_by_date('gregorian', 15, 3, 2024)
+            end_time = time.time()
+            
+            print(f"   ⚡ 100 weekday lookups completed in {(end_time - start_time)*1000:.2f}ms")
+            print(f"   📈 Average lookup time: {(end_time - start_time)*10:.2f}ms per lookup")
+            
     except Exception as e:
         print(f"❌ Error during demonstration: {str(e)}")
         logger.exception("Error in main demonstration")
@@ -1241,14 +1256,3 @@ def main():
     print()
     print("=" * 50)
     print("Demonstration completed. Import this module to use DateMapping in your code.")
-
-
-if __name__ == "__main__":
-    print("Calendar Date Mapping Module")
-    print("=" * 40)
-    print("This module provides calendar conversion functionality.")
-    print("Import it in your code to use the DateMapping class.")
-    print()
-    
-    # Run comprehensive examples if executed directly
-    main()

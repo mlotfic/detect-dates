@@ -21,7 +21,7 @@ if __name__ == "__main__":
                 if src_second_path not in sys.path:
                     sys.path.insert(0, src_second_path)
                 break
-    print("This module is not intended to be run directly. Import it in your code.")
+    print("INFO: Run Main File : adding file parent src to path ...")
     setup_src_path()
 import numpy as np
 import pandas as pd
@@ -31,7 +31,7 @@ import os
 # Import path helper to ensure modules directory is in sys.path
 # ===================================================================================
 if __name__ == "__main__":
-    print("This module is not intended to be run directly. Import it in your code.")
+    print("INFO: Run Main File : adding file parent src to path ...")
     # This is necessary for importing other modules in the package structure
     from path_helper import add_modules_to_sys_path
     # Ensure the modules directory is in sys.path for imports

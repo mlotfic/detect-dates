@@ -19,7 +19,7 @@ if __name__ == "__main__":
                 if src_second_path not in sys.path:
                     sys.path.insert(0, src_second_path)
                 break
-    print("This module is not intended to be run directly. Import it in your code.")
+    print("INFO: Run Main File : adding file parent src to path ...")
     setup_src_path()
     
 import os
@@ -44,7 +44,7 @@ SUPPORTED_CALENDARS = {
 WEEKDAY_COLUMN = 'Week Day'
 
 # Default CSV file path relative to this module
-DEFAULT_CSV_PATH = "../mapping_date/Hijri-Gregorian-Solar_Hijri-V3.csv"
+DEFAULT_CSV_PATH = "./mapping_date/Hijri-Gregorian-Solar_Hijri-V3.csv"
 
 # Calendar system aliases for user convenience
 CALENDAR_ALIASES = {
@@ -261,7 +261,7 @@ def _load_mapping_data(csv_path=DEFAULT_CSV_PATH):
         df = pd.read_csv(file_path, encoding='utf-8')
 
         # Log initial data info for debugging
-        logger.info(f"Loaded CSV with {len(df)} rows and {len(df.columns)} columns")
+        # logger.info(f"Loaded CSV with {len(df)} rows and {len(df.columns)} columns")
 
         # Build set of all required columns from calendar definitions
         required_columns = set()
@@ -283,7 +283,7 @@ def _load_mapping_data(csv_path=DEFAULT_CSV_PATH):
 
         # Remove rows with any missing values in required columns
         df = df.dropna(subset=list(required_columns))
-        logger.info(f"Removed {initial_rows - len(df)} rows with missing values")
+        # logger.info(f"Removed {initial_rows - len(df)} rows with missing values")
 
         # Convert date columns to numeric, handling invalid values gracefully
         for calendar_name, calendar_cols in SUPPORTED_CALENDARS.items():

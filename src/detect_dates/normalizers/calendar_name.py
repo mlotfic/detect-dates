@@ -20,7 +20,7 @@ CALENDAR_ALIASES = {
     'greg': 'gregorian'
 }
 
-def normalize_calendar_name(self, calendar: str) -> str:
+def normalize_calendar_name(calendar: str) -> str:
         """
         Normalize calendar name using aliases.
 
@@ -33,6 +33,9 @@ def normalize_calendar_name(self, calendar: str) -> str:
         Raises:
             ValueError: If calendar name is not recognized
         """
+        if calendar is None:
+            return None
+        
         calendar = calendar.lower().strip()
 
         # Check aliases first
