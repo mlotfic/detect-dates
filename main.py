@@ -1,4 +1,4 @@
-*-
+
 
 """
 Date Pattern Recognition Module

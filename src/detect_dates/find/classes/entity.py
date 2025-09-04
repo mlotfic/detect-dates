@@ -64,36 +64,33 @@ from datetime import datetime
 from dataclasses import dataclass, field
 from typing import Optional, Dict, List, Any, Union, Tuple
 
-# Import path helper to ensure modules directory is in sys.path
-# ===================================================================================
-if __name__ == "__main__":
-    print("INFO: Run Main File : adding file parent src to path ...")
-    # This is necessary for importing other modules in the package structure
-    from path_helper import add_modules_to_sys_path
-    # Ensure the modules directory is in sys.path for imports
-    add_modules_to_sys_path()
 
-from detect_dates.detector.classes import ParsedDate
 from detect_dates.normalizers import month, era, weekday
-from data._load_data import DateMapping
+from detect_dates.calendar_variants import (
+    get_century_from_year,
+    get_century_range,
+    format_century_with_era,
+    DateMapping,
+)
+# Import necessary modules
+from detect_dates.keywords.constants import (
+    Language,
+    Calendar,
+    OutputFormat,
+    PRECISION_LEVELS,
+    CALENDAR_ALIASES,
+    SUPPORTED_LANGUAGES,
+    SUPPORTED_CALENDARS,
+    SUPPORTED_CALENDARS_COLUMNS,
+    WEEKDAY_COLUMN,
+    DEFAULT_LANGUAGE,
+    DEFAULT_CALENDAR,
+)
 
-# Module-level constants
-SUPPORTED_CALENDARS = {
-    'gregorian': ['Gregorian Day', 'Gregorian Month', 'Gregorian Year'],
-    'hijri': ['Hijri Day', 'Hijri Month', 'Hijri Year'],
-    'julian': ['Solar Hijri Day', 'Solar Hijri Month', 'Solar Hijri Year']
-}
 
-WEEKDAY_COLUMN = 'Week Day'
+from detect_dates.find.classes import ParsedDate
 
-# Precision levels for date parsing
-PRECISION_LEVELS = {
-    'exact': 'Complete date with day, month, year',
-    'month': 'Month and year only',
-    'year': 'Year only',
-    'century': 'Century only',
-    'partial': 'Some components missing'
-}
+
 
 @dataclass
 class DateEntity(ParsedDate):
@@ -165,7 +162,7 @@ class DateEntity(ParsedDate):
             raise ValueError(f"Invalid day: {self.day}. Must be between 1 and 31.")
 
         # Normalize and validate month
-        self.month_num = normalize_month(self.month, output_format="num")
+        self.month_num = int(normalize_month(self.month, output_format="num"))
         if self.month_num is not None and not (1 <= self.month_num <= 12):
             raise ValueError(f"Invalid month: {self.month}. Must be between 1 and 12.")
 

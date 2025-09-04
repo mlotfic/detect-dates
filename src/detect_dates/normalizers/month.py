@@ -31,8 +31,31 @@ if __name__ == "__main__":
 from detect_dates.keywords import (
     months_standard_keywords,  # Standard month names for different languages and calendars
     months_variations_list,  # All month keywords for normalization
-    search_in_keywords
+    search_in_keywords,
 )
+
+# Import necessary modules
+from detect_dates.keywords.constants import (
+    Language,
+    Calendar,
+    OutputFormat,
+    PRECISION_LEVELS,
+    CALENDAR_ALIASES,
+    SUPPORTED_LANGUAGES,
+    SUPPORTED_CALENDARS,
+    SUPPORTED_CALENDARS_COLUMNS,
+    WEEKDAY_COLUMN,
+    DEFAULT_LANGUAGE,
+    DEFAULT_CALENDAR,
+)
+
+
+from typing import Union, Tuple, Dict, Optional
+import logging
+
+
+# Set up logging
+logger = logging.getLogger(__name__)
 
 
 
@@ -48,6 +71,7 @@ def normalize_key(input_key: str):
     """
     # Define supported calendar types with their language variants
     supported_calendar_types = [
+        "num",
         "gregorian_ar", "hijri_ar", "persian_ar",
         "gregorian_en", "hijri_en", "persian_en"
     ]
@@ -55,48 +79,20 @@ def normalize_key(input_key: str):
     # Check each calendar type to find a match
     for calendar_type in supported_calendar_types:
         if input_key.startswith(calendar_type):
+            if calendar_type == "num":
+                return "num", None
             language = "ar" if calendar_type.endswith("ar") else "en"
             return calendar_type, language
 
     # Return None values if no match is found
     return None, None
 
-from typing import Union, Tuple, Dict, Optional
-import logging
-from enum import Enum
-
-# Set up logging
-logger = logging.getLogger(__name__)
-
-# ===================================================================================
-# CONSTANTS AND ENUMS
-# ===================================================================================
-
-class Language(Enum):
-    ARABIC = "ar"
-    ENGLISH = "en"
-
-class Calendar(Enum):
-    HIJRI = "hijri"
-    GREGORIAN = "gregorian"
-    PERSIAN = "persian"
-    JULIAN = "julian"
-
-class OutputFormat(Enum):
-    NUMBER = "num"
-    FULL = "full"
-    ABBREVIATED = "abbr"
-
-SUPPORTED_LANGUAGES = {lang.value for lang in Language}
-SUPPORTED_CALENDARS = {cal.value for cal in Calendar}
-DEFAULT_LANGUAGE = Language.ARABIC.value
-DEFAULT_CALENDAR = ""
 
 # ===================================================================================
 # HELPER FUNCTIONS
 # ===================================================================================
 
-def get_month_info(month: Union[str, int]) -> Tuple[Optional[str], Optional[str], Optional[int]]:
+def get_month_info(month: Optional[Union[str, int]]) -> Tuple[Optional[str], Optional[str], Optional[int]]:
     """
     Extract calendar type, language, and month index from month name input.
 
@@ -128,13 +124,16 @@ def get_month_info(month: Union[str, int]) -> Tuple[Optional[str], Optional[str]
         - For integer input (1-12), returns (None, None, month_index) since no specific calendar is implied
         - Supports multiple calendar systems: Gregorian, Hijri (Islamic), Persian (Jalali)
     """
+    if month is None:
+        return None, None, None
+    
     # Handle integer input
-    if isinstance(month, int):
-        if 1 > month > 12:
+    if isinstance(month, int) or (isinstance(month, str) and month.isdigit()):
+        if 1 > int(month) > 12:
             logger.warning(f"Invalid month number '{month}'. Must be between 1 and 12.")
             return None, None, None
         else:
-            month = str(month)
+            return "num", None, int(month) - 1
 
     # Input validation for string
     if not isinstance(month, str) or not month.strip():
@@ -163,7 +162,7 @@ def get_month_info(month: Union[str, int]) -> Tuple[Optional[str], Optional[str]
 # ===================================================================================
 
 def normalize_month(
-    month: Union[int, str],
+    month: Optional[Union[int, str]],
     to_lang: Optional[str] = None,
     to_calendar: Optional[str] = None,
     output_format: Optional[str] = None
@@ -175,9 +174,9 @@ def normalize_month(
         month (Union[int, str]): Month name in any supported language/calendar system or month number (1-12)
         to_lang (Optional[str]): Target language ('ar', 'en', 'fa'). If None, uses detected language.
         to_calendar (Optional[str]): Target calendar ('hijri', 'gregorian', 'persian', 'julian').
-                                   If None, uses detected calendar.
+                                    If None, uses detected calendar.
         output_format (Optional[str]): Output format ('num', 'full', 'abbr').
-                                     If None, defaults to 'num' for number output.
+                                    If None, defaults to 'num' for number output.
 
     Returns:
         Optional[Union[str, int]]: Normalized month representation or None if conversion fails

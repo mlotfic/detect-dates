@@ -20,8 +20,8 @@ from .utils.century_utils import (
 # Functions for calendar variants
 # ===================================================================================
 # These functions handle the conversion of dates between different calendar systems
-from .date_variants import (
-    DateVariants, 
+from .date_mapping import (
+    DateMapping, 
 )
 
 # Exported functions
@@ -31,5 +31,5 @@ __all__ = [
     "get_century_from_year",
     "get_century_range",
     "format_century_with_era",
-    "DateVariants",
+    "DateMapping",
 ]

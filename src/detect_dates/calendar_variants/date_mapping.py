@@ -22,19 +22,19 @@ Architecture:
     astronomical calculations rather than simple mathematical formulas.
 
 Classes:
-    DateVariants: Main class for calendar date conversions and lookups
+    DateMapping: Main class for calendar date conversions and lookups
 
 Constants:
-    SUPPORTED_CALENDARS: Dictionary mapping calendar names to CSV column names
+    SUPPORTED_CALENDARS_COLUMNS: Dictionary mapping calendar names to CSV column names
     WEEKDAY_COLUMN: Column name for weekday information in the CSV
 
 Example:
     Basic usage::
 
-        from calendar_mapping import DateVariants
+        from calendar_mapping import DateMapping
 
         # Initialize the mapper
-        mapper = DateVariants()
+        mapper = DateMapping()
 
         # Get weekday for a Gregorian date
         weekday = mapper.get_weekday_by_date('gregorian', 15, 3, 2024)
@@ -105,28 +105,25 @@ import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Module-level constants for supported calendar systems
-# Based on actual CSV structure: Week Day,Hijri Day,Hijri Month,Hijri Year,Gregorian Day,Gregorian Month,Gregorian Year,Solar Hijri Day,Solar Hijri Month,Solar Hijri Year
-SUPPORTED_CALENDARS = {
-    'gregorian': ['Gregorian Day', 'Gregorian Month', 'Gregorian Year'],
-    'hijri': ['Hijri Day', 'Hijri Month', 'Hijri Year'],
-    'julian': ['Solar Hijri Day', 'Solar Hijri Month', 'Solar Hijri Year']  # Note: 'julian' maps to Solar Hijri
-}
 
-# Column name for weekday information in the CSV file
-WEEKDAY_COLUMN = 'Week Day'
-
-# Calendar system aliases for user convenience
-CALENDAR_ALIASES = {
-    'solar_hijri': 'julian',
-    'persian': 'julian',
-    'islamic': 'hijri',
-    'greg': 'gregorian'
-}
+# Import necessary modules
+from detect_dates.keywords.constants import (
+    Language,
+    Calendar,
+    OutputFormat,
+    PRECISION_LEVELS,
+    CALENDAR_ALIASES,
+    SUPPORTED_LANGUAGES,
+    SUPPORTED_CALENDARS,
+    SUPPORTED_CALENDARS_COLUMNS,
+    WEEKDAY_COLUMN,
+    DEFAULT_LANGUAGE,
+    DEFAULT_CALENDAR,
+)
 
 
 @dataclass
-class DateVariants:
+class DateMapping:
     """
     A class for mapping and converting dates between different calendar systems.
 
@@ -155,9 +152,9 @@ class DateVariants:
     Initialize and perform basic operations:
 
     >>> # Standard initialization (uses default CSV path)
-    >>> mapper = DateVariants()
+    >>> mapper = DateMapping()
     >>> # Custom CSV path
-    >>> mapper = DateVariants(csv_path="custom/path/to/calendar_data.csv")
+    >>> mapper = DateMapping(csv_path="custom/path/to/calendar_data.csv")
     >>> # Check if data loaded successfully
     >>> if mapper.is_data_loaded():
     ...     weekday = mapper.get_weekday_by_date('gregorian', 15, 3, 2024)
@@ -174,7 +171,7 @@ class DateVariants:
 
     def __post_init__(self, csv_path=None) -> None:
         """
-        Initialize the DateVariants instance by loading the calendar data.
+        Initialize the DateMapping instance by loading the calendar data.
 
         This method is automatically called after object creation to:
 
@@ -212,7 +209,7 @@ class DateVariants:
             self._data_loaded = True
             logger.info(f"Successfully loaded {len(self.df):,} calendar mapping records")
         except Exception as e:
-            logger.error(f"Failed to initialize DateVariants: {str(e)}")
+            logger.error(f"Failed to initialize DateMapping: {str(e)}")
             self._data_loaded = False
             # Don't re-raise to allow graceful degradation        
 
@@ -227,7 +224,7 @@ class DateVariants:
 
         Examples
         --------
-        >>> mapper = DateVariants()
+        >>> mapper = DateMapping()
         >>> if mapper.is_data_loaded():
         ...     # Safe to use mapping functions
         ...     result = mapper.get_weekday_by_date('gregorian', 1, 1, 2024)
@@ -248,7 +245,7 @@ class DateVariants:
         ValueError
             If date ranges are invalid or suspicious
         """
-        for calendar_name, columns in SUPPORTED_CALENDARS.items():
+        for calendar_name, columns in SUPPORTED_CALENDARS_COLUMNS.items():
             day_col, month_col, year_col = columns
 
             # Check day ranges (1-31)
@@ -288,7 +285,7 @@ class DateVariants:
         """
         # First, check if input is a calendar name or alias
         era_lower = era.lower()
-        if era_lower in SUPPORTED_CALENDARS:
+        if era_lower in SUPPORTED_CALENDARS_COLUMNS:
             return era_lower
         if era_lower in CALENDAR_ALIASES:
             return CALENDAR_ALIASES[era_lower]
@@ -302,7 +299,7 @@ class DateVariants:
         # Fallback: return input as-is
         return None
     
-    def validate_input_date(self, era: str, day: int, month: Union[int, str], year: int) -> Tuple[str, int, int, int]:
+    def validate_input_date(self, era: str, day: int, month: Optional[Union[str, int]], year: Optional[Union[str, int]]) -> Tuple[str, int, int, int]:
         """
         Validate and normalize input date components for correctness.
 
@@ -335,8 +332,8 @@ class DateVariants:
         # Normalize and validate calendar name
         calendar = self.get_calendar(era)  
         # print(calendar)
-        if calendar not in SUPPORTED_CALENDARS:
-            raise ValueError(f"Unsupported calendar system: '{calendar}'. Supported systems: {list(SUPPORTED_CALENDARS.keys())}")
+        if calendar not in SUPPORTED_CALENDARS_COLUMNS:
+            raise ValueError(f"Unsupported calendar system: '{calendar}'. Supported systems: {list(SUPPORTED_CALENDARS_COLUMNS.keys())}")
         
         # Validate day - set to default if invalid
         if not isinstance(day, int) or not (1 <= day <= 31):
@@ -349,6 +346,12 @@ class DateVariants:
             month = normalize_month(month, output_format="number")
             if month is None:
                 raise ValueError(f"Invalid month name: {month}. Must be a valid month name or number.")
+            try:
+                month = int(month)
+                if not (1 <= month <= 12):
+                    raise ValueError(f"Invalid month value after normalization: {month}. Must be between 1 and 12.")
+            except Exception:
+                raise ValueError(f"Month normalization did not return an integer: {month}")
         elif not isinstance(month, int) or not (1 <= month <= 12):
             raise ValueError(f"Invalid month value: {month}. Must be an integer between 1 and 12.")
 
@@ -359,14 +362,19 @@ class DateVariants:
             'julian': (1278, 1456)
         }
         min_year, max_year = year_ranges.get(calendar, (None, None))
-        if not isinstance(year, int) or year < min_year or year > max_year:
+        if (
+            not isinstance(year, int)
+            or min_year is None
+            or max_year is None
+            or year < min_year
+            or year > max_year
+        ):
             raise ValueError(
                 f"Unusual year value: {year}. Must be an integer between {min_year} and {max_year} for {calendar} calendar."
             )
         
         return calendar, day, month, year
         
-   
     def get_weekday_by_date(self, era: str = "AD", day: int = 1, month: Union[int, str] = 1, year: int = 2009) -> Optional[str]:
         """
         Get the weekday name for a specific date in the given calendar system.
@@ -402,7 +410,7 @@ class DateVariants:
         --------
         Get weekdays for different calendar systems:
 
-        >>> mapper = DateVariants()
+        >>> mapper = DateMapping()
         >>> # Gregorian calendar
         >>> weekday = mapper.get_weekday_by_date('gregorian', 15, 3, 2024)
         >>> print(f"March 15, 2024 is a {weekday}")  # "Friday"
@@ -422,7 +430,7 @@ class DateVariants:
         calendar, day, month, year = self.validate_input_date(era, day, month, year)
         
         # Get column names for the specified calendar system
-        day_col, month_col, year_col = SUPPORTED_CALENDARS[calendar]
+        day_col, month_col, year_col = SUPPORTED_CALENDARS_COLUMNS[calendar]
 
         # Create filter mask to find matching date
         mask = (
@@ -489,7 +497,7 @@ class DateVariants:
         --------
         Convert between different calendar systems:
 
-        >>> mapper = DateVariants()
+        >>> mapper = DateMapping()
         >>> # Convert Gregorian to all systems
         >>> result = mapper.get_date_alternative_calendar('gregorian', 1, 1, 2024)
         >>> if result:
@@ -512,7 +520,7 @@ class DateVariants:
         calendar, day, month, year = self.validate_input_date(calendar, day, month, year)
 
         # Get column names for the specified calendar system
-        day_col, month_col, year_col = SUPPORTED_CALENDARS[calendar]
+        day_col, month_col, year_col = SUPPORTED_CALENDARS_COLUMNS[calendar]
 
         # Create filter mask to find matching date
         mask = (
@@ -586,7 +594,7 @@ class DateVariants:
         --------
         Validate dates before conversion:
 
-        >>> mapper = DateVariants()
+        >>> mapper = DateMapping()
         >>> # Valid date
         >>> is_valid = mapper.validate_date('gregorian', 29, 2, 2024)  # Leap year
         >>> print(f"Feb 29, 2024 is valid: {is_valid}")
@@ -634,7 +642,7 @@ class DateVariants:
         }
         
         # Check date coverage for each calendar
-        for calendar_name, columns in SUPPORTED_CALENDARS.items():
+        for calendar_name, columns in SUPPORTED_CALENDARS_COLUMNS.items():
             year_col = columns[2]
             year_range = self.df[year_col].max() - self.df[year_col].min() + 1
             unique_years = len(self.df[year_col].unique())
@@ -655,10 +663,10 @@ class DateVariants:
         -------
         List[str]
             List of supported calendar system names (primary names only)
-                      
+        
         Examples
         --------
-        >>> mapper = DateVariants()
+        >>> mapper = DateMapping()
         >>> calendars = mapper.get_supported_calendars()
         >>> print(f"Supported calendars: {', '.join(calendars)}")
         # Output: "Supported calendars: gregorian, hijri, julian"
@@ -668,7 +676,7 @@ class DateVariants:
         This returns only the primary calendar names. For aliases,
         use get_calendar_info() to see the full mapping of aliases to primary names.
         """
-        return list(SUPPORTED_CALENDARS.keys())
+        return list(SUPPORTED_CALENDARS_COLUMNS.keys())
     
     def get_data_range(self) -> Dict[str, Dict[str, int]]:
         """
@@ -693,7 +701,7 @@ class DateVariants:
         --------
         Check available date ranges:
         
-        >>> mapper = DateVariants()
+        >>> mapper = DateMapping()
         >>> ranges = mapper.get_data_range()
         >>> greg_range = ranges['gregorian']
         >>> print(f"Gregorian dates available: {greg_range['min_year']} to {greg_range['max_year']}")
@@ -718,7 +726,7 @@ class DateVariants:
         
         ranges = {}
         
-        for calendar, columns in SUPPORTED_CALENDARS.items():
+        for calendar, columns in SUPPORTED_CALENDARS_COLUMNS.items():
             year_col = columns[2]  # Year column is always third
             year_series = self.df[year_col]
             
@@ -757,7 +765,7 @@ class DateVariants:
 
         Examples
         --------
-        >>> mapper = DateVariants()
+        >>> mapper = DateMapping()
         >>> march_2024 = mapper.get_dates_by_month_year('gregorian', 3, 2024)
         >>> print(f"March 2024 has {len(march_2024)} days")
         """
@@ -765,12 +773,15 @@ class DateVariants:
             return []
 
         try:
-            calendar = self.get_calendar(calendar)
+            calendar_normalized = self.get_calendar(calendar)
+            if calendar_normalized is None:
+                raise ValueError(f"Unsupported calendar system: '{calendar}'. Supported systems: {list(SUPPORTED_CALENDARS_COLUMNS.keys())}")
+            calendar = calendar_normalized
         except ValueError:
             return []
 
         # Get column names for the specified calendar system
-        day_col, month_col, year_col = SUPPORTED_CALENDARS[calendar]
+        day_col, month_col, year_col = SUPPORTED_CALENDARS_COLUMNS[calendar]
 
         # Filter data for the specific month and year
         mask = (
@@ -830,7 +841,7 @@ class DateVariants:
             
         Examples
         --------
-        >>> mapper = DateVariants()
+        >>> mapper = DateMapping()
         >>> info = mapper.get_month_info('gregorian', 2, 2024)  # February 2024
         >>> print(f"February 2024 has {info['day_count']} days")
         >>> print(f"Starts on {info['first_weekday']}, ends on {info['last_weekday']}")
@@ -863,7 +874,7 @@ class DateVariants:
             'month_name': self._get_month_name(calendar, month)
         }
     
-    def _get_month_name(self, calendar: str, month: int) -> str:
+    def _get_month_name(self, calendar: str, month: int) -> Optional[Union[str, int]]:
         """
         Get the month name for a specific calendar system using the normalize_month function.
         
@@ -886,8 +897,9 @@ class DateVariants:
             # Fallback to string representation if normalization fails
             return str(month)
     
-    def find_date_by_weekday(self, calendar: str, weekday: str, month: int, year: int, 
-                           occurrence: int = 1) -> Optional[Dict[str, Any]]:
+    def find_date_by_weekday(
+        self, calendar: str, weekday: str, month: int, year: int, 
+        occurrence: int = 1) -> Optional[Dict[str, Any]]:
         """
         Find a specific occurrence of a weekday in a given month/year.
         
@@ -911,7 +923,7 @@ class DateVariants:
             
         Examples
         --------
-        >>> mapper = DateVariants()
+        >>> mapper = DateMapping()
         >>> # Find first Monday of March 2024
         >>> first_monday = mapper.find_date_by_weekday('gregorian', 'Monday', 3, 2024, 1)
         >>> # Find last Friday of December 2023
@@ -921,7 +933,7 @@ class DateVariants:
             return None
         
         try:
-            calendar = self.get_calendar(calendar)
+            calendar = str(self.get_calendar(calendar))
         except ValueError:
             return None
         
@@ -968,12 +980,12 @@ class DateVariants:
             return {'error': 'Data not loaded'}
         
         try:
-            calendar = self.get_calendar(calendar)
+            calendar = str(self.get_calendar(calendar))
         except ValueError as e:
             return {'error': str(e)}
         
         # Get column names
-        day_col, month_col, year_col = SUPPORTED_CALENDARS[calendar]
+        day_col, month_col, year_col = SUPPORTED_CALENDARS_COLUMNS[calendar]
         
         # Filter data for the specific year
         year_mask = self.df[year_col] == year
@@ -1066,7 +1078,7 @@ class DateVariants:
             
             {
                 'total_records': int,
-                'supported_calendars': List[str],
+                'SUPPORTED_CALENDARS_COLUMNS': List[str],
                 'weekdays': List[str],
                 'date_ranges': Dict[str, Dict[str, int]],
                 'sample_record': Dict[str, Any]
@@ -1074,10 +1086,10 @@ class DateVariants:
             
         Examples
         --------
-        >>> mapper = DateVariants()
+        >>> mapper = DateMapping()
         >>> info = mapper.get_calendar_info()
         >>> print(f"Total records: {info['total_records']:,}")
-        >>> print(f"Supported calendars: {', '.join(info['supported_calendars'])}")
+        >>> print(f"Supported calendars: {', '.join(info['SUPPORTED_CALENDARS_COLUMNS'])}")
         """
         if not self.is_data_loaded():
             return {'error': 'Data not loaded'}
@@ -1105,7 +1117,7 @@ class DateVariants:
         
         return {
             'total_records': len(self.df),
-            'supported_calendars': list(SUPPORTED_CALENDARS.keys()),
+            'SUPPORTED_CALENDARS_COLUMNS': list(SUPPORTED_CALENDARS_COLUMNS.keys()),
             'calendar_aliases': CALENDAR_ALIASES,
             'weekdays': sorted(self.df[WEEKDAY_COLUMN].unique()),
             'date_ranges': self.get_data_range(),
@@ -1115,9 +1127,9 @@ class DateVariants:
 
 if __name__ == "__main__":
     """
-    Main function demonstrating usage of the DateVariants class.
+    Main function demonstrating usage of the DateMapping class.
     
-    This function provides comprehensive examples of how to use the DateVariants 
+    This function provides comprehensive examples of how to use the DateMapping 
     class for various calendar conversion operations, serving as both documentation
     and a test suite for the module's functionality.
     """
@@ -1127,22 +1139,22 @@ if __name__ == "__main__":
     print()
     
     try:
-        # Initialize the DateVariants instance
-        print("1. Initializing DateVariants...")
-        mapper = DateVariants()
+        # Initialize the DateMapping instance
+        print("1. Initializing DateMapping...")
+        mapper = DateMapping()
         
         if not mapper.is_data_loaded():
             print("❌ Failed to load calendar data. Please check the CSV file path.")
 
         else:
-            print("✓ DateVariants initialized successfully")
+            print("✓ DateMapping initialized successfully")
             print()
             
             # Display calendar information
             print("2. Calendar Data Information:")
             info = mapper.get_calendar_info()
             print(f"   📊 Total records: {info['total_records']:,}")
-            print(f"   📅 Supported calendars: {', '.join(info['supported_calendars'])}")
+            print(f"   📅 Supported calendars: {', '.join(info['SUPPORTED_CALENDARS_COLUMNS'])}")
             print(f"   🌍 Available weekdays: {', '.join(info['weekdays'])}")
             
             if info['sample_record']:
@@ -1255,4 +1267,4 @@ if __name__ == "__main__":
     
     print()
     print("=" * 50)
-    print("Demonstration completed. Import this module to use DateVariants in your code.")
+    print("Demonstration completed. Import this module to use DateMapping in your code.")

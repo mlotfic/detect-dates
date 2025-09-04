@@ -20,7 +20,7 @@ CALENDAR_ALIASES = {
     'greg': 'gregorian'
 }
 
-def normalize_calendar_name(calendar: str) -> Optional[str]:
+def normalize_calendar_name(calendar: Optional[str]) -> Optional[str]:
         """
         Normalize calendar name using aliases.
 
