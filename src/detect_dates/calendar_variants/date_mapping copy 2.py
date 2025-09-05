@@ -1,44 +1,70 @@
 """
-Calendar Date Mapping Module - Production-Ready Calendar Conversion System
+Calendar Date Mapping Module
+============================
 
-Usage
-=====
+A comprehensive module for converting dates between different calendar systems
+including Gregorian, Hijri (Islamic), and Solar Hijri (Persian) calendars.
 
-Basic usage for calendar date conversion and weekday lookup:
+This module provides functionality to:
 
-```python
-from detect_dates.data import DateDataLoader
-from detect_dates.mapping import DateMapping
+* Convert dates between calendar systems with high accuracy
+* Get weekday information for specific dates across different calendars
+* Retrieve all dates within a specific month and year
+* Access alternative calendar representations for any given date
+* Validate dates across different calendar systems
 
-# Initialize with default data
-ddl = DateDataLoader()
-mapper = DateMapping(ddl)
+The module relies on a pre-calculated CSV mapping file containing astronomical
+conversions between the three calendar systems, ensuring historical accuracy.
 
-# Get weekday for any date
-weekday = mapper.get_weekday_by_date('gregorian', 15, 3, 2024)
-print(f"March 15, 2024 is a {weekday}")  # "Friday"
+Architecture:
+    The module uses pandas for efficient data manipulation and caching for
+    performance optimization. All conversions are based on historical
+    astronomical calculations rather than simple mathematical formulas.
 
-# Convert between calendar systems
-result = mapper.get_calendar_variants('gregorian', 1, 1, 2024)
-hijri = result['hijri']
-print(f"Jan 1, 2024 = {hijri['day']}/{hijri['month']}/{hijri['year']} Hijri")
+Classes:
+    DateMapping: Main class for calendar date conversions and lookups
 
-# Validate dates
-is_valid = mapper.validate_date('gregorian', 29, 2, 2024)  # True (leap year)
+Constants:
+    SUPPORTED_CALENDARS_COLUMNS: Dictionary mapping calendar names to CSV column names
+    WEEKDAY_COLUMN: Column name for weekday information in the CSV
 
-# Find specific weekdays
-first_monday = mapper.find_date_by_weekday('gregorian', 'Monday', 3, 2024, 1)
+Example:
+    Basic usage::
 
-# Get supported calendars and date ranges
-calendars = mapper.get_supported_calendars()  # ['gregorian', 'hijri', 'julian']
-ranges = mapper.get_data_range()
-```
+        from calendar_mapping import DateMapping
 
-Custom CSV data:
-```python
-ddl = DateDataLoader("path/to/custom/calendar_data.csv")
-mapper = DateMapping(ddl)
-```
+        # Initialize the mapper
+        mapper = DateMapping()
+
+        # Get weekday for a Gregorian date
+        weekday = mapper.get_weekday_by_date('gregorian', 15, 3, 2024)
+        print(f"March 15, 2024 is a {weekday}")
+
+        # Convert between calendar systems
+        alternatives = mapper.get_calendar_variants('gregorian', 1, 1, 2024)
+        hijri_date = alternatives['hijri']
+        print(f"January 1, 2024 = {hijri_date['day']}/{hijri_date['month']}/{hijri_date['year']} Hijri")
+
+        # Get all dates in a month
+        march_2024 = mapper.get_calendar_variants('gregorian', 3, 2024)
+        print(f"March 2024 has {len(march_2024)} days")
+
+File Structure:
+    The module expects a CSV file at: ../mapping_date/Hijri-Gregorian-Solar_Hijri-V3.csv
+
+    CSV Format:
+        Week Day,Hijri Day,Hijri Month,Hijri Year,Gregorian Day,Gregorian Month,Gregorian Year,Solar Hijri Day,Solar Hijri Month,Solar Hijri Year
+
+Performance:
+    * First load reads and validates the entire CSV file
+    * Subsequent operations use in-memory pandas DataFrame
+    * Date lookups are optimized using boolean indexing
+    * Data validation ensures integrity of conversions
+
+Author: m.lotfi
+Version: 2.0
+License: MIT
+Requires: pandas>=1.3.0
 """
 
 # Import path helper to ensure modules directory is in sys.path
@@ -47,9 +73,7 @@ if __name__ == "__main__":
     # This is necessary for importing other modules in the package structure
     import sys
     from pathlib import Path
-    
     def setup_src_path():
-        """Add src directory to Python path for module imports."""
         current_file = Path(__file__).resolve()
         parts = current_file.parts
         for i, part in enumerate(parts):
@@ -59,7 +83,6 @@ if __name__ == "__main__":
                     sys.path.insert(0, src_second_path)
                     print(f"Added to sys.path: {src_second_path}")
                 break
-    
     print("INFO: Run Main File : adding file parent src to path ...")
     setup_src_path()
 
@@ -91,6 +114,7 @@ import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+
 # Import necessary modules
 from detect_dates.keywords.constants import (
     Language,
@@ -106,7 +130,6 @@ from detect_dates.keywords.constants import (
     DEFAULT_CALENDAR,
 )
 
-
 @dataclass
 class DateMapping:
     """
@@ -120,16 +143,13 @@ class DateMapping:
     The class is designed with performance in mind, using pandas for efficient
     data operations and caching mechanisms to avoid repeated file I/O.
 
-    Parameters
-    ----------
-    ddl : DateDataLoader
-        Data loader instance that handles CSV file loading and caching
-
     Attributes
     ----------
     df : Optional[pd.DataFrame]
         DataFrame containing the calendar mapping data.
         This is loaded automatically during initialization.
+    csv_path : str
+        Path to the CSV file containing mapping data.
     _data_loaded : bool
         Internal flag indicating successful data loading.
     _date_ranges : Dict[str, Dict[str, int]]
@@ -140,10 +160,10 @@ class DateMapping:
     Initialize and perform basic operations:
 
     >>> # Standard initialization (uses default CSV path)
-    >>> ddl = DateDataLoader()
+    ddl =  DateDataLoader()
     >>> mapper = DateMapping(ddl)
     >>> # Custom CSV path
-    >>> ddl = DateDataLoader("custom/path/to/calendar_data.csv")
+    ddl =  DateDataLoader("custom/path/to/calendar_data.csv")
     >>> mapper = DateMapping(ddl)
     >>> # Check if data loaded successfully
     >>> if mapper._is_data_loaded():
@@ -171,6 +191,12 @@ class DateMapping:
         The initialization is fail-safe: if data loading fails, the object
         is still created but with limited functionality.
 
+        Parameters
+        ----------
+        csv_path : str, optional
+            Path to the CSV file containing calendar mappings.
+            If None, uses default path from DateDataLoader.
+
         Raises
         ------
         FileNotFoundError
@@ -184,20 +210,15 @@ class DateMapping:
             loader = self.ddl
             print(f"   Supported calendars: {loader.get_supported_calendars()}")
             
-            # Load the calendar mapping data
             self.df = loader.load_data()
             print(f"   Loaded {len(self.df):,} records (first call)")
             print(f"   Retrieved {len(self.df):,} records (cached)")
 
             self._data_loaded = True
-            self._date_ranges = None  # Initialize cache for date ranges
-            
             logger.info(f"Successfully loaded {len(self.df):,} calendar mapping records")
         except Exception as e:
             logger.error(f"Failed to initialize DateMapping: {str(e)}")
             self._data_loaded = False
-            self.df = None
-            self._date_ranges = None
             # Don't re-raise to allow graceful degradation        
 
     def _is_data_loaded(self) -> bool:
@@ -211,7 +232,7 @@ class DateMapping:
 
         Examples
         --------
-        >>> mapper = DateMapping(DateDataLoader())
+        >>> mapper = DateMapping()
         >>> if mapper._is_data_loaded():
         ...     # Safe to use mapping functions
         ...     result = mapper.get_weekday_by_date('gregorian', 1, 1, 2024)
@@ -235,13 +256,13 @@ class DateMapping:
 
         Parameters
         ----------
-        era : str
+        era : str, default "AD"
             Calendar system ('gregorian', 'hijri', 'julian', or aliases) or era ('AD', 'AH', etc.)
-        day : int, optional
+        day : int, default 1
             Day of the month (1-31 depending on calendar and month)
-        month : int or str, optional
+        month : int or str, default 1
             Month of the year (1-12) or month name
-        year : int, optional
+        year : int, default 2009
             Year in the specified calendar system
 
         Returns
@@ -261,7 +282,7 @@ class DateMapping:
         --------
         Get weekdays for different calendar systems:
 
-        >>> mapper = DateMapping(DateDataLoader())
+        >>> mapper = DateMapping()
         >>> # Gregorian calendar
         >>> weekday = mapper.get_weekday_by_date('gregorian', 15, 3, 2024)
         >>> print(f"March 15, 2024 is a {weekday}")  # "Friday"
@@ -277,21 +298,17 @@ class DateMapping:
         mapping data, which may occur for dates outside the available range
         or invalid date combinations.
         """
-        if not self._is_data_loaded():
-            logger.error("Calendar data not loaded")
-            return None
-
-        # Find matching rows using the utility function
+        # Find matching rows
         matching_rows = find_date_row(self.df, era, day, month, year)
 
         # Return weekday if found, None otherwise
         if matching_rows.empty:
-            logger.debug(f"Date not found: {era} {day}/{month}/{year}")
+            logger.debug(f"Date not found: {calendar} {day}/{month}/{year}")
             return None
 
         # Log if multiple matches found (shouldn't happen with clean data)
         if len(matching_rows) > 1:
-            logger.warning(f"Multiple matches found for {era} {day}/{month}/{year}")
+            logger.warning(f"Multiple matches found for {calendar} {day}/{month}/{year}")
 
         return matching_rows.iloc[0][WEEKDAY_COLUMN]
 
@@ -339,7 +356,7 @@ class DateMapping:
         --------
         Convert between different calendar systems:
 
-        >>> mapper = DateMapping(DateDataLoader())
+        >>> mapper = DateMapping()
         >>> # Convert Gregorian to all systems
         >>> result = mapper.get_calendar_variants('gregorian', 1, 1, 2024)
         >>> if result:
@@ -358,12 +375,17 @@ class DateMapping:
         It returns complete information for all supported calendar systems,
         enabling seamless conversion between any two systems.
         """
-        if not self._is_data_loaded():
-            logger.error("Calendar data not loaded")
+        # Find matching rows
+        matching_rows = find_date_row(self.df, calendar, day, month, year)
+
+        # Return weekday if found, None otherwise
+        if matching_rows.empty:
+            logger.debug(f"Date not found: {calendar} {day}/{month}/{year}")
             return None
 
-        # Find matching rows using the utility function
-        matching_rows = find_date_row(self.df, calendar, day, month, year)
+        # Log if multiple matches found (shouldn't happen with clean data)
+        if len(matching_rows) > 1:
+            logger.warning(f"Multiple matches found for {calendar} {day}/{month}/{year}")
 
         if matching_rows.empty:
             logger.debug(f"Date not found for conversion: {calendar} {day}/{month}/{year}")
@@ -427,7 +449,7 @@ class DateMapping:
         --------
         Validate dates before conversion:
 
-        >>> mapper = DateMapping(DateDataLoader())
+        >>> mapper = DateMapping()
         >>> # Valid date
         >>> is_valid = mapper.validate_date('gregorian', 29, 2, 2024)  # Leap year
         >>> print(f"Feb 29, 2024 is valid: {is_valid}")
@@ -476,7 +498,7 @@ class DateMapping:
         
         # Check date coverage for each calendar
         for calendar_name, columns in SUPPORTED_CALENDARS_COLUMNS.items():
-            year_col = columns[2]  # Year column is always third
+            year_col = columns[2]
             year_range = self.df[year_col].max() - self.df[year_col].min() + 1
             unique_years = len(self.df[year_col].unique())
             
@@ -499,7 +521,7 @@ class DateMapping:
         
         Examples
         --------
-        >>> mapper = DateMapping(DateDataLoader())
+        >>> mapper = DateMapping()
         >>> calendars = mapper.get_supported_calendars()
         >>> print(f"Supported calendars: {', '.join(calendars)}")
         # Output: "Supported calendars: gregorian, hijri, julian"
@@ -534,7 +556,7 @@ class DateMapping:
         --------
         Check available date ranges:
         
-        >>> mapper = DateMapping(DateDataLoader())
+        >>> mapper = DateMapping()
         >>> ranges = mapper.get_data_range()
         >>> greg_range = ranges['gregorian']
         >>> print(f"Gregorian dates available: {greg_range['min_year']} to {greg_range['max_year']}")
@@ -594,39 +616,14 @@ class DateMapping:
             
         Examples
         --------
-        >>> mapper = DateMapping(DateDataLoader())
+        >>> mapper = DateMapping()
         >>> info = mapper.get_month_info('gregorian', 2, 2024)  # February 2024
         >>> print(f"February 2024 has {info['day_count']} days")
         >>> print(f"Starts on {info['first_weekday']}, ends on {info['last_weekday']}")
         """
-        if not self._is_data_loaded():
-            return {
-                'calendar': calendar,
-                'month': month,
-                'year': year,
-                'day_count': 0,
-                'error': 'Calendar data not loaded'
-            }
-
-        try:
-            calendar = normalize_calendar_from_era(calendar)
-        except ValueError as e:
-            return {
-                'calendar': calendar,
-                'month': month,
-                'year': year,
-                'day_count': 0,
-                'error': str(e)
-            }
-
-        # Get column names for this calendar
-        day_col, month_col, year_col = SUPPORTED_CALENDARS_COLUMNS[calendar]
+        dates = self.get_calendar_variants(calendar, month, year)
         
-        # Filter data for the specific month and year
-        month_mask = (self.df[month_col] == month) & (self.df[year_col] == year)
-        month_data = self.df[month_mask].sort_values(day_col)
-        
-        if month_data.empty:
+        if not dates:
             return {
                 'calendar': calendar,
                 'month': month,
@@ -636,18 +633,18 @@ class DateMapping:
             }
         
         # Count weekday occurrences
-        weekdays = month_data[WEEKDAY_COLUMN].tolist()
+        weekdays = [d['weekday'] for d in dates]
         weekday_counts = {day: weekdays.count(day) for day in set(weekdays)}
         
         return {
             'calendar': calendar,
             'month': month,
             'year': year,
-            'day_count': len(month_data),
-            'first_day': int(month_data.iloc[0][day_col]),
-            'last_day': int(month_data.iloc[-1][day_col]),
-            'first_weekday': month_data.iloc[0][WEEKDAY_COLUMN],
-            'last_weekday': month_data.iloc[-1][WEEKDAY_COLUMN],
+            'day_count': len(dates),
+            'first_day': dates[0][calendar]['day'],
+            'last_day': dates[-1][calendar]['day'],
+            'first_weekday': dates[0]['weekday'],
+            'last_weekday': dates[-1]['weekday'],
             'weekday_distribution': weekday_counts,
             'month_name': self._get_month_name(calendar, month)
         }
@@ -701,7 +698,7 @@ class DateMapping:
             
         Examples
         --------
-        >>> mapper = DateMapping(DateDataLoader())
+        >>> mapper = DateMapping()
         >>> # Find first Monday of March 2024
         >>> first_monday = mapper.find_date_by_weekday('gregorian', 'Monday', 3, 2024, 1)
         >>> # Find last Friday of December 2023
@@ -711,37 +708,30 @@ class DateMapping:
             return None
         
         try:
-            calendar = normalize_calendar_from_era(calendar)
+            calendar = str(self.normalize_calendar_from_era(calendar))
         except ValueError:
             return None
         
-        # Get column names for this calendar
-        day_col, month_col, year_col = SUPPORTED_CALENDARS_COLUMNS[calendar]
+        # Get all dates in the month
+        dates = self.get_calendar_variants(calendar, month, year)
         
-        # Filter data for the specific month and year, and the target weekday
-        filter_mask = (
-            (self.df[month_col] == month) & 
-            (self.df[year_col] == year) & 
-            (self.df[WEEKDAY_COLUMN] == weekday)
-        )
-        matching_dates = self.df[filter_mask].sort_values(day_col)
+        # Filter by weekday
+        matching_dates = [d for d in dates if d['weekday'] == weekday]
         
-        if matching_dates.empty:
+        if not matching_dates:
             return None
+        
+        # Sort by day
+        matching_dates.sort(key=lambda x: x[calendar]['day'])
         
         # Handle occurrence selection
         try:
             if occurrence > 0:
                 # Positive: count from beginning
-                selected_row = matching_dates.iloc[occurrence - 1]
+                return matching_dates[occurrence - 1]
             else:
                 # Negative: count from end
-                selected_row = matching_dates.iloc[occurrence]
-            
-            # Return the calendar variants for the found date
-            day = int(selected_row[day_col])
-            return self.get_calendar_variants(calendar, day, month, year)
-            
+                return matching_dates[occurrence]
         except IndexError:
             return None
     
@@ -765,7 +755,7 @@ class DateMapping:
             return {'error': 'Data not loaded'}
         
         try:
-            calendar = normalize_calendar_from_era(calendar)
+            calendar = str(self.normalize_calendar_from_era(calendar))
         except ValueError as e:
             return {'error': str(e)}
         
@@ -798,9 +788,6 @@ class DateMapping:
         weekdays = year_data[WEEKDAY_COLUMN].tolist()
         weekday_counts = {day: weekdays.count(day) for day in set(weekdays)}
         
-        # Sort year data by month and day for first/last date calculation
-        year_data_sorted = year_data.sort_values([month_col, day_col])
-        
         return {
             'calendar': calendar,
             'year': year,
@@ -811,14 +798,14 @@ class DateMapping:
             'weekday_distribution': weekday_counts,
             'is_leap_year': self._is_leap_year(calendar, year, total_days),
             'first_date': {
-                'day': int(year_data_sorted.iloc[0][day_col]),
-                'month': int(year_data_sorted.iloc[0][month_col]),
-                'weekday': year_data_sorted.iloc[0][WEEKDAY_COLUMN]
+                'day': int(year_data.iloc[0][day_col]),
+                'month': int(year_data.iloc[0][month_col]),
+                'weekday': year_data.iloc[0][WEEKDAY_COLUMN]
             },
             'last_date': {
-                'day': int(year_data_sorted.iloc[-1][day_col]),
-                'month': int(year_data_sorted.iloc[-1][month_col]),
-                'weekday': year_data_sorted.iloc[-1][WEEKDAY_COLUMN]
+                'day': int(year_data.iloc[-1][day_col]),
+                'month': int(year_data.iloc[-1][month_col]),
+                'weekday': year_data.iloc[-1][WEEKDAY_COLUMN]
             }
         }
     
@@ -866,7 +853,7 @@ class DateMapping:
             
             {
                 'total_records': int,
-                'supported_calendars': List[str],
+                'SUPPORTED_CALENDARS_COLUMNS': List[str],
                 'weekdays': List[str],
                 'date_ranges': Dict[str, Dict[str, int]],
                 'sample_record': Dict[str, Any]
@@ -874,10 +861,10 @@ class DateMapping:
             
         Examples
         --------
-        >>> mapper = DateMapping(DateDataLoader())
+        >>> mapper = DateMapping()
         >>> info = mapper.get_calendar_info()
         >>> print(f"Total records: {info['total_records']:,}")
-        >>> print(f"Supported calendars: {', '.join(info['supported_calendars'])}")
+        >>> print(f"Supported calendars: {', '.join(info['SUPPORTED_CALENDARS_COLUMNS'])}")
         """
         if not self._is_data_loaded():
             return {'error': 'Data not loaded'}
@@ -905,14 +892,13 @@ class DateMapping:
         
         return {
             'total_records': len(self.df),
-            'supported_calendars': list(SUPPORTED_CALENDARS_COLUMNS.keys()),
+            'SUPPORTED_CALENDARS_COLUMNS': list(SUPPORTED_CALENDARS_COLUMNS.keys()),
             'calendar_aliases': CALENDAR_ALIASES,
             'weekdays': sorted(self.df[WEEKDAY_COLUMN].unique()),
             'date_ranges': self.get_data_range(),
             'sample_record': sample_record,
             'data_quality': self._get_data_quality_metrics()
         }
-
     def _to_datetime(self):
         """
         Convert to Python datetime object if possible.
@@ -986,7 +972,6 @@ class DateMapping:
             # Handle invalid dates (e.g., Feb 30, invalid ranges)
             return None
 
-
 if __name__ == "__main__":
     """
     Main function demonstrating usage of the DateMapping class.
@@ -1003,8 +988,7 @@ if __name__ == "__main__":
     try:
         # Initialize the DateMapping instance
         print("1. Initializing DateMapping...")
-        ddl = DateDataLoader()
-        mapper = DateMapping(ddl)
+        mapper = DateMapping()
         
         if not mapper._is_data_loaded():
             print("❌ Failed to load calendar data. Please check the CSV file path.")
@@ -1017,7 +1001,7 @@ if __name__ == "__main__":
             print("2. Calendar Data Information:")
             info = mapper.get_calendar_info()
             print(f"   📊 Total records: {info['total_records']:,}")
-            print(f"   📅 Supported calendars: {', '.join(info['supported_calendars'])}")
+            print(f"   📅 Supported calendars: {', '.join(info['SUPPORTED_CALENDARS_COLUMNS'])}")
             print(f"   🌍 Available weekdays: {', '.join(info['weekdays'])}")
             
             if info['sample_record']:
