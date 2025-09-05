@@ -1,1 +1,1 @@
-from .calendar_data_loader import CalendarDataLoader
+from .date_data_loader import DateDataLoader

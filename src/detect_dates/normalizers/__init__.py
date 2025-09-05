@@ -43,6 +43,10 @@ from .calendar import (
     get_calendar_info
 )
 
+from .calendar_from_era import (
+    normalize_calendar_from_era
+)
+
 # Exported functions
 # ===================================================================================
 # This section defines the functions that will be available when this module is imported.
@@ -64,6 +68,7 @@ __all__ = [
     "normalize_calendar_name",
     "get_calendar_info",
     "get_calendar",
-    "get_era_info"
+    "get_era_info",
+    "normalize_calendar_from_era"
     
 ]

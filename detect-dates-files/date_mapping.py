@@ -3,7 +3,7 @@ Calendar Conversion Utilities
 ============================
 
 Utility class for mapping and converting dates between Gregorian, Hijri, and Solar Hijri calendars.
-Relies on a pre-calculated mapping DataFrame loaded via CalendarDataLoader.
+Relies on a pre-calculated mapping DataFrame loaded via DateDataLoader.
 
 Examples
 --------
@@ -16,7 +16,7 @@ Examples
 False
 """
 
-from detect_dates.data import CalendarDataLoader
+from detect_dates.data import DateDataLoader
 from typing import Optional, Dict, List, Union
 import pandas as pd
 
@@ -42,7 +42,7 @@ class DateMapping:
         RuntimeError
             If calendar data cannot be loaded.
         """
-        loader = CalendarDataLoader()
+        loader = DateDataLoader()
         print(f"   Supported calendars: {loader.get_supported_calendars()}")
         self.df = loader.load_data()
         print(f"   Loaded {len(self.df):,} records (first call)")

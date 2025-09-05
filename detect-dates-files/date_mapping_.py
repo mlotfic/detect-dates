@@ -69,7 +69,7 @@ Requires: pandas>=1.3.0
 
 import os
 import pandas as pd
-from detect_dates.data import CalendarDataLoader
+from detect_dates.data import DateDataLoader
 from detect_dates.normalizers import 
 from detect_dates.normalizers import (
     normalize_era,
@@ -169,7 +169,7 @@ class DateMapping:
             RuntimeError: If there are issues with data processing
         """
         try:
-            loader = CalendarDataLoader()
+            loader = DateDataLoader()
             print(f"   Supported calendars: {loader.get_supported_calendars()}")
             
             self.df = loader.load_data()

@@ -495,7 +495,7 @@ class ParsedDate:
             self.day is not None and 
             self.month is not None and 
             self.year is not None and 
-            self.era is not None
+            (self.era is not None or self.calendar is not None)
         )
 
     def _is_calendar(self) -> bool:
@@ -523,8 +523,7 @@ class ParsedDate:
         """
         return (
             self.year is not None and 
-            self.era is not None and 
-            self.calendar is not None
+            (self.era is not None or self.calendar is not None)
         )
 
     def to_dict(self, format="standard") -> Dict[str, Any]:
@@ -822,79 +821,6 @@ class ParsedDate:
         result = result.replace('%%', '%')
         
         return result
-
-    def _to_datetime(self):
-        """
-        Convert to Python datetime object if possible.
-        
-        Attempts to create a Python datetime object from the parsed date components.
-        Only works for complete Gregorian calendar dates with all required components
-        (day, month, year). Other calendar systems and partial dates cannot be converted.
-
-        Returns
-        -------
-        datetime or None
-            Python datetime object if conversion is possible, None otherwise
-
-        Notes
-        -----
-        Conversion requirements:
-        - Must be a complete date (day, month, year all present)
-        - Must use Gregorian calendar system
-        - Date components must represent a valid calendar date
-        - Negative years (BCE) are not supported by Python datetime
-
-        Examples
-        --------
-        >>> from datetime import datetime
-        >>> complete_date = ParsedDate(raw=DateComponents(day="15", month="3", year="2023", 
-        ...                                              era="CE", calendar="gregorian"),
-        ...                           standard=DateComponents(), numeric=DateComponents(), meta=DateMeta())
-        >>> dt = complete_date._to_datetime()
-        >>> isinstance(dt, datetime)
-        True
-        >>> dt.year
-        2023
-
-        >>> partial_date = ParsedDate(raw=DateComponents(month="March", year="2023"),
-        ...                          standard=DateComponents(), numeric=DateComponents(), meta=DateMeta())
-        >>> partial_date._to_datetime() is None
-        True
-
-        >>> hijri_date = ParsedDate(raw=DateComponents(day="15", month="3", year="1445", 
-        ...                                           era="AH", calendar="hijri"),
-        ...                        standard=DateComponents(), numeric=DateComponents(), meta=DateMeta())
-        >>> hijri_date._to_datetime() is None
-        True
-        """
-        # Import datetime here to avoid circular imports
-        from datetime import datetime
-        
-        # Check if we have a complete Gregorian date
-        if not self.is_complete_date:
-            return None
-            
-        if self.calendar != 'gregorian':
-            return None
-            
-        # Check for required components
-        if self.day is None or self.month_num is None or self.year is None:
-            return None
-            
-        # Python datetime doesn't support negative years (BCE dates)
-        if self.year <= 0:
-            return None
-        
-        try:
-            # Attempt to create datetime object with validation
-            return datetime(
-                year=int(self.year),
-                month=int(self.month_num), 
-                day=int(self.day)
-            )
-        except (ValueError, TypeError, OverflowError):
-            # Handle invalid dates (e.g., Feb 30, invalid ranges)
-            return None
 
 
 # Example usage and testing

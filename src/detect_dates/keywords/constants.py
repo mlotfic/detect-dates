@@ -43,9 +43,29 @@ SUPPORTED_CALENDARS_COLUMNS = {
     'julian': ['Solar Hijri Day', 'Solar Hijri Month', 'Solar Hijri Year']
 }
 
+class RelationType(Enum):
+    """Enumeration of possible relationships between dates."""
+    ALTERNATIVE_FORM = "alternative_form"
+    FINANCIAL_YEAR = "financial_year" 
+    RANGE = "range"
+    SEASONAL = "seasonal"
+    UNKNOWN = "unknown"
+    INCOMPARABLE = "incomparable"
+
+class ComplexityLevel(Enum):
+    """Enumeration of date entity complexity levels."""
+    COMPONENT = "component"        # Single incomplete component
+    SIMPLE_UNKNOWN = "simple_unknown"  # Single date, unknown format
+    SIMPLE = "simple"             # Single complete date
+    COMPOSITE = "composite"       # Two related dates
+    SEASONAL = "seasonal"         # Seasonal/recurring dates
+    COMPLEX = "complex"           # Complex multi-date relationships
+
+
 WEEKDAY_COLUMN = 'Week Day'
 
 SUPPORTED_LANGUAGES = {lang.value for lang in Language}
 SUPPORTED_CALENDARS = {cal.value for cal in Calendar}
 DEFAULT_LANGUAGE = Language.ARABIC.value
 DEFAULT_CALENDAR = ""
+

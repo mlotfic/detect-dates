@@ -1,24 +1,33 @@
 from typing import Dict, Any, List, Optional
 import os
 
-# Module-level constants for supported calendar systems
-# Based on actual CSV structure: Week Day,Hijri Day,Hijri Month,Hijri Year,Gregorian Day,Gregorian Month,Gregorian Year,Solar Hijri Day,Solar Hijri Month,Solar Hijri Year
-SUPPORTED_CALENDARS = {
-    'gregorian': ['Gregorian Day', 'Gregorian Month', 'Gregorian Year'],
-    'hijri': ['Hijri Day', 'Hijri Month', 'Hijri Year'],
-    'julian': ['Solar Hijri Day', 'Solar Hijri Month', 'Solar Hijri Year']  # Note: 'julian' maps to Solar Hijri
-}
+# Import path helper to ensure modules directory is in sys.path
+# ===================================================================================
+if __name__ == "__main__":
+    # This is necessary for importing other modules in the package structure
+    import sys
+    from pathlib import Path
+    def setup_src_path():
+        current_file = Path(__file__).resolve()
+        parts = current_file.parts
+        for i, part in enumerate(parts):
+            if part == 'src' and i + 2 < len(parts):
+                src_second_path = str(Path(*parts[:i + 1]))
+                if src_second_path not in sys.path:
+                    sys.path.insert(0, src_second_path)
+                    print(f"Added to sys.path: {src_second_path}")
+                break
+    print("INFO: Run Main File : adding file parent src to path ...")
+    setup_src_path()
 
-# Column name for weekday information in the CSV file
-WEEKDAY_COLUMN = 'Week Day'
+import os
+import pandas as pd
 
-# Calendar system aliases for user convenience
-CALENDAR_ALIASES = {
-    'solar_hijri': 'julian',
-    'persian': 'julian',
-    'islamic': 'hijri',
-    'greg': 'gregorian'
-}
+from detect_dates.keywords.constants import (
+    SUPPORTED_CALENDARS_COLUMNS,
+    WEEKDAY_COLUMN,
+    CALENDAR_ALIASES,
+)
 
 def normalize_calendar_name(calendar: Optional[str]) -> Optional[str]:
         """
@@ -43,11 +52,11 @@ def normalize_calendar_name(calendar: Optional[str]) -> Optional[str]:
             return CALENDAR_ALIASES[calendar]
 
         # Check direct matches
-        if calendar in SUPPORTED_CALENDARS:
+        if calendar in SUPPORTED_CALENDARS_COLUMNS:
             return calendar
 
         # Generate helpful error message
-        all_names = list(SUPPORTED_CALENDARS.keys()) + list(CALENDAR_ALIASES.keys())
+        all_names = list(SUPPORTED_CALENDARS_COLUMNS.keys()) + list(CALENDAR_ALIASES.keys())
         raise ValueError(
             f"Unsupported calendar system: '{calendar}'. "
             f"Supported systems: {sorted(all_names)}"

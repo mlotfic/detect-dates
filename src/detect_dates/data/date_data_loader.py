@@ -21,7 +21,22 @@ if __name__ == "__main__":
                 break
     print("INFO: Run Main File : adding file parent src to path ...")
     setup_src_path()
-    
+
+from detect_dates.keywords.constants import (
+    Language,
+    Calendar,
+    OutputFormat,
+    PRECISION_LEVELS,
+    CALENDAR_ALIASES,
+    SUPPORTED_LANGUAGES,
+    SUPPORTED_CALENDARS,
+    SUPPORTED_CALENDARS_COLUMNS,
+    WEEKDAY_COLUMN,
+    DEFAULT_LANGUAGE,
+    DEFAULT_CALENDAR,
+    RelationType,
+    ComplexityLevel,
+)
 import os
 import pandas as pd
 from typing import Optional, Dict, List, Union
@@ -32,13 +47,6 @@ import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Module-level constants for supported calendar systems
-# Maps calendar names to their corresponding CSV column names
-SUPPORTED_CALENDARS = {
-    'gregorian': ['Gregorian Day', 'Gregorian Month', 'Gregorian Year'],
-    'hijri': ['Hijri Day', 'Hijri Month', 'Hijri Year'],
-    'julian': ['Solar Hijri Day', 'Solar Hijri Month', 'Solar Hijri Year']  # Note: 'julian' maps to Solar Hijri
-}
 
 # Column name for weekday information in the CSV file
 WEEKDAY_COLUMN = 'Week Day'
@@ -46,15 +54,151 @@ WEEKDAY_COLUMN = 'Week Day'
 # Default CSV file path relative to this module
 DEFAULT_CSV_PATH = "./mapping_date/Hijri-Gregorian-Solar_Hijri-V3.csv"
 
-# Calendar system aliases for user convenience
-CALENDAR_ALIASES = {
-    'solar_hijri': 'julian',
-    'persian': 'julian',
-    'islamic': 'hijri',
-    'greg': 'gregorian'
-}
 
-class CalendarDataLoader:
+@dataclass
+class DateMapping:
+    """
+    A class for mapping and converting dates between different calendar systems.
+
+    This class provides comprehensive methods to convert dates between Gregorian,
+    Hijri (Islamic), and Solar Hijri (Persian) calendar systems. It uses a
+    pre-calculated CSV mapping file containing astronomical conversions to ensure
+    accuracy across different historical periods.
+
+    The class is designed with performance in mind, using pandas for efficient
+    data operations and caching mechanisms to avoid repeated file I/O.
+
+    Attributes
+    ----------
+    df : Optional[pd.DataFrame]
+        DataFrame containing the calendar mapping data.
+        This is loaded automatically during initialization.
+    csv_path : str
+        Path to the CSV file containing mapping data.
+    _data_loaded : bool
+        Internal flag indicating successful data loading.
+    _date_ranges : Dict[str, Dict[str, int]]
+        Cached date ranges for each calendar.
+
+    Examples
+    --------
+    Initialize and perform basic operations:
+
+    >>> # Standard initialization (uses default CSV path)
+    >>> mapper = DateMapping()
+    >>> # Custom CSV path
+    >>> mapper = DateMapping(csv_path="custom/path/to/calendar_data.csv")
+    >>> # Check if data loaded successfully
+    >>> if mapper.is_data_loaded():
+    ...     weekday = mapper.get_weekday_by_date('gregorian', 15, 3, 2024)
+
+    Notes
+    -----
+    The CSV file should be located at the specified path relative to this
+    module's location. If the file is not found, the class will raise a
+    FileNotFoundError with helpful guidance.
+    """
+    
+    _data_loaded: bool = False
+    _date_ranges: Optional[Dict[str, Dict[str, int]]] = None
+
+    def __post_init__(self, csv_path=None) -> None:
+        """
+        Initialize the DateMapping instance by loading the calendar data.
+
+        This method is automatically called after object creation to:
+
+        * Load and validate the mapping data from the CSV file
+        * Perform data integrity checks
+        * Cache frequently used information
+        * Set up error handling for missing or corrupt data
+
+        The initialization is fail-safe: if data loading fails, the object
+        is still created but with limited functionality.
+
+        Parameters
+        ----------
+        csv_path : str, optional
+            Path to the CSV file containing calendar mappings.
+            If None, uses default path from DateDataLoader.
+
+        Raises
+        ------
+        FileNotFoundError
+            If the calendar mapping CSV file cannot be found
+        ValueError
+            If the CSV file has incorrect structure or missing columns
+        RuntimeError
+            If there are issues with data processing
+        """
+        try:
+            loader = DateDataLoader()
+            print(f"   Supported calendars: {loader.get_supported_calendars()}")
+            
+            self.df = loader.load_data()
+            print(f"   Loaded {len(self.df):,} records (first call)")
+            print(f"   Retrieved {len(self.df):,} records (cached)")
+
+            self._data_loaded = True
+            logger.info(f"Successfully loaded {len(self.df):,} calendar mapping records")
+        except Exception as e:
+            logger.error(f"Failed to initialize DateMapping: {str(e)}")
+            self._data_loaded = False
+            # Don't re-raise to allow graceful degradation        
+
+    def is_data_loaded(self) -> bool:
+        """
+        Check if the calendar mapping data was loaded successfully.
+
+        Returns
+        -------
+        bool
+            True if data is loaded and ready for use, False otherwise
+
+        Examples
+        --------
+        >>> mapper = DateMapping()
+        >>> if mapper.is_data_loaded():
+        ...     # Safe to use mapping functions
+        ...     result = mapper.get_weekday_by_date('gregorian', 1, 1, 2024)
+        ... else:
+        ...     print("Calendar data not available")
+        """
+        return self._data_loaded and self.df is not None and not self.df.empty
+
+    def _validate_date_ranges(self) -> None:
+        """
+        Validate that date ranges in the DataFrame are reasonable.
+
+        This method checks the loaded data to ensure that day, month, and year
+        values fall within expected ranges for each calendar system.
+
+        Raises
+        ------
+        ValueError
+            If date ranges are invalid or suspicious
+        """
+        for calendar_name, columns in SUPPORTED_CALENDARS_COLUMNS.items():
+            day_col, month_col, year_col = columns
+
+            # Check day ranges (1-31)
+            day_min, day_max = self.df[day_col].min(), self.df[day_col].max()
+            if not (1 <= day_min and day_max <= 31):
+                raise ValueError(f"Invalid day range for {calendar_name}: {day_min}-{day_max}")
+
+            # Check month ranges (1-12)
+            month_min, month_max = self.df[month_col].min(), self.df[month_col].max()
+            if not (1 <= month_min and month_max <= 12):
+                raise ValueError(f"Invalid month range for {calendar_name}: {month_min}-{month_max}")
+
+            # Check year ranges (reasonable historical range)
+            year_min, year_max = self.df[year_col].min(), self.df[year_col].max()
+            if calendar_name == 'gregorian':
+                if year_min < -5000 or year_max > 10000:
+                    logger.warning(f"Unusual Gregorian year range: {year_min}-{year_max}")
+
+
+class DateDataLoader:
     """
     Calendar data loader with caching and validation capabilities.
 
@@ -75,12 +219,12 @@ class CalendarDataLoader:
 
     Examples
     --------
-    >>> loader = CalendarDataLoader()
+    >>> loader = DateDataLoader()
     >>> data = loader.load_data()
     >>> print(f"Loaded {len(data)} calendar records")
 
     >>> # Use custom CSV file
-    >>> loader = CalendarDataLoader("/path/to/custom/data.csv")
+    >>> loader = DateDataLoader("/path/to/custom/data.csv")
     >>> data = loader.load_data()
     """
 
@@ -117,7 +261,7 @@ class CalendarDataLoader:
 
         Examples
         --------
-        >>> loader = CalendarDataLoader()
+        >>> loader = DateDataLoader()
         >>> data = loader.load_data()  # Loads from disk
         >>> data2 = loader.load_data()  # Returns cached data
         >>> assert data is data2  # Same object reference
@@ -137,7 +281,7 @@ class CalendarDataLoader:
 
         Examples
         --------
-        >>> loader = CalendarDataLoader()
+        >>> loader = DateDataLoader()
         >>> data1 = loader.load_data()
         >>> # ... CSV file is updated externally ...
         >>> data2 = loader.reload_data()  # Loads fresh data
@@ -156,7 +300,7 @@ class CalendarDataLoader:
 
         Examples
         --------
-        >>> loader = CalendarDataLoader()
+        >>> loader = DateDataLoader()
         >>> calendars = loader.get_supported_calendars()
         >>> print(calendars)  # ['gregorian', 'hijri', 'julian']
         """
@@ -348,9 +492,9 @@ if __name__ == "__main__":
     print("\n" + "="*50 + "\n")
     
     # Example 2: Using the class-based loader
-    print("2. Using CalendarDataLoader class:")
+    print("2. Using DateDataLoader class:")
     try:
-        loader = CalendarDataLoader()
+        loader = DateDataLoader()
         print(f"   Supported calendars: {loader.get_supported_calendars()}")
         
         data = loader.load_data()

@@ -88,13 +88,21 @@ if __name__ == "__main__":
 
 import os
 import pandas as pd
-from detect_dates.data import CalendarDataLoader
+from detect_dates.data import DateDataLoader
+
+from detect_dates.keywords.constants import (
+    SUPPORTED_CALENDARS_COLUMNS,
+)
+
 from detect_dates.normalizers import (
+    calendar_from_era,
     normalize_era,
     normalize_month, 
     normalize_weekday,
     normalize_calendar_name,
     get_calendar,
+    normalize_calendar_from_era,
+    normalize_input_date
 )
     
 from typing import Optional, Dict, List, Union, Any, Tuple
@@ -120,262 +128,15 @@ from detect_dates.keywords.constants import (
     DEFAULT_LANGUAGE,
     DEFAULT_CALENDAR,
 )
-
-
-@dataclass
-class DateMapping:
-    """
-    A class for mapping and converting dates between different calendar systems.
-
-    This class provides comprehensive methods to convert dates between Gregorian,
-    Hijri (Islamic), and Solar Hijri (Persian) calendar systems. It uses a
-    pre-calculated CSV mapping file containing astronomical conversions to ensure
-    accuracy across different historical periods.
-
-    The class is designed with performance in mind, using pandas for efficient
-    data operations and caching mechanisms to avoid repeated file I/O.
-
-    Attributes
-    ----------
-    df : Optional[pd.DataFrame]
-        DataFrame containing the calendar mapping data.
-        This is loaded automatically during initialization.
-    csv_path : str
-        Path to the CSV file containing mapping data.
-    _data_loaded : bool
-        Internal flag indicating successful data loading.
-    _date_ranges : Dict[str, Dict[str, int]]
-        Cached date ranges for each calendar.
-
-    Examples
-    --------
-    Initialize and perform basic operations:
-
-    >>> # Standard initialization (uses default CSV path)
-    >>> mapper = DateMapping()
-    >>> # Custom CSV path
-    >>> mapper = DateMapping(csv_path="custom/path/to/calendar_data.csv")
-    >>> # Check if data loaded successfully
-    >>> if mapper.is_data_loaded():
-    ...     weekday = mapper.get_weekday_by_date('gregorian', 15, 3, 2024)
-
-    Notes
-    -----
-    The CSV file should be located at the specified path relative to this
-    module's location. If the file is not found, the class will raise a
-    FileNotFoundError with helpful guidance.
-    """
-    
-    _data_loaded: bool = False
-    _date_ranges: Optional[Dict[str, Dict[str, int]]] = None
-
-    def __post_init__(self, csv_path=None) -> None:
-        """
-        Initialize the DateMapping instance by loading the calendar data.
-
-        This method is automatically called after object creation to:
-
-        * Load and validate the mapping data from the CSV file
-        * Perform data integrity checks
-        * Cache frequently used information
-        * Set up error handling for missing or corrupt data
-
-        The initialization is fail-safe: if data loading fails, the object
-        is still created but with limited functionality.
-
-        Parameters
-        ----------
-        csv_path : str, optional
-            Path to the CSV file containing calendar mappings.
-            If None, uses default path from CalendarDataLoader.
-
-        Raises
-        ------
-        FileNotFoundError
-            If the calendar mapping CSV file cannot be found
-        ValueError
-            If the CSV file has incorrect structure or missing columns
-        RuntimeError
-            If there are issues with data processing
-        """
-        try:
-            loader = CalendarDataLoader()
-            print(f"   Supported calendars: {loader.get_supported_calendars()}")
-            
-            self.df = loader.load_data()
-            print(f"   Loaded {len(self.df):,} records (first call)")
-            print(f"   Retrieved {len(self.df):,} records (cached)")
-
-            self._data_loaded = True
-            logger.info(f"Successfully loaded {len(self.df):,} calendar mapping records")
-        except Exception as e:
-            logger.error(f"Failed to initialize DateMapping: {str(e)}")
-            self._data_loaded = False
-            # Don't re-raise to allow graceful degradation        
-
-    def is_data_loaded(self) -> bool:
-        """
-        Check if the calendar mapping data was loaded successfully.
-
-        Returns
-        -------
-        bool
-            True if data is loaded and ready for use, False otherwise
-
-        Examples
-        --------
-        >>> mapper = DateMapping()
-        >>> if mapper.is_data_loaded():
-        ...     # Safe to use mapping functions
-        ...     result = mapper.get_weekday_by_date('gregorian', 1, 1, 2024)
-        ... else:
-        ...     print("Calendar data not available")
-        """
-        return self._data_loaded and self.df is not None and not self.df.empty
-
-    def _validate_date_ranges(self) -> None:
-        """
-        Validate that date ranges in the DataFrame are reasonable.
-
-        This method checks the loaded data to ensure that day, month, and year
-        values fall within expected ranges for each calendar system.
-
-        Raises
-        ------
-        ValueError
-            If date ranges are invalid or suspicious
-        """
-        for calendar_name, columns in SUPPORTED_CALENDARS_COLUMNS.items():
-            day_col, month_col, year_col = columns
-
-            # Check day ranges (1-31)
-            day_min, day_max = self.df[day_col].min(), self.df[day_col].max()
-            if not (1 <= day_min and day_max <= 31):
-                raise ValueError(f"Invalid day range for {calendar_name}: {day_min}-{day_max}")
-
-            # Check month ranges (1-12)
-            month_min, month_max = self.df[month_col].min(), self.df[month_col].max()
-            if not (1 <= month_min and month_max <= 12):
-                raise ValueError(f"Invalid month range for {calendar_name}: {month_min}-{month_max}")
-
-            # Check year ranges (reasonable historical range)
-            year_min, year_max = self.df[year_col].min(), self.df[year_col].max()
-            if calendar_name == 'gregorian':
-                if year_min < -5000 or year_max > 10000:
-                    logger.warning(f"Unusual Gregorian year range: {year_min}-{year_max}")
-
-    def get_calendar(self, era: str) -> Optional[str]:
-        """
-        Get the normalized calendar name from an era string or calendar name.
-
-        Parameters
-        ----------
-        era : str
-            Era string (e.g., 'AD', 'AH', 'CE', 'BCE') or calendar name/alias
-
-        Returns
-        -------
-        str
-            Normalized calendar name ('gregorian', 'hijri', 'julian')
-
-        Raises
-        ------
-        ValueError
-            If the era string is not recognized
-        """
-        # First, check if input is a calendar name or alias
-        era_lower = era.lower()
-        if era_lower in SUPPORTED_CALENDARS_COLUMNS:
-            return era_lower
-        if era_lower in CALENDAR_ALIASES:
-            return CALENDAR_ALIASES[era_lower]
-
-        # Otherwise, treat as era abbreviation
-        n_era = normalize_era(era)
-        if n_era:
-            calendar = get_calendar(n_era)
-            if calendar:
-                return normalize_calendar_name(calendar)
-        # Fallback: return input as-is
-        return None
-    
-    def validate_input_date(self, era: str, day: int, month: Optional[Union[str, int]], year: Optional[Union[str, int]]) -> Tuple[str, int, int, int]:
-        """
-        Validate and normalize input date components for correctness.
-
-        Parameters
-        ----------
-        era : str
-            Era or calendar system identifier
-        day : int
-            Day of the month (1-31)
-        month : int or str
-            Month of the year (1-12 or month name)
-        year : int
-            Year in the specified calendar system
-
-        Returns
-        -------
-        tuple
-            Normalized (calendar, day, month, year) tuple
-
-        Raises
-        ------
-        RuntimeError
-            If calendar mapping data is not loaded
-        ValueError
-            If calendar system is not supported or date components are invalid
-        """        
-        if not self.is_data_loaded():
+if not self._is_data_loaded():
             raise RuntimeError("Calendar mapping data is not loaded. Check initialization.")
-        # print(era)
-        # Normalize and validate calendar name
-        calendar = self.get_calendar(era)  
-        # print(calendar)
-        if calendar not in SUPPORTED_CALENDARS_COLUMNS:
-            raise ValueError(f"Unsupported calendar system: '{calendar}'. Supported systems: {list(SUPPORTED_CALENDARS_COLUMNS.keys())}")
-        
-        # Validate day - set to default if invalid
-        if not isinstance(day, int) or not (1 <= day <= 31):
-            day = 1
-            print(f"Invalid day value: {day}. Must be an integer between 1 and 31.")
-            print(f"Day set to default value: 1.")
-
-        # Handle string month names by converting to numbers
-        if isinstance(month, str):
-            month = normalize_month(month, output_format="number")
-            if month is None:
-                raise ValueError(f"Invalid month name: {month}. Must be a valid month name or number.")
-            try:
-                month = int(month)
-                if not (1 <= month <= 12):
-                    raise ValueError(f"Invalid month value after normalization: {month}. Must be between 1 and 12.")
-            except Exception:
-                raise ValueError(f"Month normalization did not return an integer: {month}")
-        elif not isinstance(month, int) or not (1 <= month <= 12):
-            raise ValueError(f"Invalid month value: {month}. Must be an integer between 1 and 12.")
-
-        # Validate year range based on calendar system
-        year_ranges = {
-            'gregorian': (1900, 2077),
-            'hijri': (1318, 1500),
-            'julian': (1278, 1456)
-        }
-        min_year, max_year = year_ranges.get(calendar, (None, None))
-        if (
-            not isinstance(year, int)
-            or min_year is None
-            or max_year is None
-            or year < min_year
-            or year > max_year
-        ):
-            raise ValueError(
-                f"Unusual year value: {year}. Must be an integer between {min_year} and {max_year} for {calendar} calendar."
-            )
-        
-        return calendar, day, month, year
-        
-    def get_weekday_by_date(self, era: str = "AD", day: int = 1, month: Union[int, str] = 1, year: int = 2009) -> Optional[str]:
+def find_date_row(
+        df: pd.DataFrame,
+        era: str, 
+        day: Optional[int], 
+        month: Optional[Union[str, int]], 
+        year: Optional[Union[str, int]]
+        ) -> Optional[str]:
         """
         Get the weekday name for a specific date in the given calendar system.
 
@@ -427,17 +188,231 @@ class DateMapping:
         or invalid date combinations.
         """
         # Validate input date components
-        calendar, day, month, year = self.validate_input_date(era, day, month, year)
+        calendar, day, month, year = normalize_input_date(era, day, month, year)
         
-        # Get column names for the specified calendar system
-        day_col, month_col, year_col = SUPPORTED_CALENDARS_COLUMNS[calendar]
+        # Ensure at least year and calendar are provided        
+        if calendar:
+            # Get column names for the specified calendar system
+            day_col, month_col, year_col = SUPPORTED_CALENDARS_COLUMNS[calendar]
+        else:
+            raise ValueError("Calendar system could not be determined from input.")
 
         # Create filter mask to find matching date
-        mask = (
-            (self.df[day_col] == day) &
-            (self.df[month_col] == month) &
-            (self.df[year_col] == year)
-        )
+        day_filter = ()
+        if day is not None and month is not None and year is not None:
+            mask = (
+                (self.df[day_col] == day) &
+                (self.df[month_col] == month if month else True) &
+                (self.df[year_col] == year)
+            )
+        elif month is not None and year is not None:
+            mask = (
+                (self.df[month_col] == month if month else True) &
+                (self.df[year_col] == year)
+            )
+        elif year is not None:
+            mask = (df[year_col] == year)
+        
+        else:
+            raise ValueError("At least year and calendar system must be specified.")
+
+        # Find matching rows
+        return df[mask]
+
+@dataclass
+class DateMapping:
+    """
+    A class for mapping and converting dates between different calendar systems.
+
+    This class provides comprehensive methods to convert dates between Gregorian,
+    Hijri (Islamic), and Solar Hijri (Persian) calendar systems. It uses a
+    pre-calculated CSV mapping file containing astronomical conversions to ensure
+    accuracy across different historical periods.
+
+    The class is designed with performance in mind, using pandas for efficient
+    data operations and caching mechanisms to avoid repeated file I/O.
+
+    Attributes
+    ----------
+    df : Optional[pd.DataFrame]
+        DataFrame containing the calendar mapping data.
+        This is loaded automatically during initialization.
+    csv_path : str
+        Path to the CSV file containing mapping data.
+    _data_loaded : bool
+        Internal flag indicating successful data loading.
+    _date_ranges : Dict[str, Dict[str, int]]
+        Cached date ranges for each calendar.
+
+    Examples
+    --------
+    Initialize and perform basic operations:
+
+    >>> # Standard initialization (uses default CSV path)
+    >>> mapper = DateMapping()
+    >>> # Custom CSV path
+    >>> mapper = DateMapping(csv_path="custom/path/to/calendar_data.csv")
+    >>> # Check if data loaded successfully
+    >>> if mapper._is_data_loaded():
+    ...     weekday = mapper.get_weekday_by_date('gregorian', 15, 3, 2024)
+
+    Notes
+    -----
+    The CSV file should be located at the specified path relative to this
+    module's location. If the file is not found, the class will raise a
+    FileNotFoundError with helpful guidance.
+    """
+    ddl: DateDataLoader
+
+    def __post_init__(self) -> None:
+        """
+        Initialize the DateMapping instance by loading the calendar data.
+
+        This method is automatically called after object creation to:
+
+        * Load and validate the mapping data from the CSV file
+        * Perform data integrity checks
+        * Cache frequently used information
+        * Set up error handling for missing or corrupt data
+
+        The initialization is fail-safe: if data loading fails, the object
+        is still created but with limited functionality.
+
+        Parameters
+        ----------
+        csv_path : str, optional
+            Path to the CSV file containing calendar mappings.
+            If None, uses default path from DateDataLoader.
+
+        Raises
+        ------
+        FileNotFoundError
+            If the calendar mapping CSV file cannot be found
+        ValueError
+            If the CSV file has incorrect structure or missing columns
+        RuntimeError
+            If there are issues with data processing
+        """
+        try:
+            loader = self.ddl
+            print(f"   Supported calendars: {loader.get_supported_calendars()}")
+            
+            self.df = loader.load_data()
+            print(f"   Loaded {len(self.df):,} records (first call)")
+            print(f"   Retrieved {len(self.df):,} records (cached)")
+
+            self._data_loaded = True
+            logger.info(f"Successfully loaded {len(self.df):,} calendar mapping records")
+        except Exception as e:
+            logger.error(f"Failed to initialize DateMapping: {str(e)}")
+            self._data_loaded = False
+            # Don't re-raise to allow graceful degradation        
+
+    def _is_data_loaded(self) -> bool:
+        """
+        Check if the calendar mapping data was loaded successfully.
+
+        Returns
+        -------
+        bool
+            True if data is loaded and ready for use, False otherwise
+
+        Examples
+        --------
+        >>> mapper = DateMapping()
+        >>> if mapper._is_data_loaded():
+        ...     # Safe to use mapping functions
+        ...     result = mapper.get_weekday_by_date('gregorian', 1, 1, 2024)
+        ... else:
+        ...     print("Calendar data not available")
+        """
+        return self._data_loaded and self.df is not None and not self.df.empty
+    
+    def get_weekday_by_date(
+        self, 
+        era: str, 
+        day: Optional[int], 
+        month: Optional[Union[str, int]], 
+        year: Optional[Union[str, int]]
+        ) -> Optional[str]:
+        """
+        Get the weekday name for a specific date in the given calendar system.
+
+        This method looks up the weekday for a specific date using the pre-calculated
+        mapping data. The lookup is fast and accurate, based on astronomical calculations.
+
+        Parameters
+        ----------
+        era : str, default "AD"
+            Calendar system ('gregorian', 'hijri', 'julian', or aliases) or era ('AD', 'AH', etc.)
+        day : int, default 1
+            Day of the month (1-31 depending on calendar and month)
+        month : int or str, default 1
+            Month of the year (1-12) or month name
+        year : int, default 2009
+            Year in the specified calendar system
+
+        Returns
+        -------
+        Optional[str]
+            Weekday name ('Sunday', 'Monday', ..., 'Saturday')
+            or None if date not found in mapping data
+
+        Raises
+        ------
+        ValueError
+            If the calendar parameter is not supported
+        RuntimeError
+            If calendar data is not loaded
+
+        Examples
+        --------
+        Get weekdays for different calendar systems:
+
+        >>> mapper = DateMapping()
+        >>> # Gregorian calendar
+        >>> weekday = mapper.get_weekday_by_date('gregorian', 15, 3, 2024)
+        >>> print(f"March 15, 2024 is a {weekday}")  # "Friday"
+        >>> # Hijri calendar
+        >>> weekday = mapper.get_weekday_by_date('hijri', 1, 1, 1445)
+        >>> print(f"1st Muharram 1445 AH is a {weekday}")
+        >>> # Using aliases
+        >>> weekday = mapper.get_weekday_by_date('islamic', 15, 6, 1445)
+
+        Notes
+        -----
+        The method returns None if the specific date is not found in the
+        mapping data, which may occur for dates outside the available range
+        or invalid date combinations.
+        """
+        # Validate input date components
+        calendar, day, month, year = normalize_input_date(era, day, month, year)
+        
+        # Ensure at least year and calendar are provided        
+        if calendar:
+            # Get column names for the specified calendar system
+            day_col, month_col, year_col = SUPPORTED_CALENDARS_COLUMNS[calendar]
+        else:
+            raise ValueError("Calendar system could not be determined from input.")
+
+        # Create filter mask to find matching date
+        day_filter = ()
+        if day is not None and month is not None and year is not None:
+            mask = (
+                (self.df[day_col] == day) &
+                (self.df[month_col] == month if month else True) &
+                (self.df[year_col] == year)
+            )
+        elif month is not None and year is not None:
+            mask = (
+                (self.df[month_col] == month if month else True) &
+                (self.df[year_col] == year)
+            )
+        elif year is not None:
+            mask = (self.df[year_col] == year)
+        
+        else:
+            raise ValueError("At least year and calendar system must be specified.")
 
         # Find matching rows
         matching_rows = self.df[mask]
@@ -517,7 +492,7 @@ class DateMapping:
         enabling seamless conversion between any two systems.
         """
         # Validate input date components
-        calendar, day, month, year = self.validate_input_date(calendar, day, month, year)
+        calendar, day, month, year = normalize_input_date(calendar, day, month, year)
 
         # Get column names for the specified calendar system
         day_col, month_col, year_col = SUPPORTED_CALENDARS_COLUMNS[calendar]
@@ -609,7 +584,7 @@ class DateMapping:
         This method is more efficient than get_weekday_by_date() when you
         only need to check validity without retrieving additional information.
         """
-        if not self.is_data_loaded():
+        if not self._is_data_loaded():
             return False
 
         try:
@@ -631,7 +606,7 @@ class DateMapping:
         Dict[str, Any]
             Data quality metrics including record count, date coverage, etc.
         """
-        if not self.is_data_loaded():
+        if not self._is_data_loaded():
             return {'status': 'no_data'}
         
         metrics = {
@@ -717,7 +692,7 @@ class DateMapping:
         These ranges represent the actual data available in the CSV file.
         Dates outside these ranges cannot be converted between calendar systems.
         """
-        if not self.is_data_loaded():
+        if not self._is_data_loaded():
             return {}
         
         # Use cached ranges if available
@@ -769,11 +744,11 @@ class DateMapping:
         >>> march_2024 = mapper.get_dates_by_month_year('gregorian', 3, 2024)
         >>> print(f"March 2024 has {len(march_2024)} days")
         """
-        if not self.is_data_loaded():
+        if not self._is_data_loaded():
             return []
 
         try:
-            calendar_normalized = self.get_calendar(calendar)
+            calendar_normalized = self.normalize_calendar_from_era(calendar)
             if calendar_normalized is None:
                 raise ValueError(f"Unsupported calendar system: '{calendar}'. Supported systems: {list(SUPPORTED_CALENDARS_COLUMNS.keys())}")
             calendar = calendar_normalized
@@ -929,11 +904,11 @@ class DateMapping:
         >>> # Find last Friday of December 2023
         >>> last_friday = mapper.find_date_by_weekday('gregorian', 'Friday', 12, 2023, -1)
         """
-        if not self.is_data_loaded():
+        if not self._is_data_loaded():
             return None
         
         try:
-            calendar = str(self.get_calendar(calendar))
+            calendar = str(self.normalize_calendar_from_era(calendar))
         except ValueError:
             return None
         
@@ -976,11 +951,11 @@ class DateMapping:
         Dict[str, Any]
             Year information including day count, leap year status, etc.
         """
-        if not self.is_data_loaded():
+        if not self._is_data_loaded():
             return {'error': 'Data not loaded'}
         
         try:
-            calendar = str(self.get_calendar(calendar))
+            calendar = str(self.normalize_calendar_from_era(calendar))
         except ValueError as e:
             return {'error': str(e)}
         
@@ -1091,7 +1066,7 @@ class DateMapping:
         >>> print(f"Total records: {info['total_records']:,}")
         >>> print(f"Supported calendars: {', '.join(info['SUPPORTED_CALENDARS_COLUMNS'])}")
         """
-        if not self.is_data_loaded():
+        if not self._is_data_loaded():
             return {'error': 'Data not loaded'}
         
         # Get sample record for demonstration
@@ -1124,6 +1099,78 @@ class DateMapping:
             'sample_record': sample_record,
             'data_quality': self._get_data_quality_metrics()
         }
+    def _to_datetime(self):
+        """
+        Convert to Python datetime object if possible.
+        
+        Attempts to create a Python datetime object from the parsed date components.
+        Only works for complete Gregorian calendar dates with all required components
+        (day, month, year). Other calendar systems and partial dates cannot be converted.
+
+        Returns
+        -------
+        datetime or None
+            Python datetime object if conversion is possible, None otherwise
+
+        Notes
+        -----
+        Conversion requirements:
+        - Must be a complete date (day, month, year all present)
+        - Must use Gregorian calendar system
+        - Date components must represent a valid calendar date
+        - Negative years (BCE) are not supported by Python datetime
+
+        Examples
+        --------
+        >>> from datetime import datetime
+        >>> complete_date = ParsedDate(raw=DateComponents(day="15", month="3", year="2023", 
+        ...                                              era="CE", calendar="gregorian"),
+        ...                           standard=DateComponents(), numeric=DateComponents(), meta=DateMeta())
+        >>> dt = complete_date._to_datetime()
+        >>> isinstance(dt, datetime)
+        True
+        >>> dt.year
+        2023
+
+        >>> partial_date = ParsedDate(raw=DateComponents(month="March", year="2023"),
+        ...                          standard=DateComponents(), numeric=DateComponents(), meta=DateMeta())
+        >>> partial_date._to_datetime() is None
+        True
+
+        >>> hijri_date = ParsedDate(raw=DateComponents(day="15", month="3", year="1445", 
+        ...                                           era="AH", calendar="hijri"),
+        ...                        standard=DateComponents(), numeric=DateComponents(), meta=DateMeta())
+        >>> hijri_date._to_datetime() is None
+        True
+        """
+        # Import datetime here to avoid circular imports
+        from datetime import datetime
+        
+        # Check if we have a complete Gregorian date
+        if not self.is_complete_date:
+            return None
+            
+        if self.calendar != 'gregorian':
+            return None
+            
+        # Check for required components
+        if self.day is None or self.month_num is None or self.year is None:
+            return None
+            
+        # Python datetime doesn't support negative years (BCE dates)
+        if self.year <= 0:
+            return None
+        
+        try:
+            # Attempt to create datetime object with validation
+            return datetime(
+                year=int(self.year),
+                month=int(self.month_num), 
+                day=int(self.day)
+            )
+        except (ValueError, TypeError, OverflowError):
+            # Handle invalid dates (e.g., Feb 30, invalid ranges)
+            return None
 
 if __name__ == "__main__":
     """
@@ -1143,7 +1190,7 @@ if __name__ == "__main__":
         print("1. Initializing DateMapping...")
         mapper = DateMapping()
         
-        if not mapper.is_data_loaded():
+        if not mapper._is_data_loaded():
             print("❌ Failed to load calendar data. Please check the CSV file path.")
 
         else:
