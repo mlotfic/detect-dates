@@ -766,105 +766,7 @@ class DateEntity(ParsedDate):
 
         return f"{year_str}-{month_str}-{day_str}"
 
-    def strftime(self, format_string: str) -> str:
-        """
-        Format the parsed date using strftime-like format codes with extensions.
-
-        Supports standard strftime codes plus extensions for partial dates:
-
-        Standard codes:
-            * %d: Day with zero padding (01-31) or ?? if None
-            * %e: Day without padding (1-31) or ? if None
-            * %m: Month as number with padding (01-12) or ?? if None
-            * %n: Month as number without padding (1-12) or ? if None
-            * %b: Abbreviated month name (Jan, Feb, ...) or ??? if None
-            * %B: Full month name (January, February, ...) or ??? if None
-            * %y: Year without century (00-99) or ?? if None
-            * %Y: Year with century (e.g. 2023, 1066) or ???? if None
-            * %C: Century number or ?? if None
-            * %A: Full weekday name (Monday, ...) or ??? if None
-            * %a: Abbreviated weekday name (Mon, ...) or ??? if None
-
-        Extensions:
-            * %E: Era (BCE, CE, AD, BC) or empty if None
-            * %S: Calendar system or empty if None
-            * %P: Precision level or empty if None
-            * %%: Literal % character
-
-        Args:
-            format_string (str): Format string with % codes
-
-        Returns:
-            str: Formatted date string with missing components shown as ? marks
-
-        Example::
-
-            date = DateEntity(day=15, month=3, year=2023)
-            print(date.strftime("%Y-%m-%d"))    # "2023-03-15"
-            print(date.strftime("%B %e, %Y"))   # "March 15, 2023"
-
-            partial = DateEntity(month="March", year=2023)
-            print(partial.strftime("%B %Y"))    # "March 2023"
-            print(partial.strftime("%Y-%m-%d")) # "2023-03-??"
-        """
-        result = format_string
-
-        # Day formatting
-        if self.day:
-            result = result.replace('%d', f"{self.day:02d}")
-            result = result.replace('%e', str(self.day))
-        else:
-            result = result.replace('%d', '??')
-            result = result.replace('%e', '?')
-
-        # Month formatting
-        if self.month_num:
-            result = result.replace('%m', f"{self.month_num:02d}")
-            result = result.replace('%n', str(self.month_num))
-
-            # Get month names
-            full_month = normalize_month(self.month_num,
-                                       to_lang=self.lang or 'en',
-                                       to_calendar=self.calendar or 'gregorian',
-                                       output_format="full")
-            abbr_month = normalize_month(self.month_num,
-                                       to_lang=self.lang or 'en',
-                                       to_calendar=self.calendar or 'gregorian',
-                                       output_format="abbr")
-
-            result = result.replace('%B', full_month or '???')
-            result = result.replace('%b', abbr_month or '???')
-        else:
-            result = result.replace('%m', '??')
-            result = result.replace('%n', '?')
-            result = result.replace('%B', '???')
-            result = result.replace('%b', '???')
-
-        # Year formatting
-        if self.year:
-            result = result.replace('%Y', str(self.year))
-            result = result.replace('%y', f"{abs(self.year) % 100:02d}")
-            result = result.replace('%C', str((abs(self.year) // 100) + 1))
-        else:
-            result = result.replace('%Y', '????')
-            result = result.replace('%y', '??')
-            result = result.replace('%C', '??')
-
-        # Weekday formatting
-        if self.weekday:
-            result = result.replace('%A', self.weekday)
-            result = result.replace('%a', self.weekday[:3] if len(self.weekday) >= 3 else self.weekday)
-        else:
-            result = result.replace('%A', '???')
-            result = result.replace('%a', '???')
-
-        # Extension formatting
-        result = result.replace('%E', self.era or '')
-        result = result.replace('%S', self.calendar or '')
-        result = result.replace('%P', self.precision or '')
-        result = result.replace('%%', '%')
-
-        return result
+    
 
     def get_readable(self) -> str:
         """
@@ -920,24 +822,7 @@ class DateEntity(ParsedDate):
 
         return " ".join(parts)
 
-    def _to_datetime(self) -> Optional[datetime]:
-        """
-        Convert to Python datetime object if possible.
-
-        Returns:
-            Optional[datetime]: Python datetime object or None if conversion not possible
-
-        Note:
-            Only works for complete Gregorian dates. Other calendar systems and
-            partial dates cannot be converted to Python datetime objects.
-        """
-        if not self.is_complete() or self.calendar != 'gregorian':
-            return None
-
-        try:
-            return datetime(self.year, self.month_num, self.day)
-        except ValueError:
-            return None
+    
 
 
 def create_date_from_components(day: Optional[int] = None,

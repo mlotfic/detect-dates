@@ -162,7 +162,7 @@ class ParsedDate(DateEntity):
             ISO formatted date string like "2023-03-15" or "2023-??-??" for partial dates
         """
 
-def strftime(self, format_string: str) -> str:
+    def strftime(self, format_string: str) -> str:
         """
         Format the parsed date using strftime-like format codes.
 

@@ -87,7 +87,7 @@ from detect_dates.normalizers import (
     normalize_month,
     normalize_weekday,
     normalize_calendar_name,
-    normalize_numeric_word, 
+    # normalize_numeric_word, 
     get_calendar
 )
 
@@ -97,179 +97,9 @@ from detect_dates.calendar_variants import (
     format_century_with_era,
 )
 
-
-@dataclass
-class DateComponents:
-    """
-    Basic date components container for structured date representation.
-
-    A lightweight container class that holds the fundamental components of a date,
-    including day, month, year, century, era, and calendar system. Useful for
-    passing date information between functions without normalization overhead.
-
-    Parameters
-    ----------
-    weekday : str, optional
-        Day of the week (e.g., 'Monday', 'Tuesday')
-    day : int or str, optional
-        Day of the month (1-31), accepts both numeric and string formats
-    month : int or str, optional
-        Month of the year (1-12 or month name like 'January')
-    year : int or str, optional
-        Year (positive for CE/AD, negative for BCE/BC)
-    century : int or str, optional
-        Century (e.g., 21 for 21st century)
-    era : str, optional
-        Era designation ('CE', 'BCE', 'AH')
-    calendar : str, optional
-        Calendar system ('gregorian', 'hijri', 'julian')
-
-    Examples
-    --------
-    >>> components = DateComponents(day=15, month=3, year=2023, century=21, era="CE", calendar="gregorian")
-    >>> simple_components = DateComponents(year=2023)
-    >>> print(components.day)
-    15
-    """
-    weekday: Optional[str] = None
-    day: Optional[Union[int, str]] = None
-    month: Optional[Union[int, str]] = None
-    year: Optional[Union[int, str]] = None
-    century: Optional[Union[int, str]] = None
-    era: Optional[str] = None
-    calendar: Optional[str] = None
-
-
-@dataclass
-class DateComponentsDefault:
-    """
-    Strict date components with validation constraints.
-
-    Similar to DateComponents but with strict validation rules enforced.
-    This class is intended for scenarios where you need guaranteed valid
-    date component ranges and type safety.
-
-    Parameters
-    ----------
-    weekday : str, optional
-        Day of the week
-    day : int, optional
-        Day of the month, must be between 1-31 if provided
-    month : int, optional
-        Month of the year, must be between 1-12 if provided
-    year : int, optional
-        Year, must be between 1-3000 if provided
-    century : int, optional
-        Century, must be between 1-30 if provided
-    era : str, optional
-        Era designation
-    calendar : str, optional
-        Calendar system, must be one of ('gregorian', 'hijri', 'julian') if provided
-
-    Raises
-    ------
-    ValueError
-        If any component is outside its valid range during initialization
-
-    Notes
-    -----
-    The validation constraints are enforced automatically during initialization.
-    This provides immediate feedback on invalid date components.
-
-    Examples
-    --------
-    >>> valid_date = DateComponentsDefault(day=15, month=3, year=2023)
-    >>> # This will raise ValueError:
-    >>> invalid_date = DateComponentsDefault(day=35, month=3, year=2023)
-    """
-    weekday: Optional[str] = None
-    day: Optional[int] = None  # strict from 1 to 31
-    month: Optional[int] = None  # strict from 1 to 12 
-    year: Optional[int] = None  # strict 1 to 3000
-    century: Optional[int] = None  # strict 1 to 30
-    era: Optional[str] = None
-    calendar: Optional[str] = None  # strict ('gregorian', 'hijri', 'julian', None)
-    
-    def __post_init__(self):
-        """
-        Post-initialization validation of date components.
-
-        This method checks that the provided components adhere to the
-        specified constraints. Raises ValueError if any component is out of range.
-
-        Raises
-        ------
-        ValueError
-            If any component is outside its valid range
-        """
-        if self.day is not None and not (1 <= self.day <= 31):
-            raise ValueError("Day must be between 1 and 31")
-        if self.month is not None and not (1 <= self.month <= 12):
-            raise ValueError("Month must be between 1 and 12")
-        if self.year is not None and not (1 <= self.year <= 3000):
-            raise ValueError("Year must be between 1 and 3000")
-        if self.century is not None and not (1 <= self.century <= 30):
-            raise ValueError("Century must be between 1 and 30")
-        if self.calendar is not None and self.calendar not in ('gregorian', 'hijri', 'julian'):
-            raise ValueError("Calendar must be one of ('gregorian', 'hijri', 'julian') or None")
-
-
-@dataclass
-class DateMeta:
-    """
-    Metadata container for date parsing context and quality information.
-
-    Stores additional information about how a date was parsed, including
-    the original text, language detection, precision level, confidence scoring,
-    and validation flags. Used for debugging, quality assessment, and
-    post-processing decisions.
-
-    Parameters
-    ----------
-    text : str, optional
-        Original text that was parsed to create this date
-    lang : str, optional
-        Language of the original text (ISO 639-1 code like 'en', 'ar')
-    precision : str, optional
-        Precision level indicator ('day', 'month', 'year', 'century')
-    confidence : float, optional
-        Parsing confidence score between 0.0 and 1.0
-    created_at : str, optional
-        Timestamp when the date was parsed
-    created_by : str, optional
-        System or module that created this date
-    is_calendar_date : bool, default False
-        Whether the date has calendar-level information (year + era)
-    is_complete_date : bool, default False
-        Whether the date has complete day-level precision
-    valid_date : bool, default False
-        Whether the date passed all validation checks
-    role_in_text : str, optional
-        Role this date plays in the source text (e.g., 'birth_date', 'event_date')
-    related_to : str, optional
-        What entity or concept this date relates to
-
-    Examples
-    --------
-    >>> meta = DateMeta(
-    ...     text="15 March 2023",
-    ...     lang="en",
-    ...     precision="day",
-    ...     confidence=0.95,
-    ...     is_complete_date=True
-    ... )
-    """
-    text: Optional[str] = None
-    lang: Optional[str] = None
-    precision: Optional[str] = None
-    confidence: Optional[float] = None
-    created_at: Optional[str] = None
-    created_by: Optional[str] = None
-    is_calendar_date: bool = False
-    is_complete_date: bool = False
-    valid_date: bool = False
-    role_in_text: Optional[str] = None
-    related_to: Optional[str] = None
+from components import DateComponents
+from components_default import DateComponentsDefault
+from meta import DateMeta
 
 
 @dataclass 
@@ -870,6 +700,201 @@ class ParsedDate:
             parts.append(f"({self.calendar})")
             
         return " ".join(parts) if parts else "No date information"
+
+    def strftime(self, format_string: str) -> str:
+        """
+        Format the parsed date using strftime-like format codes with extensions.
+        
+        Supports standard strftime codes plus custom extensions for partial dates
+        and calendar-specific information. Missing components are displayed with
+        question marks to indicate incomplete data.
+
+        Parameters
+        ----------
+        format_string : str
+            Format string with % codes for date components
+
+        Returns
+        -------
+        str
+            Formatted date string with missing components shown as ? marks
+
+        Notes
+        -----
+        Standard strftime codes supported:
+        - %d: Day with zero padding (01-31) or ?? if None
+        - %e: Day without padding (1-31) or ? if None  
+        - %m: Month as number with padding (01-12) or ?? if None
+        - %n: Month as number without padding (1-12) or ? if None
+        - %b: Abbreviated month name (Jan, Feb, ...) or ??? if None
+        - %B: Full month name (January, February, ...) or ??? if None
+        - %y: Year without century (00-99) or ?? if None
+        - %Y: Year with century (e.g. 2023, 1066) or ???? if None
+        - %C: Century number or ?? if None
+        - %A: Full weekday name (Monday, ...) or ??? if None
+        - %a: Abbreviated weekday name (Mon, ...) or ??? if None
+
+        Custom extensions:
+        - %E: Era (BCE, CE, AD, BC) or empty if None
+        - %S: Calendar system or empty if None  
+        - %P: Precision level or empty if None
+        - %%: Literal % character
+
+        Examples
+        --------
+        >>> date = ParsedDate(raw=DateComponents(day="15", month="3", year="2023", era="CE"),
+        ...                   standard=DateComponents(), numeric=DateComponents(), meta=DateMeta())
+        >>> date.strftime("%Y-%m-%d")
+        '2023-03-15'
+        >>> date.strftime("%B %e, %Y %E")
+        'March 15, 2023 CE'
+        >>> partial = ParsedDate(raw=DateComponents(month="March", year="2023"),
+        ...                      standard=DateComponents(), numeric=DateComponents(), meta=DateMeta())
+        >>> partial.strftime("%B %Y")
+        'March 2023'
+        >>> partial.strftime("%Y-%m-%d")
+        '2023-03-??'
+        """
+        result = format_string
+        
+        # Day formatting
+        if self.day is not None:
+            result = result.replace('%d', f"{self.day:02d}")
+            result = result.replace('%e', str(self.day))
+        else:
+            result = result.replace('%d', '??')
+            result = result.replace('%e', '?')
+        
+        # Month formatting
+        if self.month_num is not None:
+            result = result.replace('%m', f"{self.month_num:02d}")
+            result = result.replace('%n', str(self.month_num))
+            
+            # Use existing month name from standard components if available
+            if self.month:
+                # Full month name
+                result = result.replace('%B', str(self.month))
+                # Abbreviated month name (first 3 characters)
+                abbr_month = str(self.month)[:3] if len(str(self.month)) >= 3 else str(self.month)
+                result = result.replace('%b', abbr_month)
+            else:
+                result = result.replace('%B', '???')
+                result = result.replace('%b', '???')
+        else:
+            result = result.replace('%m', '??')
+            result = result.replace('%n', '?')
+            result = result.replace('%B', '???')
+            result = result.replace('%b', '???')
+        
+        # Year formatting
+        if self.year is not None:
+            result = result.replace('%Y', str(self.year))
+            result = result.replace('%y', f"{abs(self.year) % 100:02d}")
+            # Century calculation
+            if self.century is not None:
+                result = result.replace('%C', str(self.century))
+            else:
+                # Calculate century from year
+                century_num = (abs(self.year) // 100) + 1
+                result = result.replace('%C', str(century_num))
+        else:
+            result = result.replace('%Y', '????')
+            result = result.replace('%y', '??')
+            result = result.replace('%C', '??')
+        
+        # Weekday formatting
+        if self.weekday is not None:
+            weekday_str = str(self.weekday)
+            result = result.replace('%A', weekday_str)
+            # Abbreviated weekday (first 3 characters)
+            abbr_weekday = weekday_str[:3] if len(weekday_str) >= 3 else weekday_str
+            result = result.replace('%a', abbr_weekday)
+        else:
+            result = result.replace('%A', '???')
+            result = result.replace('%a', '???')
+        
+        # Custom extension formatting
+        result = result.replace('%E', self.era or '')
+        result = result.replace('%S', self.calendar or '')
+        result = result.replace('%P', self.precision or '')
+        
+        # Handle literal % character (must be done last)
+        result = result.replace('%%', '%')
+        
+        return result
+
+    def _to_datetime(self):
+        """
+        Convert to Python datetime object if possible.
+        
+        Attempts to create a Python datetime object from the parsed date components.
+        Only works for complete Gregorian calendar dates with all required components
+        (day, month, year). Other calendar systems and partial dates cannot be converted.
+
+        Returns
+        -------
+        datetime or None
+            Python datetime object if conversion is possible, None otherwise
+
+        Notes
+        -----
+        Conversion requirements:
+        - Must be a complete date (day, month, year all present)
+        - Must use Gregorian calendar system
+        - Date components must represent a valid calendar date
+        - Negative years (BCE) are not supported by Python datetime
+
+        Examples
+        --------
+        >>> from datetime import datetime
+        >>> complete_date = ParsedDate(raw=DateComponents(day="15", month="3", year="2023", 
+        ...                                              era="CE", calendar="gregorian"),
+        ...                           standard=DateComponents(), numeric=DateComponents(), meta=DateMeta())
+        >>> dt = complete_date._to_datetime()
+        >>> isinstance(dt, datetime)
+        True
+        >>> dt.year
+        2023
+
+        >>> partial_date = ParsedDate(raw=DateComponents(month="March", year="2023"),
+        ...                          standard=DateComponents(), numeric=DateComponents(), meta=DateMeta())
+        >>> partial_date._to_datetime() is None
+        True
+
+        >>> hijri_date = ParsedDate(raw=DateComponents(day="15", month="3", year="1445", 
+        ...                                           era="AH", calendar="hijri"),
+        ...                        standard=DateComponents(), numeric=DateComponents(), meta=DateMeta())
+        >>> hijri_date._to_datetime() is None
+        True
+        """
+        # Import datetime here to avoid circular imports
+        from datetime import datetime
+        
+        # Check if we have a complete Gregorian date
+        if not self.is_complete_date:
+            return None
+            
+        if self.calendar != 'gregorian':
+            return None
+            
+        # Check for required components
+        if self.day is None or self.month_num is None or self.year is None:
+            return None
+            
+        # Python datetime doesn't support negative years (BCE dates)
+        if self.year <= 0:
+            return None
+        
+        try:
+            # Attempt to create datetime object with validation
+            return datetime(
+                year=int(self.year),
+                month=int(self.month_num), 
+                day=int(self.day)
+            )
+        except (ValueError, TypeError, OverflowError):
+            # Handle invalid dates (e.g., Feb 30, invalid ranges)
+            return None
 
 
 # Example usage and testing
