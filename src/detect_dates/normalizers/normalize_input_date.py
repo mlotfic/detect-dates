@@ -101,7 +101,7 @@ from calendar_from_era import normalize_calendar_from_era
 
 
 def normalize_input_date(
-        era: str, 
+        era: Optional[str], 
         day: Optional[int], 
         month: Optional[Union[str, int]], 
         year: Optional[Union[str, int]]
@@ -204,7 +204,7 @@ def normalize_input_date(
     - All error messages provide specific guidance for correction
     """
     # Step 1: Normalize and validate calendar name from era
-    calendar = self.normalize_calendar_from_era(era)
+    calendar = normalize_calendar_from_era(era)
     
     if calendar not in SUPPORTED_CALENDARS_COLUMNS:
         supported_systems = list(SUPPORTED_CALENDARS_COLUMNS.keys())

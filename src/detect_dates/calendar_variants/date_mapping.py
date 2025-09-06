@@ -15,11 +15,11 @@ ddl = DateDataLoader()
 mapper = DateMapping(ddl)
 
 # Get weekday for any date
-weekday = mapper.get_weekday_by_date('gregorian', 15, 3, 2024)
+weekday = mapper.find_weekday('gregorian', 15, 3, 2024)
 print(f"March 15, 2024 is a {weekday}")  # "Friday"
 
 # Convert between calendar systems
-result = mapper.get_calendar_variants('gregorian', 1, 1, 2024)
+result = mapper.find_calendars('gregorian', 1, 1, 2024)
 hijri = result['hijri']
 print(f"Jan 1, 2024 = {hijri['day']}/{hijri['month']}/{hijri['year']} Hijri")
 
@@ -40,7 +40,9 @@ ddl = DateDataLoader("path/to/custom/calendar_data.csv")
 mapper = DateMapping(ddl)
 ```
 """
-
+ # Validate input date components
+#calendar, day, month, year = normalize_input_date(era, day, month, year)
+        
 # Import path helper to ensure modules directory is in sys.path
 # ===================================================================================
 if __name__ == "__main__":
@@ -82,7 +84,7 @@ from detect_dates.normalizers import (
     normalize_input_date
 )
 
-from ..utils import find_date_row
+from utils.find_date_row import find_date_row
 from typing import Optional, Dict, List, Union, Any, Tuple
 from dataclasses import dataclass
 import logging
@@ -147,7 +149,7 @@ class DateMapping:
     >>> mapper = DateMapping(ddl)
     >>> # Check if data loaded successfully
     >>> if mapper._is_data_loaded():
-    ...     weekday = mapper.get_weekday_by_date('gregorian', 15, 3, 2024)
+    ...     weekday = mapper.find_weekday('gregorian', 15, 3, 2024)
 
     Notes
     -----
@@ -190,7 +192,7 @@ class DateMapping:
             print(f"   Retrieved {len(self.df):,} records (cached)")
 
             self._data_loaded = True
-            self._date_ranges = None  # Initialize cache for date ranges
+            self._date_ranges = loader.date_ranges()  # Initialize cache for date ranges
             
             logger.info(f"Successfully loaded {len(self.df):,} calendar mapping records")
         except Exception as e:
@@ -214,19 +216,64 @@ class DateMapping:
         >>> mapper = DateMapping(DateDataLoader())
         >>> if mapper._is_data_loaded():
         ...     # Safe to use mapping functions
-        ...     result = mapper.get_weekday_by_date('gregorian', 1, 1, 2024)
+        ...     result = mapper.find_weekday('gregorian', 1, 1, 2024)
         ... else:
         ...     print("Calendar data not available")
         """
         return self._data_loaded and self.df is not None and not self.df.empty
     
-    def get_weekday_by_date(
-        self, 
-        era: str, 
-        day: Optional[int], 
-        month: Optional[Union[str, int]], 
-        year: Optional[Union[str, int]]
-        ) -> Optional[str]:
+    def set_date(self, calendar: Optional[str], day: Optional[int], month: Optional[Union[int, str]], year: Optional[int]) -> None:
+        """
+        Set the current date context for instance methods.
+
+        This method allows setting a specific date in a given calendar system.
+        The date components are stored as instance attributes for use in other
+        methods that operate on the current date context.
+
+        Parameters
+        ----------
+        calendar : str
+            Calendar system ('gregorian', 'hijri', 'julian', or aliases)
+        day : int, optional
+            Day of the month (1-31 depending on calendar and month)
+        month : int or str, optional
+            Month of the year (1-12) or month name
+        year : int, optional
+            Year in the specified calendar system
+
+        Examples
+        --------
+        Set a date and then find its weekday:
+
+        >>> mapper = DateMapping(DateDataLoader())
+        >>> mapper.set_date('gregorian', 15, 3, 2024)
+        >>> weekday = mapper.find_weekday()
+        >>> print(f"March 15, 2024 is a {weekday}")  # "Friday"
+
+        Notes
+        -----
+        This method does not validate the date. Use validate_date() to check
+        if the date exists in the mapping data.
+        """
+        # Validate input date components
+        self.calendar, self.day, self.month, self.year = normalize_input_date(calendar, day, month, year)
+        
+        # Ensure at least year and calendar are provided        
+        if self.calendar:
+            # Get column names for the specified calendar system
+            self.day_col, self.month_col, self.year_col = SUPPORTED_CALENDARS_COLUMNS[self.calendar]
+        else:
+            raise ValueError("Calendar system could not be determined from input.")
+                
+        # Determine if we have a complete date (all components present)
+        self.is_complete_date = (
+            self.calendar in SUPPORTED_CALENDARS_COLUMNS and
+            isinstance(self.day, int) and
+            isinstance(self.month, int) and
+            isinstance(self.year, int)
+        )
+    
+    def find_weekday(self) -> Optional[str]:
         """
         Get the weekday name for a specific date in the given calendar system.
 
@@ -263,13 +310,13 @@ class DateMapping:
 
         >>> mapper = DateMapping(DateDataLoader())
         >>> # Gregorian calendar
-        >>> weekday = mapper.get_weekday_by_date('gregorian', 15, 3, 2024)
+        >>> weekday = mapper.find_weekday('gregorian', 15, 3, 2024)
         >>> print(f"March 15, 2024 is a {weekday}")  # "Friday"
         >>> # Hijri calendar
-        >>> weekday = mapper.get_weekday_by_date('hijri', 1, 1, 1445)
+        >>> weekday = mapper.find_weekday('hijri', 1, 1, 1445)
         >>> print(f"1st Muharram 1445 AH is a {weekday}")
         >>> # Using aliases
-        >>> weekday = mapper.get_weekday_by_date('islamic', 15, 6, 1445)
+        >>> weekday = mapper.find_weekday('islamic', 15, 6, 1445)
 
         Notes
         -----
@@ -277,25 +324,26 @@ class DateMapping:
         mapping data, which may occur for dates outside the available range
         or invalid date combinations.
         """
-        if not self._is_data_loaded():
+        if not self._is_data_loaded() or self.df is None:
             logger.error("Calendar data not loaded")
             return None
 
         # Find matching rows using the utility function
-        matching_rows = find_date_row(self.df, era, day, month, year)
+        matching_rows: Optional[pd.DataFrame] = find_date_row(self.df, era, day, month, year)
+        
 
         # Return weekday if found, None otherwise
-        if matching_rows.empty:
+        if (matching_rows is None) or matching_rows.empty:
             logger.debug(f"Date not found: {era} {day}/{month}/{year}")
             return None
 
         # Log if multiple matches found (shouldn't happen with clean data)
-        if len(matching_rows) > 1:
+        if (len(matching_rows) > 1) and isinstance(matching_rows, pd.DataFrame):
             logger.warning(f"Multiple matches found for {era} {day}/{month}/{year}")
 
         return matching_rows.iloc[0][WEEKDAY_COLUMN]
 
-    def get_calendar_variants(self, calendar: str, day: int, month: int, year: int) -> Optional[Dict[str, Any]]:
+    def find_calendars(self) -> Optional[Dict[str, Any]]:
         """
         Get equivalent dates in all supported calendar systems for a specific date.
 
@@ -341,7 +389,7 @@ class DateMapping:
 
         >>> mapper = DateMapping(DateDataLoader())
         >>> # Convert Gregorian to all systems
-        >>> result = mapper.get_calendar_variants('gregorian', 1, 1, 2024)
+        >>> result = mapper.find_calendars('gregorian', 1, 1, 2024)
         >>> if result:
         ...     print(f"January 1, 2024 (Gregorian) equals:")
         ...     hijri = result['hijri']
@@ -350,7 +398,7 @@ class DateMapping:
         ...     print(f"  Julian : {julian['day']}/{julian['month']}/{julian['year']}")
         ...     print(f"  Weekday: {result['weekday']}")
         >>> # Convert from Hijri
-        >>> result = mapper.get_calendar_variants('hijri', 1, 1, 1445)
+        >>> result = mapper.find_calendars('hijri', 1, 1, 1445)
 
         Notes
         -----
@@ -358,14 +406,14 @@ class DateMapping:
         It returns complete information for all supported calendar systems,
         enabling seamless conversion between any two systems.
         """
-        if not self._is_data_loaded():
+        if not self._is_data_loaded() or self.df is None:
             logger.error("Calendar data not loaded")
             return None
 
         # Find matching rows using the utility function
         matching_rows = find_date_row(self.df, calendar, day, month, year)
 
-        if matching_rows.empty:
+        if (matching_rows is None) or matching_rows.empty:
             logger.debug(f"Date not found for conversion: {calendar} {day}/{month}/{year}")
             return None
 
@@ -398,7 +446,7 @@ class DateMapping:
 
         return result
 
-    def validate_date(self, calendar: str, day: int, month: int, year: int) -> bool:
+    def validate_date(self) -> bool:
         """
         Validate if a date exists in the specified calendar system.
 
@@ -439,14 +487,14 @@ class DateMapping:
 
         Notes
         -----
-        This method is more efficient than get_weekday_by_date() when you
+        This method is more efficient than find_weekday() when you
         only need to check validity without retrieving additional information.
         """
-        if not self._is_data_loaded():
+        if not self._is_data_loaded() or self.df is None:
             return False
 
         try:
-            result = self.get_weekday_by_date(calendar, day, month, year)
+            result = self.find_weekday()
             return result is not None
         except ValueError:
             # Invalid calendar system
@@ -464,7 +512,7 @@ class DateMapping:
         Dict[str, Any]
             Data quality metrics including record count, date coverage, etc.
         """
-        if not self._is_data_loaded():
+        if not self._is_data_loaded() or self.df is None:
             return {'status': 'no_data'}
         
         metrics = {
@@ -488,93 +536,7 @@ class DateMapping:
         
         return metrics
     
-    def get_supported_calendars(self) -> List[str]:
-        """
-        Get list of supported calendar systems.
-        
-        Returns
-        -------
-        List[str]
-            List of supported calendar system names (primary names only)
-        
-        Examples
-        --------
-        >>> mapper = DateMapping(DateDataLoader())
-        >>> calendars = mapper.get_supported_calendars()
-        >>> print(f"Supported calendars: {', '.join(calendars)}")
-        # Output: "Supported calendars: gregorian, hijri, julian"
-        
-        Notes
-        -----
-        This returns only the primary calendar names. For aliases,
-        use get_calendar_info() to see the full mapping of aliases to primary names.
-        """
-        return list(SUPPORTED_CALENDARS_COLUMNS.keys())
-    
-    def get_data_range(self) -> Dict[str, Dict[str, int]]:
-        """
-        Get the date range available in the mapping data for each calendar system.
-        
-        This method calculates the minimum and maximum years available in the
-        mapping data for each supported calendar system. This information is
-        useful for determining the valid date ranges for conversions.
-        
-        Returns
-        -------
-        Dict[str, Dict[str, int]]
-            Dictionary containing min/max years for each calendar:
-            
-            {
-                'gregorian': {'min_year': int, 'max_year': int},
-                'hijri': {'min_year': int, 'max_year': int},
-                'julian': {'min_year': int, 'max_year': int}
-            }
-                
-        Examples
-        --------
-        Check available date ranges:
-        
-        >>> mapper = DateMapping(DateDataLoader())
-        >>> ranges = mapper.get_data_range()
-        >>> greg_range = ranges['gregorian']
-        >>> print(f"Gregorian dates available: {greg_range['min_year']} to {greg_range['max_year']}")
-        >>> hijri_range = ranges['hijri']
-        >>> print(f"Hijri dates available: {hijri_range['min_year']} to {hijri_range['max_year']}")
-        >>> # Check if a specific year is in range
-        >>> target_year = 2025
-        >>> if greg_range['min_year'] <= target_year <= greg_range['max_year']:
-        ...     print(f"Year {target_year} is available for conversion")
-        
-        Notes
-        -----
-        These ranges represent the actual data available in the CSV file.
-        Dates outside these ranges cannot be converted between calendar systems.
-        """
-        if not self._is_data_loaded():
-            return {}
-        
-        # Use cached ranges if available
-        if self._date_ranges is not None:
-            return self._date_ranges.copy()
-        
-        ranges = {}
-        
-        for calendar, columns in SUPPORTED_CALENDARS_COLUMNS.items():
-            year_col = columns[2]  # Year column is always third
-            year_series = self.df[year_col]
-            
-            ranges[calendar] = {
-                'min_year': int(year_series.min()),
-                'max_year': int(year_series.max()),
-                'total_years': len(year_series.unique()),
-                'year_span': int(year_series.max() - year_series.min() + 1)
-            }
-        
-        # Cache the results
-        self._date_ranges = ranges.copy()
-        return ranges
-    
-    def get_month_info(self, calendar: str, month: int, year: int) -> Dict[str, Any]:
+    def month_info(self) -> Optional[Dict[str, Any]]:
         """
         Get detailed information about a specific month in a calendar system.
         
@@ -599,41 +561,22 @@ class DateMapping:
         >>> print(f"February 2024 has {info['day_count']} days")
         >>> print(f"Starts on {info['first_weekday']}, ends on {info['last_weekday']}")
         """
-        if not self._is_data_loaded():
-            return {
-                'calendar': calendar,
-                'month': month,
-                'year': year,
-                'day_count': 0,
-                'error': 'Calendar data not loaded'
-            }
-
-        try:
-            calendar = normalize_calendar_from_era(calendar)
-        except ValueError as e:
-            return {
-                'calendar': calendar,
-                'month': month,
-                'year': year,
-                'day_count': 0,
-                'error': str(e)
-            }
-
-        # Get column names for this calendar
-        day_col, month_col, year_col = SUPPORTED_CALENDARS_COLUMNS[calendar]
         
-        # Filter data for the specific month and year
-        month_mask = (self.df[month_col] == month) & (self.df[year_col] == year)
-        month_data = self.df[month_mask].sort_values(day_col)
-        
-        if month_data.empty:
-            return {
-                'calendar': calendar,
-                'month': month,
-                'year': year,
-                'day_count': 0,
-                'error': 'No data found for specified month/year'
-            }
+        if not self._is_data_loaded() or self.df is None or self.month is None or self.year is None or self.calendar is None:
+            return None 
+
+        # Find matching rows using the utility function
+        month_data = find_date_row(
+            df = self.df, 
+            era =self.calendar, 
+            day= None, 
+            month=self.month, 
+            year=self.year
+        )
+
+        if (month_data is None) or month_data.empty:
+            logger.debug(f"Date not found for conversion: {calendar} {month}/{year}")
+            return None
         
         # Count weekday occurrences
         weekdays = month_data[WEEKDAY_COLUMN].tolist()
@@ -644,15 +587,84 @@ class DateMapping:
             'month': month,
             'year': year,
             'day_count': len(month_data),
-            'first_day': int(month_data.iloc[0][day_col]),
-            'last_day': int(month_data.iloc[-1][day_col]),
+            'first_day': int(month_data.iloc[0][self.day_col]),
+            'last_day': int(month_data.iloc[-1][self.day_col]),
             'first_weekday': month_data.iloc[0][WEEKDAY_COLUMN],
             'last_weekday': month_data.iloc[-1][WEEKDAY_COLUMN],
             'weekday_distribution': weekday_counts,
             'month_name': self._get_month_name(calendar, month)
         }
+    def year_info(self) -> Optional[Dict[str, Any]]:
+        """
+        Get comprehensive information about a specific year in a calendar system.
+        
+        Parameters
+        ----------
+        calendar : str
+            Calendar system
+        year : int
+            Year to analyze
+            
+        Returns
+        -------
+        Dict[str, Any]
+            Year information including day count, leap year status, etc.
+        """
+        if not self._is_data_loaded() or self.df is None or self.year is None or self.calendar is None:
+            return None
+        
+        # Find matching rows using the utility function
+        year_data = find_date_row(
+            df = self.df, 
+            era =self.calendar, 
+            day= None, 
+            month=None, 
+            year=self.year
+        )
+
+        if (year_data is None) or year_data.empty:
+            logger.debug(f"Date not found for conversion: {calendar} {year}")
+            return None
+        
+        # Calculate year statistics
+        total_days = len(year_data)
+        months_present = sorted(year_data[self.month_col].unique())
+        
+        # Month-wise day counts
+        month_day_counts = {}
+        for month in months_present:
+            month_days = len(year_data[year_data[self.month_col] == month])
+            month_day_counts[month] = month_days
+        
+        # Weekday distribution
+        weekdays = year_data[WEEKDAY_COLUMN].tolist()
+        weekday_counts = {day: weekdays.count(day) for day in set(weekdays)}
+        
+        # Sort year data by month and day for first/last date calculation
+        year_data_sorted = year_data.sort_values([self.month_col, self.day_col])
+        
+        return {
+            'calendar': calendar,
+            'year': year,
+            'day_count': total_days,
+            'month_count': len(months_present),
+            'months_present': months_present,
+            'month_day_counts': month_day_counts,
+            'weekday_distribution': weekday_counts,
+            'is_leap_year': self._is_leap_year(),
+            'first_date': {
+                'day': int(year_data_sorted.iloc[0][self.day_col]),
+                'month': int(year_data_sorted.iloc[0][self.month_col]),
+                'weekday': year_data_sorted.iloc[0][WEEKDAY_COLUMN]
+            },
+            'last_date': {
+                'day': int(year_data_sorted.iloc[-1][self.day_col]),
+                'month': int(year_data_sorted.iloc[-1][self.month_col]),
+                'weekday': year_data_sorted.iloc[-1][WEEKDAY_COLUMN]
+            }
+        }
     
-    def _get_month_name(self, calendar: str, month: int) -> Optional[Union[str, int]]:
+    def _get_month_name(self, calendar: Optional[str], month: Optional[int]) -> Optional[Union[str, int]]:
         """
         Get the month name for a specific calendar system using the normalize_month function.
         
@@ -675,154 +687,9 @@ class DateMapping:
             # Fallback to string representation if normalization fails
             return str(month)
     
-    def find_date_by_weekday(
-        self, calendar: str, weekday: str, month: int, year: int, 
-        occurrence: int = 1) -> Optional[Dict[str, Any]]:
-        """
-        Find a specific occurrence of a weekday in a given month/year.
-        
-        Parameters
-        ----------
-        calendar : str
-            Calendar system
-        weekday : str
-            Target weekday ('Monday', 'Tuesday', etc.)
-        month : int
-            Month number (1-12)
-        year : int
-            Year
-        occurrence : int, default 1
-            Which occurrence (1=first, 2=second, -1=last, etc.)
-            
-        Returns
-        -------
-        Optional[Dict[str, Any]]
-            Date information if found, None otherwise
-            
-        Examples
-        --------
-        >>> mapper = DateMapping(DateDataLoader())
-        >>> # Find first Monday of March 2024
-        >>> first_monday = mapper.find_date_by_weekday('gregorian', 'Monday', 3, 2024, 1)
-        >>> # Find last Friday of December 2023
-        >>> last_friday = mapper.find_date_by_weekday('gregorian', 'Friday', 12, 2023, -1)
-        """
-        if not self._is_data_loaded():
-            return None
-        
-        try:
-            calendar = normalize_calendar_from_era(calendar)
-        except ValueError:
-            return None
-        
-        # Get column names for this calendar
-        day_col, month_col, year_col = SUPPORTED_CALENDARS_COLUMNS[calendar]
-        
-        # Filter data for the specific month and year, and the target weekday
-        filter_mask = (
-            (self.df[month_col] == month) & 
-            (self.df[year_col] == year) & 
-            (self.df[WEEKDAY_COLUMN] == weekday)
-        )
-        matching_dates = self.df[filter_mask].sort_values(day_col)
-        
-        if matching_dates.empty:
-            return None
-        
-        # Handle occurrence selection
-        try:
-            if occurrence > 0:
-                # Positive: count from beginning
-                selected_row = matching_dates.iloc[occurrence - 1]
-            else:
-                # Negative: count from end
-                selected_row = matching_dates.iloc[occurrence]
-            
-            # Return the calendar variants for the found date
-            day = int(selected_row[day_col])
-            return self.get_calendar_variants(calendar, day, month, year)
-            
-        except IndexError:
-            return None
     
-    def get_year_info(self, calendar: str, year: int) -> Dict[str, Any]:
-        """
-        Get comprehensive information about a specific year in a calendar system.
-        
-        Parameters
-        ----------
-        calendar : str
-            Calendar system
-        year : int
-            Year to analyze
-            
-        Returns
-        -------
-        Dict[str, Any]
-            Year information including day count, leap year status, etc.
-        """
-        if not self._is_data_loaded():
-            return {'error': 'Data not loaded'}
-        
-        try:
-            calendar = normalize_calendar_from_era(calendar)
-        except ValueError as e:
-            return {'error': str(e)}
-        
-        # Get column names
-        day_col, month_col, year_col = SUPPORTED_CALENDARS_COLUMNS[calendar]
-        
-        # Filter data for the specific year
-        year_mask = self.df[year_col] == year
-        year_data = self.df[year_mask]
-        
-        if year_data.empty:
-            return {
-                'calendar': calendar,
-                'year': year,
-                'day_count': 0,
-                'error': 'No data found for specified year'
-            }
-        
-        # Calculate year statistics
-        total_days = len(year_data)
-        months_present = sorted(year_data[month_col].unique())
-        
-        # Month-wise day counts
-        month_day_counts = {}
-        for month in months_present:
-            month_days = len(year_data[year_data[month_col] == month])
-            month_day_counts[month] = month_days
-        
-        # Weekday distribution
-        weekdays = year_data[WEEKDAY_COLUMN].tolist()
-        weekday_counts = {day: weekdays.count(day) for day in set(weekdays)}
-        
-        # Sort year data by month and day for first/last date calculation
-        year_data_sorted = year_data.sort_values([month_col, day_col])
-        
-        return {
-            'calendar': calendar,
-            'year': year,
-            'day_count': total_days,
-            'month_count': len(months_present),
-            'months_present': months_present,
-            'month_day_counts': month_day_counts,
-            'weekday_distribution': weekday_counts,
-            'is_leap_year': self._is_leap_year(calendar, year, total_days),
-            'first_date': {
-                'day': int(year_data_sorted.iloc[0][day_col]),
-                'month': int(year_data_sorted.iloc[0][month_col]),
-                'weekday': year_data_sorted.iloc[0][WEEKDAY_COLUMN]
-            },
-            'last_date': {
-                'day': int(year_data_sorted.iloc[-1][day_col]),
-                'month': int(year_data_sorted.iloc[-1][month_col]),
-                'weekday': year_data_sorted.iloc[-1][WEEKDAY_COLUMN]
-            }
-        }
     
-    def _is_leap_year(self, calendar: str, year: int, day_count: int) -> Optional[bool]:
+    def _is_leap_year(self, day_count: int) -> Optional[bool]:
         """
         Determine if a year is a leap year based on day count.
         
@@ -840,80 +707,20 @@ class DateMapping:
         Optional[bool]
             True if leap year, False if not, None if undetermined
         """
-        if calendar == 'gregorian':
+        if self.calendar == 'gregorian':
             # Gregorian leap year has 366 days
             return day_count == 366
-        elif calendar == 'hijri':
+        elif self.calendar == 'hijri':
             # Hijri leap year has 355 days (normal has 354)
             return day_count == 355
-        elif calendar == 'julian':
+        elif self.calendar == 'julian':
             # Solar Hijri leap year has 366 days
             return day_count == 366
         
         return None
 
-    def get_calendar_info(self) -> Dict[str, Any]:
-        """
-        Get comprehensive information about the calendar mapping system.
-        
-        This method provides detailed information about the loaded data,
-        supported calendar systems, and basic statistics.
-        
-        Returns
-        -------
-        Dict[str, Any]
-            Dictionary containing calendar system information:
-            
-            {
-                'total_records': int,
-                'supported_calendars': List[str],
-                'weekdays': List[str],
-                'date_ranges': Dict[str, Dict[str, int]],
-                'sample_record': Dict[str, Any]
-            }
-            
-        Examples
-        --------
-        >>> mapper = DateMapping(DateDataLoader())
-        >>> info = mapper.get_calendar_info()
-        >>> print(f"Total records: {info['total_records']:,}")
-        >>> print(f"Supported calendars: {', '.join(info['supported_calendars'])}")
-        """
-        if not self._is_data_loaded():
-            return {'error': 'Data not loaded'}
-        
-        # Get sample record for demonstration
-        sample_row = self.df.iloc[0]
-        sample_record = {
-            'gregorian': {
-                'day': int(sample_row['Gregorian Day']),
-                'month': int(sample_row['Gregorian Month']),
-                'year': int(sample_row['Gregorian Year'])
-            },
-            'hijri': {
-                'day': int(sample_row['Hijri Day']),
-                'month': int(sample_row['Hijri Month']),
-                'year': int(sample_row['Hijri Year'])
-            },
-            'julian': {
-                'day': int(sample_row['Solar Hijri Day']),
-                'month': int(sample_row['Solar Hijri Month']),
-                'year': int(sample_row['Solar Hijri Year'])
-            },
-            'weekday': sample_row[WEEKDAY_COLUMN]
-        }
-        
-        return {
-            'total_records': len(self.df),
-            'supported_calendars': list(SUPPORTED_CALENDARS_COLUMNS.keys()),
-            'calendar_aliases': CALENDAR_ALIASES,
-            'weekdays': sorted(self.df[WEEKDAY_COLUMN].unique()),
-            'date_ranges': self.get_data_range(),
-            'sample_record': sample_record,
-            'data_quality': self._get_data_quality_metrics()
-        }
-
-    def _to_datetime(self):
+    
+    def to_date(self):
         """
         Convert to Python datetime object if possible.
         
@@ -936,51 +743,31 @@ class DateMapping:
 
         Examples
         --------
-        >>> from datetime import datetime
-        >>> complete_date = ParsedDate(raw=DateComponents(day="15", month="3", year="2023", 
-        ...                                              era="CE", calendar="gregorian"),
-        ...                           standard=DateComponents(), numeric=DateComponents(), meta=DateMeta())
-        >>> dt = complete_date._to_datetime()
-        >>> isinstance(dt, datetime)
-        True
-        >>> dt.year
-        2023
-
-        >>> partial_date = ParsedDate(raw=DateComponents(month="March", year="2023"),
-        ...                          standard=DateComponents(), numeric=DateComponents(), meta=DateMeta())
-        >>> partial_date._to_datetime() is None
-        True
-
-        >>> hijri_date = ParsedDate(raw=DateComponents(day="15", month="3", year="1445", 
-        ...                                           era="AH", calendar="hijri"),
-        ...                        standard=DateComponents(), numeric=DateComponents(), meta=DateMeta())
-        >>> hijri_date._to_datetime() is None
-        True
+        
         """
         # Import datetime here to avoid circular imports
-        from datetime import datetime
+        from datetime import date
         
         # Check if we have a complete Gregorian date
         if not self.is_complete_date:
             return None
-            
-        if self.calendar != 'gregorian':
+        
+        result = self.find_calendars()
+        if result is None:
             return None
-            
-        # Check for required components
-        if self.day is None or self.month_num is None or self.year is None:
+        result = result['gregorian']      
+        if result['year'] < 1:
             return None
-            
-        # Python datetime doesn't support negative years (BCE dates)
-        if self.year <= 0:
-            return None
+        day = result['day']
+        month = result['month']
+        year = result['year']
         
         try:
             # Attempt to create datetime object with validation
-            return datetime(
-                year=int(self.year),
-                month=int(self.month_num), 
-                day=int(self.day)
+            return date(
+                year=int(year),
+                month=int(month), 
+                day=int(day)
             )
         except (ValueError, TypeError, OverflowError):
             # Handle invalid dates (e.g., Feb 30, invalid ranges)
@@ -1015,7 +802,7 @@ if __name__ == "__main__":
             
             # Display calendar information
             print("2. Calendar Data Information:")
-            info = mapper.get_calendar_info()
+            info = mapper.info()
             print(f"   📊 Total records: {info['total_records']:,}")
             print(f"   📅 Supported calendars: {', '.join(info['supported_calendars'])}")
             print(f"   🌍 Available weekdays: {', '.join(info['weekdays'])}")
@@ -1046,7 +833,7 @@ if __name__ == "__main__":
             ]
             
             for calendar, day, month, year, description in test_dates:
-                weekday = mapper.get_weekday_by_date(calendar, day, month, year)
+                weekday = mapper.find_weekday()
                 if weekday:
                     print(f"   📅 {description} ({calendar} {day}/{month}/{year}): {weekday}")
                 else:
@@ -1062,7 +849,7 @@ if __name__ == "__main__":
             ]
             
             for calendar, day, month, year, description in conversion_examples:
-                alternatives = mapper.get_calendar_variants(calendar, day, month, year)
+                alternatives = mapper.find_calendars(calendar, day, month, year)
                 if alternatives:
                     print(f"   🔄 {description} converts to:")
                     for cal_name, cal_date in alternatives.items():
@@ -1118,7 +905,7 @@ if __name__ == "__main__":
             
             start_time = time.time()
             for i in range(100):
-                mapper.get_weekday_by_date('gregorian', 15, 3, 2024)
+                mapper.find_weekday('gregorian', 15, 3, 2024)
             end_time = time.time()
             
             print(f"   ⚡ 100 weekday lookups completed in {(end_time - start_time)*1000:.2f}ms")
@@ -1131,3 +918,824 @@ if __name__ == "__main__":
     print()
     print("=" * 50)
     print("Demonstration completed. Import this module to use DateMapping in your code.")
+    
+
+from dataclasses import dataclass, field
+from typing import Optional, Dict, Any, Union
+
+# Import path helper to ensure modules directory is in sys.path
+# ===================================================================================
+if __name__ == "__main__":
+    # This is necessary for importing other modules in the package structure
+    import sys
+    from pathlib import Path
+    
+    def setup_src_path():
+        """Set up the source path for module imports when running as main script."""
+        current_file = Path(__file__).resolve()
+        parts = current_file.parts
+        # Look for 'src' directory in the path hierarchy
+        for i, part in enumerate(parts):
+            if part == 'src' and i + 2 < len(parts):
+                src_second_path = str(Path(*parts[:i + 1]))
+                if src_second_path not in sys.path:
+                    sys.path.insert(0, src_second_path)
+                break
+                
+    print("INFO: Run Main File : adding file parent src to path ...")
+    setup_src_path()
+
+from detect_dates.normalizers import (
+    normalize_era,  
+    normalize_month,
+    normalize_weekday,
+    normalize_calendar_name,
+    # normalize_numeric_word, 
+    get_calendar
+)
+
+from detect_dates.calendar_variants import (
+    get_century_from_year,
+    get_century_range,
+    format_century_with_era,
+)
+
+from components import DateComponents
+from components_default import DateComponentsDefault
+from meta import DateMeta
+
+
+@dataclass 
+class ParsedDate:
+    """
+    Comprehensive parsed date with raw, standardized, and numeric representations.
+
+    This is the main class for representing a fully processed date with multiple
+    representation formats and rich metadata. It automatically normalizes input
+    components and provides convenient property access to all date information.
+
+    Parameters
+    ----------
+    raw : DateComponents
+        Original raw input components before normalization
+    standard : DateComponents  
+        Standardized/normalized components
+    numeric : DateComponents
+        Numeric representations where possible
+    meta : DateMeta
+        Metadata about parsing context and quality
+
+    Examples
+    --------
+    >>> # Create from raw components
+    >>> raw_components = DateComponents(day="15", month="March", year="2023", era="CE")
+    >>> meta = DateMeta(text="15 March 2023", lang="en")
+    >>> date = ParsedDate(raw=raw_components, standard=DateComponents(), 
+    ...                   numeric=DateComponents(), meta=meta)
+    
+    >>> # Access normalized properties
+    >>> print(date.day)  # 15
+    >>> print(date.month)  # "March" 
+    >>> print(date.month_num)  # 3
+    >>> print(date.is_complete_date)  # True
+    
+    >>> # Get analysis
+    >>> print(date.analysis_date())
+    """
+    raw: DateComponents
+    standard: DateComponents
+    numeric: DateComponents
+    meta: DateMeta
+    
+    def __post_init__(
+        self, date: Optional[dict] = None, weekday: Optional[str] = None,
+        day: Optional[int] = None, month: Optional[Union[int, str]] = None,
+        year: Optional[int] = None, century: Optional[Union[int, str]] = None,
+        era: Optional[str] = None, calendar: Optional[str] = None, text: Optional[str] = None,
+        lang: Optional[str] = None, precision: Optional[str] = None,
+        confidence: Optional[float] = None, created_at: Optional[str] = None, 
+        created_by: Optional[str] = None,
+        role_in_text: Optional[str] = None, related_to: Optional[str] = None,
+        is_calendar_date: bool = False, is_complete_date: bool = False,
+        valid_date: bool = False
+    ):
+        """
+        Post-initialization processing for automatic normalization and validation.
+        
+        This method runs automatically after dataclass initialization to:
+        1. Process any legacy dictionary input format
+        2. Normalize raw components into standard format
+        3. Create numeric representations
+        4. Calculate metadata flags and derived values
+        5. Validate confidence scores and set precision levels
+
+        Parameters
+        ----------
+        date : dict, optional
+            Legacy dictionary format for backward compatibility
+        weekday, day, month, year, century, era, calendar : various types, optional
+            Individual date components (overrides date dict if provided)
+        text, lang, precision, confidence, created_at, created_by : various types, optional
+            Metadata components
+        role_in_text, related_to : str, optional
+            Contextual metadata
+        is_calendar_date, is_complete_date, valid_date : bool
+            Validation flags
+        """
+        
+        # Process raw date components from individual parameters or date dict
+        self.raw = DateComponents(
+            weekday=weekday if weekday else (date.get('weekday', None) if date else None),
+            day=day if day else (date.get('day', None) if date else None),
+            month=month if month else (date.get('month', None) if date else None),
+            year=year if year else (date.get('year', None) if date else None),
+            century=century if century else (date.get('century', None) if date else None),
+            era=era if era else (date.get('era', None) if date else None),
+            calendar=calendar if calendar else (date.get('calendar', None) if date else None)
+        )
+        
+        # Process metadata from individual parameters or date dict
+        self.meta = DateMeta(
+            text=text if text else (date.get('text', None) if date else None),
+            lang=lang if lang else (date.get('lang', None) if date else None),
+            precision=precision if precision else (date.get('precision', None) if date else None),
+            confidence=confidence if confidence else (date.get('confidence', None) if date else None),
+            created_at=created_at if created_at else (date.get('created_at', None) if date else None),
+            created_by=created_by if created_by else (date.get('created_by', None) if date else None),
+            is_calendar_date=is_calendar_date if is_calendar_date else (date.get('is_calendar_date', False) if date else False),
+            is_complete_date=is_complete_date if is_complete_date else (date.get('is_complete_date', False) if date else False),
+            valid_date=valid_date if valid_date else (date.get('valid_date', False) if date else False),
+            role_in_text=role_in_text if role_in_text else (date.get('role_in_text', None) if date else None),
+            related_to=related_to if related_to else (date.get('related_to', None) if date else None),
+        )
+        
+        # Calculate century if not provided but year is available
+        century = self.raw.century
+        if not century and self.raw.year is not None:
+            try:
+                if str(self.raw.year).lstrip('-').isdigit():
+                    century_result = get_century_from_year(int(self.raw.year))
+                    # get_century_from_year returns tuple (century, era)
+                    century = century_result[0] if isinstance(century_result, tuple) else century_result
+            except (ValueError, TypeError):
+                century = None
+        
+        # Create standardized components with normalization
+        self.standard = DateComponents(
+            weekday=str(normalize_weekday(self.raw.weekday)) if self.raw.weekday else None,
+            day=int(self.raw.day) if self.raw.day and str(self.raw.day).isdigit() else None,
+            month=normalize_month(self.raw.month) if self.raw.month else None,
+            year=int(self.raw.year) if self.raw.year and str(self.raw.year).lstrip('-').isdigit() else None,
+            century=century if century else None,
+            era=normalize_era(self.raw.era) if self.raw.era else None,
+            calendar=normalize_calendar_name(self.raw.calendar) if self.raw.calendar else (
+                get_calendar(self.raw.era) if self.raw.era else None
+            )
+        )
+        
+        # Create numeric representation (primarily for month conversion)
+        self.numeric = DateComponents(
+            weekday=self.standard.weekday if isinstance(self.standard.weekday, str) else None,
+            day=self.standard.day,
+            month=normalize_month(self.standard.month, output_format="num") if self.standard.month else None,
+            year=self.standard.year,
+            century=self.standard.century,
+            era=self.standard.era,
+            calendar=self.standard.calendar
+        )
+        
+        # Validate confidence score range
+        if self.meta.confidence is not None:
+            if not (0.0 <= self.meta.confidence <= 1.0):
+                raise ValueError("Confidence must be between 0.0 and 1.0")
+        
+        # Calculate validation flags and metadata if not explicitly set
+        if self.meta.is_calendar_date is False:
+            self.meta.is_calendar_date = self._is_calendar()
+        if self.meta.is_complete_date is False:
+            self.meta.is_complete_date = self._is_complete()
+        if self.meta.valid_date is False:
+            self.meta.valid_date = self.meta.is_calendar_date and self.meta.is_complete_date
+            
+        # Auto-detect language if not provided
+        if self.meta.lang is None:
+            self.meta.lang = self._detect_language()
+        
+        # Set precision based on available components if not explicitly provided
+        if self.meta.precision is None:
+            self.meta.precision = (
+                'day' if self.meta.is_complete_date else
+                'month' if self.raw.month and self.raw.year else
+                'year' if self.raw.year else
+                'century' if self.raw.century else
+                'partial'
+            )
+
+    # Property accessors for convenient access to components
+    @property
+    def text(self) -> Optional[str]:
+        """Get the original text that was parsed."""
+        return self.meta.text
+
+    @property
+    def lang(self) -> Optional[str]:
+        """Get the detected or specified language."""
+        return self.meta.lang
+
+    @property
+    def precision(self) -> Optional[str]:
+        """Get the precision level of this date."""
+        return self.meta.precision
+
+    @property
+    def confidence(self) -> Optional[float]:
+        """Get the parsing confidence score."""
+        return self.meta.confidence
+
+    @property
+    def metadata(self) -> Dict[str, Any]:
+        """Get dictionary of metadata fields."""
+        return {
+            'created_at': self.meta.created_at,
+            'created_by': self.meta.created_by,
+            'is_calendar_date': self.meta.is_calendar_date,
+            'is_complete_date': self.meta.is_complete_date,
+            'valid_date': self.meta.valid_date,
+            'role_in_text': self.meta.role_in_text,
+            'related_to': self.meta.related_to
+        }
+
+    @property
+    def weekday(self) -> Optional[Union[int, str]]:
+        """Get the standardized weekday."""
+        return self.standard.weekday
+
+    @property
+    def day(self) -> Optional[int]:
+        """Get the standardized day of month."""
+        return self.standard.day
+
+    @property
+    def month(self) -> Optional[Union[int, str]]:
+        """Get the standardized month (name format)."""
+        return self.standard.month
+
+    @property
+    def month_num(self) -> Optional[int]:
+        """Get the month as a number (1-12)."""
+        return self.numeric.month
+
+    @property
+    def year(self) -> Optional[int]:
+        """Get the standardized year."""
+        return self.standard.year
+
+    @property
+    def century(self) -> Optional[Union[int, str]]:
+        """Get the calculated or provided century."""
+        return self.standard.century
+
+    @property
+    def era(self) -> Optional[str]:
+        """Get the standardized era."""
+        return self.standard.era
+
+    @property
+    def calendar(self) -> Optional[str]:
+        """Get the standardized calendar system."""
+        return self.standard.calendar
+
+    @property
+    def valid_date(self) -> bool:
+        """Check if this represents a valid, complete date."""
+        return self.meta.valid_date
+
+    @property
+    def is_complete_date(self) -> bool:
+        """Check if this has day-level precision."""
+        return self.meta.is_complete_date
+
+    @property
+    def is_calendar_date(self) -> bool:
+        """Check if this has calendar-level information (year + era)."""
+        return self.meta.is_calendar_date
+
+    def analysis_date(self):
+        """
+        Provide a human-readable analysis of the date components.
+
+        This method generates a comprehensive summary string that describes the parsed
+        date components, their values, and any inferred information. Useful for
+        debugging and understanding how the date was interpreted.
+
+        Returns
+        -------
+        str
+            Multi-line summary of the date components and their interpretations
+
+        Examples
+        --------
+        >>> date = ParsedDate(raw=DateComponents(weekday="Sunday", day="15", month="March", 
+        ...                                     year="2023", era="CE"),
+        ...                   standard=DateComponents(), numeric=DateComponents(), meta=DateMeta())
+        >>> print(date.analysis_date())
+        Input  : [Weekday: Sunday, Day: 15, Month: March, Year: 2023, Century: None, Era: CE, Calendar: gregorian]
+        Standard Output : [Weekday: Sunday, Day: 15, Month: March, Year: 2023, Century: 21, Era: CE, Calendar: gregorian]
+        Numeric Output : [Weekday: Sunday, Day: 15, Month: 3, Year: 2023, Century: 21, Era: CE, Calendar: gregorian]
+        Date Info : Is Valid Date: True, Is Complete: True, Is Calendar: True, Precision: day, Language: en
+        """
+        # Format input components
+        input_components = [
+            f"Weekday: {self.raw.weekday}",
+            f"Day: {self.raw.day}",
+            f"Month: {self.raw.month}",
+            f"Year: {self.raw.year}",
+            f"Century: {self.raw.century}",
+            f"Era: {self.raw.era}",
+            f"Calendar: {self.raw.calendar}"
+        ]
+        
+        # Format standard output components
+        standard_components = [
+            f"Weekday: {self.weekday}",
+            f"Day: {self.day}",
+            f"Month: {self.month}",
+            f"Year: {self.year}",
+            f"Century: {self.century}",
+            f"Era: {self.era}",
+            f"Calendar: {self.calendar}"
+        ]
+        
+        # Format numeric output components  
+        numeric_components = [
+            f"Weekday: {self.weekday}",
+            f"Day: {self.day}",
+            f"Month: {self.month_num}",
+            f"Year: {self.year}",
+            f"Century: {self.century}",
+            f"Era: {self.era}",
+            f"Calendar: {self.calendar}"
+        ]
+        
+        # Format date info
+        date_info = [
+            f"Is Valid Date: {self.valid_date}",
+            f"Is Complete: {self.is_complete_date}",
+            f"Is Calendar: {self.is_calendar_date}",
+            f"Precision: {self.precision}",
+            f"Language: {self.lang}",
+            f"Confidence: {self.confidence}"
+        ]
+        
+        return (
+            f"Input  : [{', '.join(input_components)}]\n"
+            f"Standard Output : [{', '.join(standard_components)}]\n"
+            f"Numeric Output : [{', '.join(numeric_components)}]\n"
+            f"Date Info : {', '.join(date_info)}"
+        )
+
+    def _detect_language(self) -> Optional[str]:
+        """
+        Detect the language of the original text if not explicitly provided.
+
+        Uses simple heuristics to detect language based on character sets.
+        Currently supports basic English/Arabic detection.
+
+        Returns
+        -------
+        str or None
+            Detected language code (ISO 639-1) or None if undetectable
+
+        Examples
+        --------
+        >>> date = ParsedDate(raw=DateComponents(), standard=DateComponents(), 
+        ...                   numeric=DateComponents(), meta=DateMeta(text="15 March 2023"))
+        >>> date._detect_language()
+        'en'
+        >>> date_ar = ParsedDate(raw=DateComponents(), standard=DateComponents(),
+        ...                      numeric=DateComponents(), meta=DateMeta(text="15 مارس 2023"))
+        >>> date_ar._detect_language()
+        'ar'
+        """
+        # Return explicitly set language
+        if self.lang:
+            return self.lang
+        
+        if self.text:
+            # Simple heuristic: check for Arabic characters (U+0600 to U+06FF range)
+            if any('\u0600' <= char <= '\u06FF' for char in self.text):
+                return 'ar'
+            else:
+                return 'en'
+        
+        return None
+
+    def _is_complete(self) -> bool:
+        """
+        Check if the date has complete day-level precision information.
+
+        A complete date must have day, month, year, and era components.
+        This is useful for determining if the date can be converted to
+        a specific calendar date.
+
+        Returns
+        -------
+        bool
+            True if all required components (day, month, year, era) are present
+
+        Examples
+        --------
+        >>> complete = ParsedDate(raw=DateComponents(day="15", month="3", year="2023", era="CE"),
+        ...                       standard=DateComponents(), numeric=DateComponents(), meta=DateMeta())
+        >>> complete._is_complete()
+        True
+        >>> partial = ParsedDate(raw=DateComponents(month="March", year="2023"),
+        ...                      standard=DateComponents(), numeric=DateComponents(), meta=DateMeta())
+        >>> partial._is_complete()
+        False
+        """
+        return (
+            self.day is not None and 
+            self.month is not None and 
+            self.year is not None and 
+            (self.era is not None or self.calendar is not None)
+        )
+
+    def _is_calendar(self) -> bool:
+        """
+        Check if the date has calendar-level information (year and era).
+
+        This method determines if the date has sufficient information to
+        represent a specific year in a given calendar system.
+
+        Returns
+        -------
+        bool
+            True if year, era, and calendar components are all present
+
+        Examples
+        --------
+        >>> date = ParsedDate(raw=DateComponents(year="2023", era="CE", calendar="gregorian"),
+        ...                   standard=DateComponents(), numeric=DateComponents(), meta=DateMeta())
+        >>> date._is_calendar()
+        True
+        >>> incomplete = ParsedDate(raw=DateComponents(year="2023"),
+        ...                         standard=DateComponents(), numeric=DateComponents(), meta=DateMeta())
+        >>> incomplete._is_calendar()
+        False
+        """
+        return (
+            self.year is not None and 
+            (self.era is not None or self.calendar is not None)
+        )
+
+    def to_dict(self, format="standard") -> Dict[str, Any]:
+        """
+        Convert the ParsedDate instance to a dictionary representation.
+
+        This method provides different dictionary formats for various use cases
+        like serialization, JSON export, or interfacing with other systems.
+
+        Parameters
+        ----------
+        format : str, default "standard"
+            Output format type. Options are:
+            - "standard": normalized components with metadata
+            - "numeric": numeric representations where possible
+            - "raw": original raw input components
+            - "all": complete information including raw and processed
+            - "meta": metadata only
+
+        Returns
+        -------
+        dict
+            Dictionary containing date components based on specified format
+
+        Raises
+        ------
+        ValueError
+            If an unknown format string is provided
+
+        Examples
+        --------
+        >>> date = ParsedDate(raw=DateComponents(day="15", month="March", year="2023"),
+        ...                   standard=DateComponents(), numeric=DateComponents(), meta=DateMeta())
+        >>> standard = date.to_dict("standard")
+        >>> standard['day']
+        15
+        >>> numeric = date.to_dict("numeric")
+        >>> numeric['month']
+        3
+        """
+        # Build complete dictionary with all available information
+        base_dict = {
+            'raw_weekday': self.raw.weekday,
+            'raw_day': self.raw.day,
+            'raw_month': self.raw.month,
+            'raw_year': self.raw.year,
+            'raw_century': self.raw.century,
+            'raw_era': self.raw.era,
+            'raw_calendar': self.raw.calendar,
+            'text': self.text,
+            'calendar': self.calendar,
+            'lang': self.lang,
+            'precision': self.precision,
+            'confidence': self.confidence,
+            'metadata': self.metadata,
+            'weekday': self.weekday,
+            'day': self.day,
+            'month': self.month,
+            'month_num': self.month_num,
+            'year': self.year,
+            'century': self.century,
+            'era': self.era,
+        }
+        
+        # Return appropriate subset based on format
+        if format == "standard":
+            return {
+                'weekday': self.weekday,
+                'day': self.day,
+                'month': self.month,
+                'year': self.year,
+                'century': self.century,
+                'era': self.era,
+                'calendar': self.calendar,
+                'lang': self.lang,
+                'precision': self.precision,
+                'confidence': self.confidence
+            }
+        elif format == "numeric":
+            return {
+                'weekday': self.weekday if isinstance(self.weekday, int) else None,
+                'day': self.day,
+                'month': self.month_num,
+                'year': self.year,
+                'century': self.century,
+                'era': self.era,
+                'calendar': self.calendar,
+                'lang': self.lang,
+                'precision': self.precision,
+                'confidence': self.confidence
+            }
+        elif format == "raw":
+            return {
+                'raw_weekday': self.raw.weekday,
+                'raw_day': self.raw.day,
+                'raw_month': self.raw.month,
+                'raw_year': self.raw.year,
+                'raw_century': self.raw.century,
+                'raw_era': self.raw.era,
+                'raw_calendar': self.raw.calendar
+            }
+        elif format == "all":
+            return base_dict
+        elif format == "meta":
+            return {
+                'text': self.text,
+                'calendar': self.calendar,
+                'lang': self.lang,
+                'precision': self.precision,
+                'confidence': self.confidence,
+                'metadata': self.metadata
+            }
+        else:
+            # Default to standard format for unknown format strings
+            return self.to_dict("standard")
+
+    def __str__(self) -> str:
+        """
+        Create a human-readable string representation of the date.
+
+        Builds a natural language representation using available components,
+        following the pattern: [Weekday,] [Day] [Month] [Year Era] [Century Era] [(Calendar)]
+
+        Returns
+        -------
+        str
+            Human-readable string representation, or "No date information" if empty
+
+        Examples
+        --------
+        >>> date = ParsedDate(raw=DateComponents(weekday="Monday", day="15", month="March", 
+        ...                                     year="2023", era="CE"),
+        ...                   standard=DateComponents(), numeric=DateComponents(), meta=DateMeta())
+        >>> str(date)
+        'Monday, 15 March 2023 CE'
+        >>> partial = ParsedDate(raw=DateComponents(month="March", year="2023"),
+        ...                      standard=DateComponents(), numeric=DateComponents(), meta=DateMeta())
+        >>> str(partial)
+        'March 2023'
+        >>> empty = ParsedDate(raw=DateComponents(), standard=DateComponents(), 
+        ...                    numeric=DateComponents(), meta=DateMeta())
+        >>> str(empty)
+        'No date information'
+        """
+        parts = []
+        
+        # Add weekday with comma separator
+        if self.weekday:
+            parts.append(f"{self.weekday},")
+            
+        # Add day
+        if self.day:
+            parts.append(f"{self.day}")
+            
+        # Add month
+        if self.month:
+            parts.append(f"{self.month}")
+            
+        # Add year with era, or century with era if no year
+        if self.year:
+            year_str = f"{self.year}"
+            if self.era:
+                year_str += f" {self.era}"
+            parts.append(year_str)
+        elif self.century:
+            century_str = f"{self.century}"
+            if self.era:
+                century_str += f" {self.era}"
+            parts.append(century_str)
+            
+        # Add calendar system in parentheses if specified
+        if self.calendar:
+            parts.append(f"({self.calendar})")
+            
+        return " ".join(parts) if parts else "No date information"
+
+    def strftime(self, format_string: str) -> str:
+        """
+        Format the parsed date using strftime-like format codes with extensions.
+        
+        Supports standard strftime codes plus custom extensions for partial dates
+        and calendar-specific information. Missing components are displayed with
+        question marks to indicate incomplete data.
+
+        Parameters
+        ----------
+        format_string : str
+            Format string with % codes for date components
+
+        Returns
+        -------
+        str
+            Formatted date string with missing components shown as ? marks
+
+        Notes
+        -----
+        Standard strftime codes supported:
+        - %d: Day with zero padding (01-31) or ?? if None
+        - %e: Day without padding (1-31) or ? if None  
+        - %m: Month as number with padding (01-12) or ?? if None
+        - %n: Month as number without padding (1-12) or ? if None
+        - %b: Abbreviated month name (Jan, Feb, ...) or ??? if None
+        - %B: Full month name (January, February, ...) or ??? if None
+        - %y: Year without century (00-99) or ?? if None
+        - %Y: Year with century (e.g. 2023, 1066) or ???? if None
+        - %C: Century number or ?? if None
+        - %A: Full weekday name (Monday, ...) or ??? if None
+        - %a: Abbreviated weekday name (Mon, ...) or ??? if None
+
+        Custom extensions:
+        - %E: Era (BCE, CE, AD, BC) or empty if None
+        - %S: Calendar system or empty if None  
+        - %P: Precision level or empty if None
+        - %%: Literal % character
+
+        Examples
+        --------
+        >>> date = ParsedDate(raw=DateComponents(day="15", month="3", year="2023", era="CE"),
+        ...                   standard=DateComponents(), numeric=DateComponents(), meta=DateMeta())
+        >>> date.strftime("%Y-%m-%d")
+        '2023-03-15'
+        >>> date.strftime("%B %e, %Y %E")
+        'March 15, 2023 CE'
+        >>> partial = ParsedDate(raw=DateComponents(month="March", year="2023"),
+        ...                      standard=DateComponents(), numeric=DateComponents(), meta=DateMeta())
+        >>> partial.strftime("%B %Y")
+        'March 2023'
+        >>> partial.strftime("%Y-%m-%d")
+        '2023-03-??'
+        """
+        result = format_string
+        
+        # Day formatting
+        if self.day is not None:
+            result = result.replace('%d', f"{self.day:02d}")
+            result = result.replace('%e', str(self.day))
+        else:
+            result = result.replace('%d', '??')
+            result = result.replace('%e', '?')
+        
+        # Month formatting
+        if self.month_num is not None:
+            result = result.replace('%m', f"{self.month_num:02d}")
+            result = result.replace('%n', str(self.month_num))
+            
+            # Use existing month name from standard components if available
+            if self.month:
+                # Full month name
+                result = result.replace('%B', str(self.month))
+                # Abbreviated month name (first 3 characters)
+                abbr_month = str(self.month)[:3] if len(str(self.month)) >= 3 else str(self.month)
+                result = result.replace('%b', abbr_month)
+            else:
+                result = result.replace('%B', '???')
+                result = result.replace('%b', '???')
+        else:
+            result = result.replace('%m', '??')
+            result = result.replace('%n', '?')
+            result = result.replace('%B', '???')
+            result = result.replace('%b', '???')
+        
+        # Year formatting
+        if self.year is not None:
+            result = result.replace('%Y', str(self.year))
+            result = result.replace('%y', f"{abs(self.year) % 100:02d}")
+            # Century calculation
+            if self.century is not None:
+                result = result.replace('%C', str(self.century))
+            else:
+                # Calculate century from year
+                century_num = (abs(self.year) // 100) + 1
+                result = result.replace('%C', str(century_num))
+        else:
+            result = result.replace('%Y', '????')
+            result = result.replace('%y', '??')
+            result = result.replace('%C', '??')
+        
+        # Weekday formatting
+        if self.weekday is not None:
+            weekday_str = str(self.weekday)
+            result = result.replace('%A', weekday_str)
+            # Abbreviated weekday (first 3 characters)
+            abbr_weekday = weekday_str[:3] if len(weekday_str) >= 3 else weekday_str
+            result = result.replace('%a', abbr_weekday)
+        else:
+            result = result.replace('%A', '???')
+            result = result.replace('%a', '???')
+        
+        # Custom extension formatting
+        result = result.replace('%E', self.era or '')
+        result = result.replace('%S', self.calendar or '')
+        result = result.replace('%P', self.precision or '')
+        
+        # Handle literal % character (must be done last)
+        result = result.replace('%%', '%')
+        
+        return result
+
+
+# Example usage and testing
+if __name__ == "__main__":
+    # Example 1: Basic date components
+    print("=== Example 1: Basic Date Components ===")
+    components = DateComponents(day=15, month=3, year=2023, era="CE", calendar="gregorian")
+    print(f"Basic components: day={components.day}, month={components.month}, year={components.year}")
+    
+    # Example 2: Validated date components
+    print("\n=== Example 2: Validated Date Components ===")
+    try:
+        valid_date = DateComponentsDefault(day=15, month=3, year=2023)
+        print("Valid date created successfully")
+        
+        # This should raise an error
+        # invalid_date = DateComponentsDefault(day=35, month=3, year=2023)
+    except ValueError as e:
+        print(f"Validation error: {e}")
+    
+    # Example 3: Date metadata
+    print("\n=== Example 3: Date Metadata ===")
+    meta = DateMeta(
+        text="15 March 2023",
+        lang="en", 
+        precision="day",
+        confidence=0.95,
+        is_complete_date=True
+    )
+    print(f"Metadata: text='{meta.text}', confidence={meta.confidence}")
+    
+    # Example 4: Full parsed date
+    print("\n=== Example 4: Full Parsed Date ===")
+    raw_components = DateComponents(day="15", month="March", year="2023", era="CE")
+    date_meta = DateMeta(text="15 March 2023", lang="en")
+    
+    parsed = ParsedDate(
+        raw=raw_components,
+        standard=DateComponents(),  # Will be auto-populated
+        numeric=DateComponents(),   # Will be auto-populated  
+        meta=date_meta
+    )
+    
+    print(f"Parsed date string: {parsed}")
+    print(f"Day: {parsed.day}, Month: {parsed.month}, Month number: {parsed.month_num}")
+    print(f"Complete date: {parsed.is_complete_date}")
+    print(f"Analysis:\n{parsed.analysis_date()}")
+    
+    # Example 5: Dictionary export
+    print("\n=== Example 5: Dictionary Export ===")
+    standard_dict = parsed.to_dict("standard")
+    print(f"Standard format: {standard_dict}")
+    
+    numeric_dict = parsed.to_dict("numeric") 
+    print(f"Numeric format: {numeric_dict}")
