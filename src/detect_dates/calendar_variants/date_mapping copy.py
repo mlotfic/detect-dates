@@ -183,16 +183,16 @@ class DateMapping:
             If there are issues with data processing
         """
         try:
-            loader = self.ddl
-            print(f"   Supported calendars: {loader.get_supported_calendars()}")
+            self.loader = self.ddl
+            print(f"   Supported calendars: {self.loader.get_supported_calendars()}")
             
             # Load the calendar mapping data
-            self.df = loader.load_data()
+            self.df = self.loader.load_data()
             print(f"   Loaded {len(self.df):,} records (first call)")
             print(f"   Retrieved {len(self.df):,} records (cached)")
 
             self._data_loaded = True
-            self._date_ranges = loader.date_ranges()  # Initialize cache for date ranges
+            self._date_ranges = self.loader.date_ranges()  # Initialize cache for date ranges
             
             logger.info(f"Successfully loaded {len(self.df):,} calendar mapping records")
         except Exception as e:

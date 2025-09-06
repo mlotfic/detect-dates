@@ -125,7 +125,7 @@ class DateMapping:
     Parameters
     ----------
     ddl : DateDataLoader
-        Data loader instance that handles CSV file loading and caching
+        Data self.loader instance that handles CSV file loading and caching
 
     Attributes
     ----------
@@ -183,16 +183,16 @@ class DateMapping:
             If there are issues with data processing
         """
         try:
-            loader = self.ddl
-            print(f"   Supported calendars: {loader.get_supported_calendars()}")
+            self.loader = self.ddl
+            print(f"   Supported calendars: {self.loader.get_supported_calendars()}")
             
             # Load the calendar mapping data
-            self.df = loader.load_data()
+            self.df = self.loader.load_data()
             print(f"   Loaded {len(self.df):,} records (first call)")
             print(f"   Retrieved {len(self.df):,} records (cached)")
 
             self._data_loaded = True
-            self._date_ranges = loader.date_ranges()  # Initialize cache for date ranges
+            self._date_ranges = self.loader.date_ranges()  # Initialize cache for date ranges
             
             logger.info(f"Successfully loaded {len(self.df):,} calendar mapping records")
         except Exception as e:
@@ -324,22 +324,22 @@ class DateMapping:
         mapping data, which may occur for dates outside the available range
         or invalid date combinations.
         """
-        if not self._is_data_loaded() or self.df is None:
+        if not self._is_data_loaded() or self.df is None or self.calendar is None or self.day is None or self.month is None or self.year is None:
             logger.error("Calendar data not loaded")
             return None
 
         # Find matching rows using the utility function
-        matching_rows: Optional[pd.DataFrame] = find_date_row(self.df, era, day, month, year)
+        matching_rows: Optional[pd.DataFrame] = find_date_row(self.df, self.calendar, self.day, self.month, self.year)
         
 
         # Return weekday if found, None otherwise
         if (matching_rows is None) or matching_rows.empty:
-            logger.debug(f"Date not found: {era} {day}/{month}/{year}")
+            logger.debug(f"Date not found: {self.calendar} {self.day}/{self.month}/{self.year}")
             return None
 
         # Log if multiple matches found (shouldn't happen with clean data)
         if (len(matching_rows) > 1) and isinstance(matching_rows, pd.DataFrame):
-            logger.warning(f"Multiple matches found for {era} {day}/{month}/{year}")
+            logger.warning(f"Multiple matches found for {self.calendar} {self.day}/{self.month}/{self.year}")
 
         return matching_rows.iloc[0][WEEKDAY_COLUMN]
 
@@ -406,7 +406,7 @@ class DateMapping:
         It returns complete information for all supported calendar systems,
         enabling seamless conversion between any two systems.
         """
-        if not self._is_data_loaded() or self.df is None:
+        if not self._is_data_loaded() or self.df is None or self.calendar is None or self.day is None or self.month is None or self.year is None:
             logger.error("Calendar data not loaded")
             return None
 
@@ -446,7 +446,7 @@ class DateMapping:
 
         return result
 
-    def validate_date(self) -> bool:
+    def validate_date(self) -> Optional[Dict[str, pd.DataFrame]]:
         """
         Validate if a date exists in the specified calendar system.
 
@@ -492,16 +492,27 @@ class DateMapping:
         """
         if not self._is_data_loaded() or self.df is None:
             return False
-
-        try:
-            result = self.find_weekday()
-            return result is not None
-        except ValueError:
-            # Invalid calendar system
-            return False
-        except Exception:
-            # Any other error means the date is not valid
-            return False
+        found_hijri_list = pd.DataFrame()
+        found_gregorian_list = pd.DataFrame()
+        found_julain_list = pd.DataFrame()
+        if self.calendar is None:
+            for test_calendar in self.loader.get_supported_calendars():
+                # Find matching rows using the utility function
+                matching_rows = find_date_row(self.df, test_calendar, self.day, self.month, self.year)
+                if matching_rows is not None and len(matching_rows) >= 1:
+                    print(f"Found Matches Dates: {calendar} {day}/{month}/{year}")
+                    if "hijri" == test_calendar: found_hijri_list = matching_rows.copy()
+                    if "gregorian" == test_calendar: found_gregorian_list = matching_rows.copy()
+                    if "julian" == test_calendar: found_julain_list = matching_rows.copy()
+        
+        if (len(found_hijri_list) + len(found_gregorian_list) + len(found_julain_list)) < 1:
+            return None
+        else:
+            return {
+                "hijri" : found_hijri_list,
+                "gregorian": found_gregorian_list,
+                "julian": found_julain_list
+            }
     
     def _get_data_quality_metrics(self) -> Dict[str, Any]:
         """
