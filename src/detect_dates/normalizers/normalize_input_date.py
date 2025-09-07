@@ -5,7 +5,7 @@
 Date input normalization utilities for multi-calendar date processing.
 
 This module provides comprehensive date input validation and normalization across
-multiple calendar systems including Gregorian, Hijri, and Julian calendars.
+multiple calendar systems including Gregorian, Hijri, and Jalali calendars.
 It handles various input formats and provides robust error handling with fallbacks.
 
 Usage
@@ -53,7 +53,7 @@ Supported calendar systems::
     # Hijri calendar (1318-1500)  
     processor.normalize_input_date("AH", 1, 1, 1445)
     
-    # Julian calendar (1278-1456)
+    # Jalali calendar (1278-1456)
     processor.normalize_input_date("BCE", 1, 1, 1300)
 """
 
@@ -135,7 +135,7 @@ def normalize_input_date(
     -------
     Tuple[Optional[str], Optional[int], Optional[int], Optional[int]]
         Normalized (calendar, day, month, year) tuple where:
-        - **calendar** (str): Normalized calendar name ('gregorian', 'hijri', 'julian')
+        - **calendar** (str): Normalized calendar name ('gregorian', 'hijri', 'Jalali')
         - **day** (int or None): Valid day (1-31) or None if invalid
         - **month** (int or None): Valid month (1-12) or None if invalid  
         - **year** (int): Valid year within calendar's supported range
@@ -190,7 +190,7 @@ def normalize_input_date(
     **Calendar Year Ranges:**
     - Gregorian: 1900-2077
     - Hijri: 1318-1500  
-    - Julian: 1278-1456
+    - Jalali: 1278-1456
     
     **Validation Strategy:**
     - Invalid day/month components are set to None with warnings
@@ -252,7 +252,7 @@ def normalize_input_date(
     year_ranges = {
         'gregorian': (1900, 2077),
         'hijri': (1318, 1500), 
-        'julian': (1278, 1456)
+        'Jalali': (1278, 1456)
     }
     
     min_year, max_year = year_ranges.get(calendar, (None, None))

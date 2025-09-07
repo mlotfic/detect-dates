@@ -26,13 +26,13 @@ century_indicator_pattern = IndicatorPatterns.century
 
 hijri_era_pattern = EraPatterns.hijri
 gregorian_era_pattern = EraPatterns.gregorian
-julian_era_pattern = EraPatterns.julian
+Jalali_era_pattern = EraPatterns.Jalali
 
 day_pattern = BasePatterns.weekday
 
 hijri_month_pattern = MonthPatterns.hijri
 gregorian_month_pattern = MonthPatterns.gregorian
-julian_month_pattern = MonthPatterns.julian
+Jalali_month_pattern = MonthPatterns.Jalali
 
 base_patterns: BasePatterns
 numeric_patterns: NumericPatterns
@@ -50,90 +50,90 @@ d_m_num_pattern = CompositeNumericPatterns.d_m
 d_m_yr_num_pattern = CompositeNumericPatterns.d_m_yr
 
 # [ ] ============================================================
-# Hijri, Gregorian, and julian year patterns (YYYY)
+# Hijri, Gregorian, and Jalali year patterns (YYYY)
 hijri_y_pattern = YearPatterns.hijri
 hijri_y_pattern_s = YearPatterns.hijri_optional
 gregorian_y_pattern = YearPatterns.gregorian
 gregorian_y_pattern_s = YearPatterns.gregorian_optional
-julian_y_pattern = YearPatterns.julian
-julian_y_pattern_s = YearPatterns.julian_optional
+Jalali_y_pattern = YearPatterns.Jalali
+Jalali_y_pattern_s = YearPatterns.Jalali_optional
 
 # [ ] ============================================================
-# Hijri, Gregorian, and julian century patterns 
+# Hijri, Gregorian, and Jalali century patterns 
 century_num_pattern = CenturyPatterns.numeric
 hijri_century_pattern = CenturyPatterns.hijri
 gregorian_century_pattern = CenturyPatterns.gregorian
-julian_century_pattern = CenturyPatterns.julian
+Jalali_century_pattern = CenturyPatterns.Jalali
 
 century_num_pattern_s = CenturyPatterns.numeric_optional
 hijri_century_pattern_s = CenturyPatterns.hijri_optional
 gregorian_century_pattern_s = CenturyPatterns.gregorian_optional
-julian_century_pattern_s = CenturyPatterns.julian_optional
+Jalali_century_pattern_s = CenturyPatterns.Jalali_optional
 
 # [ ] ============================================================
-# Hijri, Gregorian, and julian (MM/YYYY) patterns
+# Hijri, Gregorian, and Jalali (MM/YYYY) patterns
 hijri_m_y_pattern_num = MonthYearPatterns.hijri.numeric
 gregorian_m_y_pattern_num = MonthYearPatterns.gregorian.numeric
-julian_m_y_pattern_num = MonthYearPatterns.julian.numeric
+Jalali_m_y_pattern_num = MonthYearPatterns.Jalali.numeric
 
 # [ ] ===========================================================================================
-# Hijri, Gregorian, and julian (MM/YYYY) patterns with optional era like "1445 هـ" or "2023 م"
+# Hijri, Gregorian, and Jalali (MM/YYYY) patterns with optional era like "1445 هـ" or "2023 م"
 hijri_m_y_pattern_num_s = MonthYearPatterns.hijri.numeric_optional
 gregorian_m_y_pattern_num_s = MonthYearPatterns.gregorian.numeric_optional
-julian_m_y_pattern_num_s = MonthYearPatterns.julian.numeric_optional
+Jalali_m_y_pattern_num_s = MonthYearPatterns.Jalali.numeric_optional
 
 # [ ] ===========================================================================================
-# Hijri, Gregorian, and julian (Month/YYYY) patterns with optional era like "محرم 1445 هـ" or "يناير 2023 م"
+# Hijri, Gregorian, and Jalali (Month/YYYY) patterns with optional era like "محرم 1445 هـ" or "يناير 2023 م"
 hijri_m_y_pattern_name = MonthPatterns.hijri.named
 gregorian_m_y_pattern_name = MonthPatterns.gregorian.named
-julian_m_y_pattern_name = MonthPatterns.julian.named
+Jalali_m_y_pattern_name = MonthPatterns.Jalali.named
 
 # [ ] ===========================================================================================
-# Hijri, Gregorian, and julian (Month/YYYY) patterns [stand alone or with era]
+# Hijri, Gregorian, and Jalali (Month/YYYY) patterns [stand alone or with era]
 hijri_m_y_pattern = MonthYearPatterns.hijri.combined
 gregorian_m_y_pattern = MonthYearPatterns.gregorian.combined
-julian_m_y_pattern = MonthYearPatterns.julian.combined
+Jalali_m_y_pattern = MonthYearPatterns.Jalali.combined
 
 # [ ] ===========================================================================================
-# Hijri, Gregorian, and julian (Month/YYYY) patterns with optional era [start of range patterns]
+# Hijri, Gregorian, and Jalali (Month/YYYY) patterns with optional era [start of range patterns]
 hijri_m_y_pattern_s = MonthYearPatterns.hijri.combined_optional
 gregorian_m_y_pattern_s = MonthYearPatterns.gregorian.combined_optional
-julian_m_y_pattern_s = MonthYearPatterns.julian.combined_optional
+Jalali_m_y_pattern_s = MonthYearPatterns.Jalali.combined_optional
 
 
 
         
 
 # [ ] ============================================================
-# Hijri, Gregorian, and julian (DD/MM/YYYY) patterns
+# Hijri, Gregorian, and Jalali (DD/MM/YYYY) patterns
 hijri_d_m_y_pattern_num = DayMonthYearPatterns.hijri.numeric
 gregorian_d_m_y_pattern_num = DayMonthYearPatterns.gregorian.numeric
-julian_d_m_y_pattern_num = DayMonthYearPatterns.julian.numeric
+Jalali_d_m_y_pattern_num = DayMonthYearPatterns.Jalali.numeric
 
 # [ ] ===========================================================================================
-# Hijri, Gregorian, and julian (DD/MM/YYYY) patterns with optional era [start of range patterns]
+# Hijri, Gregorian, and Jalali (DD/MM/YYYY) patterns with optional era [start of range patterns]
 hijri_d_m_y_pattern_num_s = DayMonthYearPatterns.hijri.numeric_optional
 gregorian_d_m_y_pattern_num_s = DayMonthYearPatterns.gregorian.numeric_optional
-julian_d_m_y_pattern_num_s = DayMonthYearPatterns.julian.numeric_optional
+Jalali_d_m_y_pattern_num_s = DayMonthYearPatterns.Jalali.numeric_optional
 
 # [ ] ===========================================================================================
-# Hijri, Gregorian, and julian (DD/MM/YYYY) patterns with optional era
+# Hijri, Gregorian, and Jalali (DD/MM/YYYY) patterns with optional era
 hijri_d_m_y_pattern_name = DayMonthYearPatterns.hijri.named
 gregorian_d_m_y_pattern_name = DayMonthYearPatterns.gregorian.named
-julian_d_m_y_pattern_name = DayMonthYearPatterns.julian.named
+Jalali_d_m_y_pattern_name = DayMonthYearPatterns.Jalali.named
 
 
 # [ ] ===========================================================================================
-# Hijri, Gregorian, and julian (DD/MM/YYYY) patterns [combined with era for numeric and with/without named patterns]
+# Hijri, Gregorian, and Jalali (DD/MM/YYYY) patterns [combined with era for numeric and with/without named patterns]
 # Natural language date patterns
 hijri_d_m_y_pattern = DayMonthYearPatterns.hijri.combined
 gregorian_d_m_y_pattern = DayMonthYearPatterns.gregorian.combined
-julian_d_m_y_pattern = DayMonthYearPatterns.julian.combined
+Jalali_d_m_y_pattern = DayMonthYearPatterns.Jalali.combined
 
-# Hijri, Gregorian, and julian (DD/MM/YYYY) patterns with optional era [start of range patterns]
+# Hijri, Gregorian, and Jalali (DD/MM/YYYY) patterns with optional era [start of range patterns]
 hijri_d_m_y_pattern_s = DayMonthYearPatterns.hijri.combined_optional
 gregorian_d_m_y_pattern_s = DayMonthYearPatterns.gregorian.combined_optional
-julian_d_m_y_pattern_s = DayMonthYearPatterns.julian.combined_optional
+Jalali_d_m_y_pattern_s = DayMonthYearPatterns.Jalali.combined_optional
 
 
 
@@ -143,28 +143,28 @@ julian_d_m_y_pattern_s = DayMonthYearPatterns.julian.combined_optional
 # Full date patterns with (day DD/MM/YYYY)
 natural_hijri_d_m_y_pattern_num = NaturalLanguagePatterns.hijri.numeric
 natural_gregorian_d_m_y_pattern_num = NaturalLanguagePatterns.gregorian.numeric
-natural_julian_d_m_y_pattern_num = NaturalLanguagePatterns.julian.numeric
+natural_Jalali_d_m_y_pattern_num = NaturalLanguagePatterns.Jalali.numeric
 
 
 # Natural language date patterns with (day DD/MM/YYYY) [start of range patterns]
 natural_hijri_d_m_y_pattern_num_s = NaturalLanguagePatterns.hijri.numeric_optional
 natural_gregorian_d_m_y_pattern_num_s = NaturalLanguagePatterns.gregorian.numeric_optional
-natural_julian_d_m_y_pattern_num_s = NaturalLanguagePatterns.julian.numeric_optional
+natural_Jalali_d_m_y_pattern_num_s = NaturalLanguagePatterns.Jalali.numeric_optional
 
 # Natural language date patterns with (day DD/MM/YYYY) [with/without named patterns]
 natural_hijri_d_m_y_pattern_name = NaturalLanguagePatterns.hijri.named
 natural_gregorian_d_m_y_pattern_name = NaturalLanguagePatterns.gregorian.named
-natural_julian_d_m_y_pattern_name = NaturalLanguagePatterns.julian.named
+natural_Jalali_d_m_y_pattern_name = NaturalLanguagePatterns.Jalali.named
 
 # Natural language date patterns with (day DD/MM/YYYY) [combined with era for numeric and with/without named patterns]
 natural_hijri_pattern = NaturalLanguagePatterns.hijri.combined
 natural_gregorian_pattern = NaturalLanguagePatterns.gregorian.combined
-natural_julian_pattern = NaturalLanguagePatterns.julian.combined
+natural_Jalali_pattern = NaturalLanguagePatterns.Jalali.combined
 
 # Natural language date patterns with (day DD/MM/YYYY) [start of range patterns]
 natural_hijri_pattern_s = NaturalLanguagePatterns.hijri.combined_optional
 natural_gregorian_pattern_s = NaturalLanguagePatterns.gregorian.combined_optional
-natural_julian_pattern_s = NaturalLanguagePatterns.julian.combined_optional
+natural_Jalali_pattern_s = NaturalLanguagePatterns.Jalali.combined_optional
 
 # ===================================================================================
 # COMPREHENSIVE PATTERN DEFINITIONS
@@ -180,10 +180,10 @@ PURE_DATE_PATTERNS = [
         "examples": [  # Original: "example": "12/1440, 01/2023, 03/1398"
             "12/1440",    # Could be Hijri (year 1440 AH ≈ 2018-2019 CE)
             "01/2023",    # Likely Gregorian (contemporary year)
-            "03/1398",    # Could be julian (year 1398 SH ≈ 2019-2020 CE)
+            "03/1398",    # Could be Jalali (year 1398 SH ≈ 2019-2020 CE)
             "06/1445",    # Could be Hijri (year 1445 AH ≈ 2023-2024 CE)
             "11/2024",    # Likely Gregorian (contemporary year)
-            "02/1401"     # Could be julian (year 1401 SH ≈ 2022-2023 CE)
+            "02/1401"     # Could be Jalali (year 1401 SH ≈ 2022-2023 CE)
         ],
         "priority": 10,  # Lower priority due to ambiguity
         "match_type": "unknown_calendar",
@@ -211,7 +211,7 @@ PURE_DATE_PATTERNS = [
             "15/03/1398",  # 15th month invalid - likely day/month confusion
             "25/12/2024",  # 25th December 2024 CE (Gregorian)
             "10/06/1445",  # Could be 10th Jumada al-Thani 1445 AH (Hijri)
-            "31/01/1401"   # Could be julian format
+            "31/01/1401"   # Could be Jalali format
         ],
         "priority": 15,  # Higher priority than month/year only
         "match_type": "unknown_calendar",
@@ -239,7 +239,7 @@ PURE_DATE_PATTERNS = [
             "الثلاثاء 15/03/1398",   # Tuesday - needs calendar validation
             "الأربعاء 25/12/2024",   # Wednesday 25th December 2024 CE
             "الخميس 10/06/1445",     # Thursday - Hijri date
-            "الجمعة 20/11/1401"      # Friday - could be julian
+            "الجمعة 20/11/1401"      # Friday - could be Jalali
         ],
         "priority": 20,  # High priority due to weekday validation capability
         "match_type": "unknown_calendar",
@@ -316,10 +316,10 @@ PURE_DATE_PATTERNS = [
         },        
     },
     
-    {  # Pattern 6 - Basic julian Year with Era Marker
-        "pattern": julian_y_pattern,
-        "name": "explicit_julian_year_only",  # Original: "basic_julian"
-        "description": "julian/Solar Hijri year with explicit era marker - unambiguous calendar identification",
+    {  # Pattern 6 - Basic Jalali Year with Era Marker
+        "pattern": Jalali_y_pattern,
+        "name": "explicit_Jalali_year_only",  # Original: "basic_Jalali"
+        "description": "Jalali/Solar Hijri year with explicit era marker - unambiguous calendar identification",
         "examples": [  # Original: "example": "1402 هـ.ش"
             "1402 هـ.ش",     # Year 1402 SH (≈ 2023-2024 CE)
             "1400 شمسی",     # Year 1400 SH with Persian marker
@@ -330,7 +330,7 @@ PURE_DATE_PATTERNS = [
         ],
         "priority": 90,  # High priority - explicit calendar marker
         "match_type": "calendar",
-        "calendars": ["julian"],
+        "calendars": ["Jalali"],
         "languages": ["persian_ar"],
         "components": ["year", "era"],
         "date": {
@@ -340,7 +340,7 @@ PURE_DATE_PATTERNS = [
             "year": 1,       # First capture group (year number)
             "century": None, 
             "era": 2,        # Second capture group (era marker)
-            "calendar": "julian"
+            "calendar": "Jalali"
         },
     },
     
@@ -400,10 +400,10 @@ PURE_DATE_PATTERNS = [
         },
     },
     
-    {  # Pattern 9 - julian Month/Year with Era Marker
-        "pattern": julian_m_y_pattern,
-        "name": "explicit_julian_month_year",  # Original: "julian_month_year"
-        "description": "julian month/year with explicit era marker - supports Persian month names",
+    {  # Pattern 9 - Jalali Month/Year with Era Marker
+        "pattern": Jalali_m_y_pattern,
+        "name": "explicit_Jalali_month_year",  # Original: "Jalali_month_year"
+        "description": "Jalali month/year with explicit era marker - supports Persian month names",
         "examples": [  # Original: "example": "فروردین 1402 هـ.ش"
             "فروردین 1402 هـ.ش",  # Farvardin 1402 SH
             "مهر 1401 شمسی",      # Mehr 1401 SH
@@ -414,7 +414,7 @@ PURE_DATE_PATTERNS = [
         ],
         "priority": 80,  # High priority - explicit calendar with month context
         "match_type": "month_year",
-        "calendars": ["julian"],
+        "calendars": ["Jalali"],
         "languages": ["persian_ar"],
         "components": ["month", "year", "era"],
         "date": {
@@ -424,7 +424,7 @@ PURE_DATE_PATTERNS = [
             "year": [2, 5],    # Second or fifth capture group (year)
             "century": None, 
             "era": [3, 6],     # Third or sixth capture group (era marker)
-            "calendar": "julian"
+            "calendar": "Jalali"
         },
     },
     
@@ -484,10 +484,10 @@ PURE_DATE_PATTERNS = [
         },
     },
     
-    {  # Pattern 12 - Complete julian Date with Era Marker
-        "pattern": julian_d_m_y_pattern,
-        "name": "explicit_julian_complete_date",  # Original: "julian_full_date"
-        "description": "Complete julian date with day/month/year and explicit era marker",
+    {  # Pattern 12 - Complete Jalali Date with Era Marker
+        "pattern": Jalali_d_m_y_pattern,
+        "name": "explicit_Jalali_complete_date",  # Original: "Jalali_full_date"
+        "description": "Complete Jalali date with day/month/year and explicit era marker",
         "examples": [  # Original: "example": "15/03/1402 هـ.ش"
             "15/03/1402 هـ.ش",     # 15th Khordad 1402 SH
             "01/فروردین/1403 شمسی", # 1st Farvardin 1403 SH (Nowruz)
@@ -498,7 +498,7 @@ PURE_DATE_PATTERNS = [
         ],
         "priority": 95,  # Very high priority - complete date with explicit calendar
         "match_type": "full_date",
-        "calendars": ["julian"],
+        "calendars": ["Jalali"],
         "languages": ["persian_ar"],
         "components": ["day", "month", "year", "era"],
         "date": {
@@ -508,7 +508,7 @@ PURE_DATE_PATTERNS = [
             "year": [3, 7],    # Third or seventh capture group (year)
             "century": None, 
             "era": [4, 8],     # Fourth or eighth capture group (era marker)
-            "calendar": "julian"
+            "calendar": "Jalali"
         },  
     },
 
@@ -568,10 +568,10 @@ PURE_DATE_PATTERNS = [
         },
     },
     
-    {  # Pattern 15 - Natural Language julian Date
-        "pattern": natural_julian_pattern,
-        "name": "natural_language_julian_date",  # Original: "natural_julian"
-        "description": "Natural language julian date with weekday, day, month name, year, and era marker",
+    {  # Pattern 15 - Natural Language Jalali Date
+        "pattern": natural_Jalali_pattern,
+        "name": "natural_language_Jalali_date",  # Original: "natural_Jalali"
+        "description": "Natural language Jalali date with weekday, day, month name, year, and era marker",
         "examples": [  # Original: "example": "جمعه 15 فروردین 1402 هـ.ش"
             "جمعه 15 فروردین 1402 هـ.ش",    # Friday 15th Farvardin 1402 SH
             "یکشنبه 01 فروردین 1403 شمسی", # Sunday 1st Farvardin 1403 SH (Nowruz)
@@ -582,7 +582,7 @@ PURE_DATE_PATTERNS = [
         ],
         "priority": 100,  # Maximum priority - most complete natural format
         "match_type": "natural",
-        "calendars": ["julian"],
+        "calendars": ["Jalali"],
         "languages": ["persian_ar"],
         "components": ["day_name", "day", "month_name", "year", "era"],
         "date": {
@@ -592,7 +592,7 @@ PURE_DATE_PATTERNS = [
             "year": [4, 9],      # Fourth or ninth capture group (year)
             "century": None, 
             "era": [5, 10],      # Fifth or tenth capture group (era marker)
-            "calendar": "julian"
+            "calendar": "Jalali"
         },
     },
 ]
@@ -613,7 +613,7 @@ MIXED_PURE_DATE_PATTERNS_UNKNOWN_ERA = [
         ],
         "priority": 100,
         "match_type": "mixed",
-        "calendars": ["Hijri", "Gregorian", "julian"],
+        "calendars": ["Hijri", "Gregorian", "Jalali"],
         "languages": ["ar"],
         "components": ["month", "year"],
         "date": {
@@ -638,7 +638,7 @@ MIXED_PURE_DATE_PATTERNS_UNKNOWN_ERA = [
         ],
         "priority": 100,
         "match_type": "mixed",
-        "calendars": ["Hijri", "Gregorian", "julian"],
+        "calendars": ["Hijri", "Gregorian", "Jalali"],
         "languages": ["ar"],
         "components": ["day", "month", "year"],
         "date": {
@@ -663,7 +663,7 @@ MIXED_PURE_DATE_PATTERNS_UNKNOWN_ERA = [
         ],
         "priority": 100,
         "match_type": "mixed",
-        "calendars": ["Hijri", "Gregorian", "julian"],
+        "calendars": ["Hijri", "Gregorian", "Jalali"],
         "languages": ["ar"],
         "components": ["weekday", "day", "month", "year"],
         "date": {
@@ -860,7 +860,7 @@ MIXED_PURE_DATE_PATTERNS_SLASH = [
         "gregorian_end": {
             "weekday": None, "day": None, "month": None, "year": None, "century": None, "era": None, "calendar" : None
             },
-        "julian_end": {
+        "Jalali_end": {
             "weekday": None, "day": None, "month": None, "year": None, "century": None, "era": None, "calendar" : None
             }
     },
@@ -1009,8 +1009,8 @@ MIXED_PURE_DATE_PATTERNS_SLASH = [
         "gregorian": {
             "weekday": None, "day": None, "month": None, "month_name": None, "year": None, "century": None, "era": None, "calendar" : "gregorian"
             },
-        "julian": {
-            "weekday": None, "day": None, "month": None, "month_name": None, "year": None, "century": None, "era": None, "calendar" : "julian"
+        "Jalali": {
+            "weekday": None, "day": None, "month": None, "month_name": None, "year": None, "century": None, "era": None, "calendar" : "Jalali"
             }
     },
     {  # Pattern 11 - Gregorian full date + Hijri full date
@@ -1203,8 +1203,8 @@ MIXED_PURE_DATE_PATTERNS_SLASH = [
         "gregorian": {
             "weekday": None, "day": None, "month": None, "month_name": None, "year": None, "century": None, "era": None, "calendar" : "gregorian"
             },
-        "julian": {
-            "weekday": None, "day": None, "month": None, "month_name": None, "year": None, "century": None, "era": None, "calendar" : "julian"
+        "Jalali": {
+            "weekday": None, "day": None, "month": None, "month_name": None, "year": None, "century": None, "era": None, "calendar" : "Jalali"
             }
     },
     {   # Pattern 11 - Full Gregorian date followed by Hijri equivalent
@@ -1508,7 +1508,7 @@ MIXED_PURE_DATE_PATTERNS_PARENTHETICAL = [
         "gregorian_end": {
             "weekday": None, "day": None, "month": None, "year": None, "century": None, "era": None, "calendar" : None
             },
-        "julian_end": {
+        "Jalali_end": {
             "weekday": None, "day": None, "month": None, "year": None, "century": None, "era": None, "calendar" : None
             }
     },
@@ -1656,8 +1656,8 @@ MIXED_PURE_DATE_PATTERNS_PARENTHETICAL = [
         "gregorian": {
             "weekday": None, "day": None, "month": None, "month_name": None, "year": None, "century": None, "era": None, "calendar" : "gregorian"
             },
-        "julian": {
-            "weekday": None, "day": None, "month": None, "month_name": None, "year": None, "century": None, "era": None, "calendar" : "julian"
+        "Jalali": {
+            "weekday": None, "day": None, "month": None, "month_name": None, "year": None, "century": None, "era": None, "calendar" : "Jalali"
             }
     },
     {  # Pattern 11 - Full Gregorian/Hijri Date (Gregorian first)
@@ -1834,8 +1834,8 @@ MIXED_PURE_DATE_PATTERNS_PARENTHETICAL = [
         "gregorian": {
             "weekday": None, "day": None, "month": None, "month_name": None, "year": None, "century": None, "era": None, "calendar" : "gregorian"
             },
-        "julian": {
-            "weekday": None, "day": None, "month": None, "month_name": None, "year": None, "century": None, "era": None, "calendar" : "julian"
+        "Jalali": {
+            "weekday": None, "day": None, "month": None, "month_name": None, "year": None, "century": None, "era": None, "calendar" : "Jalali"
             }
     },
     {  # 11 — Gregorian full date followed by Hijri in brackets
@@ -2104,7 +2104,7 @@ MIXED_RANGE_PATTERNS_parenthetical = [
         "gregorian_end": {
             "weekday": None, "day": None, "month": None, "year": None, "century": None, "era": None, "calendar" : None
             },
-        "julian_end": {
+        "Jalali_end": {
             "weekday": None, "day": None, "month": None, "year": None, "century": None, "era": None, "calendar" : None
             }
     },
@@ -2255,8 +2255,8 @@ MIXED_RANGE_PATTERNS_parenthetical = [
         "gregorian": {
             "weekday": None, "day": None, "month": None, "month_name": None, "year": None, "century": None, "era": None, "calendar" : "gregorian"
             },
-        "julian": {
-            "weekday": None, "day": None, "month": None, "month_name": None, "year": None, "century": None, "era": None, "calendar" : "julian"
+        "Jalali": {
+            "weekday": None, "day": None, "month": None, "month_name": None, "year": None, "century": None, "era": None, "calendar" : "Jalali"
             }
     },
     {   # Pattern 11 - Gregorian/Hijri Pair in (Gregorian/Hijri) (Gregorian/Hijri) Format
@@ -2548,7 +2548,7 @@ FULL_DATE_RANGE_PATTERNS = [
         "gregorian_end": {
             "weekday": None, "day": None, "month": None, "year": None, "century": None, "era": None, "calendar" : None
             },
-        "julian_end": {
+        "Jalali_end": {
             "weekday": None, "day": None, "month": None, "year": None, "century": None, "era": None, "calendar" : None
             }   
     },
@@ -2583,21 +2583,21 @@ FULL_DATE_RANGE_PATTERNS = [
         "gregorian_end": {
             "weekday": None, "day": None, "month": None, "year": None, "century": None, "era": None, "calendar" : None
             },
-        "julian_end": {
+        "Jalali_end": {
             "weekday": None, "day": None, "month": None, "year": None, "century": None, "era": None, "calendar" : None
             } 
     },
-    {  # Pattern 3 - julian Year Range
-        "pattern": rf'\b{IndicatorPatterns.range_starter}?\s+({julian_y_pattern})\s+{IndicatorPatterns.range_connector}\s+{julian_y_pattern}\b',
-        "name": "range_julian_year_to_year",  # Original: "from_to_julian_julian_yr"
-        "description": "Matches a range from julian year to julian year using Arabic/Persian connectors",
+    {  # Pattern 3 - Jalali Year Range
+        "pattern": rf'\b{IndicatorPatterns.range_starter}?\s+({Jalali_y_pattern})\s+{IndicatorPatterns.range_connector}\s+{Jalali_y_pattern}\b',
+        "name": "range_Jalali_year_to_year",  # Original: "from_to_Jalali_Jalali_yr"
+        "description": "Matches a range from Jalali year to Jalali year using Arabic/Persian connectors",
         "examples": [  # Original: "example": "من 1402 هـ.ش إلى 1405 هـ.ش"
             "من 1402 هـ.ش إلى 1405 هـ.ش",
             "1400 هـ.ش حتى 1403 هـ.ش"
         ],
         "priority": 1,
         "match_type": "range",
-        "calendars": ["julian"],
+        "calendars": ["Jalali"],
         "languages": ["ar"],
         "components":["year", "era"],
         "date": {
@@ -2617,7 +2617,7 @@ FULL_DATE_RANGE_PATTERNS = [
         "gregorian_end": {
             "weekday": None, "day": None, "month": None, "year": None, "century": None, "era": None, "calendar" : None
             },
-        "julian_end": {
+        "Jalali_end": {
             "weekday": None, "day": None, "month": None, "year": None, "century": None, "era": None, "calendar" : None
             }
         
@@ -2652,7 +2652,7 @@ FULL_DATE_RANGE_PATTERNS = [
         "gregorian_end": {
             "weekday": None, "day": None, "month": None, "year": None, "century": None, "era": None, "calendar" : None
             },
-        "julian_end": {
+        "Jalali_end": {
             "weekday": None, "day": None, "month": None, "year": None, "century": None, "era": None, "calendar" : None
             }   
     },
@@ -2686,21 +2686,21 @@ FULL_DATE_RANGE_PATTERNS = [
         "gregorian_end": {
             "weekday": None, "day": None, "month": None, "year": None, "century": None, "era": None, "calendar" : None
             },
-        "julian_end": {
+        "Jalali_end": {
             "weekday": None, "day": None, "month": None, "year": None, "century": None, "era": None, "calendar" : None
             } 
     },
-    {  # Pattern 6 - julian Year Range (alt pattern with suffix)
-        "pattern": rf'\b{IndicatorPatterns.range_starter}?\s+({julian_y_pattern_s})\s+{IndicatorPatterns.range_connector}\s+{julian_y_pattern}\b',
-        "name": "range_julian_year_alt_suffixed",  # Original: "from_to_julian_julian_yr"
-        "description": "Matches an alternate julian year range where start year has a suffix",
+    {  # Pattern 6 - Jalali Year Range (alt pattern with suffix)
+        "pattern": rf'\b{IndicatorPatterns.range_starter}?\s+({Jalali_y_pattern_s})\s+{IndicatorPatterns.range_connector}\s+{Jalali_y_pattern}\b',
+        "name": "range_Jalali_year_alt_suffixed",  # Original: "from_to_Jalali_Jalali_yr"
+        "description": "Matches an alternate Jalali year range where start year has a suffix",
         "examples": [  # Original: "example": "من 1402 هـ.ش إلى 1405 هـ.ش"
             "من 1402 هـ.ش إلى 1405 هـ.ش",
             "1403 هـ.ش إلى 1406"
         ],
         "priority": 1,
         "match_type": "range",
-        "calendars": ["julian"], 
+        "calendars": ["Jalali"], 
         "languages": ["ar"],
         "components":["year", "era"],
         "date": {
@@ -2720,7 +2720,7 @@ FULL_DATE_RANGE_PATTERNS = [
         "gregorian_end": {
             "weekday": None, "day": None, "month": None, "year": None, "century": None, "era": None, "calendar" : None
             },
-        "julian_end": {
+        "Jalali_end": {
             "weekday": None, "day": None, "month": None, "year": None, "century": None, "era": None, "calendar" : None
             }
     },
@@ -2774,21 +2774,21 @@ FULL_DATE_RANGE_PATTERNS = [
         "gregorian_end": {
             "weekday": None, "day": None, "month": None, "year": None, "century": None, "era": None, "calendar" : None
             },
-        "julian_end": {
+        "Jalali_end": {
             "weekday": None, "day": None, "month": None, "year": None, "century": None, "era": None, "calendar" : None
             } 
     },
-    {  # Pattern 9 - julian Month-Year Range
-        "pattern": rf'\b{IndicatorPatterns.range_starter}?\s+{julian_m_y_pattern}\s+{IndicatorPatterns.range_connector}\s+{julian_m_y_pattern}\b',
-        "name": "range_julian_month_year_to_month_year",  # Original: "from_to_julian_julian_m_y"
-        "description": "Matches a range from julian month/year to julian month/year with Arabic or Persian connectors",
+    {  # Pattern 9 - Jalali Month-Year Range
+        "pattern": rf'\b{IndicatorPatterns.range_starter}?\s+{Jalali_m_y_pattern}\s+{IndicatorPatterns.range_connector}\s+{Jalali_m_y_pattern}\b',
+        "name": "range_Jalali_month_year_to_month_year",  # Original: "from_to_Jalali_Jalali_m_y"
+        "description": "Matches a range from Jalali month/year to Jalali month/year with Arabic or Persian connectors",
         "examples": [  # Original: "example": "من فروردین 1402 هـ.ش إلى خرداد  1405 هـ.ش"
             "من فروردین 1402 هـ.ش إلى خرداد 1405 هـ.ش",
             "مرداد 1399 هـ.ش حتى فروردین 1403 هـ.ش"
         ],
         "priority": 1,  
         "match_type": "range",
-        "calendars": ["julian"],
+        "calendars": ["Jalali"],
         "languages": ["persian_ar"],
         "components":["month", "year", "era"],
         "date": {
@@ -2808,7 +2808,7 @@ FULL_DATE_RANGE_PATTERNS = [
         "gregorian_end": {
             "weekday": None, "day": None, "month": None, "year": None, "century": None, "era": None, "calendar" : None
             },
-        "julian_end": {
+        "Jalali_end": {
             "weekday": None, "day": None, "month": None, "year": None, "century": None, "era": None, "calendar" : None
             } 
     },
@@ -2842,7 +2842,7 @@ FULL_DATE_RANGE_PATTERNS = [
         "gregorian_end": {
             "weekday": None, "day": None, "month": None, "year": None, "century": None, "era": None, "calendar" : None
             },
-        "julian_end": {
+        "Jalali_end": {
             "weekday": None, "day": None, "month": None, "year": None, "century": None, "era": None, "calendar" : None
             }
     },
@@ -2876,21 +2876,21 @@ FULL_DATE_RANGE_PATTERNS = [
         "gregorian_end": {
             "weekday": None, "day": None, "month": None, "year": None, "century": None, "era": None, "calendar" : None
             },
-        "julian_end": {
+        "Jalali_end": {
             "weekday": None, "day": None, "month": None, "year": None, "century": None, "era": None, "calendar" : None
             } 
     },
-    {  # Pattern 12 - julian Month-Year Range (alt suffix on start)
-        "pattern": rf'\b{IndicatorPatterns.range_starter}?\s+{julian_m_y_pattern_s}\s+{IndicatorPatterns.range_connector}\s+{julian_m_y_pattern}\b',
-        "name": "range_julian_month_year_alt_suffixed",  # Original: "from_to_julian_julian_m_y"
-        "description": "Alternate julian month/year range: start suffixed, end plain",
+    {  # Pattern 12 - Jalali Month-Year Range (alt suffix on start)
+        "pattern": rf'\b{IndicatorPatterns.range_starter}?\s+{Jalali_m_y_pattern_s}\s+{IndicatorPatterns.range_connector}\s+{Jalali_m_y_pattern}\b',
+        "name": "range_Jalali_month_year_alt_suffixed",  # Original: "from_to_Jalali_Jalali_m_y"
+        "description": "Alternate Jalali month/year range: start suffixed, end plain",
         "examples": [  # Original: "example": "من فروردین 1402 هـ.ش إلى خرداد  1405 هـ.ش"
             "من فروردین 1402 هـ.ش إلى خرداد 1405 هـ.ش",
             "تیر 1399 هـ.ش إلى اسفند 1403"
         ],
         "priority": 1,  
         "match_type": "range",
-        "calendars": ["julian"],
+        "calendars": ["Jalali"],
         "languages": ["persian_ar"],
         "components":["month", "year", "era"],
         "date": {
@@ -2910,7 +2910,7 @@ FULL_DATE_RANGE_PATTERNS = [
         "gregorian_end": {
             "weekday": None, "day": None, "month": None, "year": None, "century": None, "era": None, "calendar" : None
             },
-        "julian_end": {
+        "Jalali_end": {
             "weekday": None, "day": None, "month": None, "year": None, "century": None, "era": None, "calendar" : None
             } 
     },
@@ -2944,7 +2944,7 @@ FULL_DATE_RANGE_PATTERNS = [
         "gregorian_end": {
             "weekday": None, "day": None, "month": None, "year": None, "century": None, "era": None, "calendar" : None
             },
-        "julian_end": {
+        "Jalali_end": {
             "weekday": None, "day": None, "month": None, "year": None, "century": None, "era": None, "calendar" : None
             } 
     },
@@ -2978,21 +2978,21 @@ FULL_DATE_RANGE_PATTERNS = [
         "gregorian_end": {
             "weekday": None, "day": None, "month": None, "year": None, "century": None, "era": None, "calendar" : None
             },
-        "julian_end": {
+        "Jalali_end": {
             "weekday": None, "day": None, "month": None, "year": None, "century": None, "era": None, "calendar" : None
             }         
     },
-    {  # Pattern 15 - julian Full Date Range
-        "pattern": rf'\b{IndicatorPatterns.range_starter}?\s+{julian_d_m_y_pattern}\s+{IndicatorPatterns.range_connector}\s+{julian_d_m_y_pattern}\b',
-        "name": "range_julian_day_month_year_to_day_month_year",  # Original: "from_to_julian_julian_d_m_y"
-        "description": "Matches a range from julian full date to julian full date with Arabic or Persian connectors",
+    {  # Pattern 15 - Jalali Full Date Range
+        "pattern": rf'\b{IndicatorPatterns.range_starter}?\s+{Jalali_d_m_y_pattern}\s+{IndicatorPatterns.range_connector}\s+{Jalali_d_m_y_pattern}\b',
+        "name": "range_Jalali_day_month_year_to_day_month_year",  # Original: "from_to_Jalali_Jalali_d_m_y"
+        "description": "Matches a range from Jalali full date to Jalali full date with Arabic or Persian connectors",
         "examples": [  # Original: "example": "من 10 فروردین 1402 هـ.ش إلى 20 خرداد 1405 هـ.ش"
             "من 10 فروردین 1402 هـ.ش إلى 20 خرداد 1405 هـ.ش",
             "5 اسفند 1398 هـ.ش حتى 1 فروردین 1403 هـ.ش"
         ],
         "priority": 1,
         "match_type": "range",
-        "calendars": ["julian"],
+        "calendars": ["Jalali"],
         "languages": ["persian_ar"],
         "components":["day", "month", "year", "era"],
         "date": {
@@ -3012,7 +3012,7 @@ FULL_DATE_RANGE_PATTERNS = [
         "gregorian_end": {
             "weekday": None, "day": None, "month": None, "year": None, "century": None, "era": None, "calendar" : None
             },
-        "julian_end": {
+        "Jalali_end": {
             "weekday": None, "day": None, "month": None, "year": None, "century": None, "era": None, "calendar" : None
             } 
     },
@@ -3047,7 +3047,7 @@ FULL_DATE_RANGE_PATTERNS = [
         "gregorian_end": {
             "weekday": None, "day": None, "month": None, "year": None, "century": None, "era": None, "calendar" : None
             },
-        "julian_end": {
+        "Jalali_end": {
             "weekday": None, "day": None, "month": None, "year": None, "century": None, "era": None, "calendar" : None
             } 
     },
@@ -3081,21 +3081,21 @@ FULL_DATE_RANGE_PATTERNS = [
         "gregorian_end": {
             "weekday": None, "day": None, "month": None, "year": None, "century": None, "era": None, "calendar" : None
             },
-        "julian_end": {
+        "Jalali_end": {
             "weekday": None, "day": None, "month": None, "year": None, "century": None, "era": None, "calendar" : None
             }         
     },
-    {  # Pattern 18 - julian Full Date Range (start with suffix)
-        "pattern": rf'\b{IndicatorPatterns.range_starter}?\s+{julian_d_m_y_pattern_s}\s+{IndicatorPatterns.range_connector}\s+{julian_d_m_y_pattern}\b',
-        "name": "range_julian_day_month_year_alt_suffixed",  # Original: "from_to_julian_julian_d_m_y"
-        "description": "Alternate julian full date range: suffix on start date only",
+    {  # Pattern 18 - Jalali Full Date Range (start with suffix)
+        "pattern": rf'\b{IndicatorPatterns.range_starter}?\s+{Jalali_d_m_y_pattern_s}\s+{IndicatorPatterns.range_connector}\s+{Jalali_d_m_y_pattern}\b',
+        "name": "range_Jalali_day_month_year_alt_suffixed",  # Original: "from_to_Jalali_Jalali_d_m_y"
+        "description": "Alternate Jalali full date range: suffix on start date only",
         "examples": [
             "من 10 فروردین 1402 هـ.ش إلى 20 خرداد 1405 هـ.ش",
             "1 دی 1399 هـ.ش حتى 15 بهمن 1403"
         ],
         "priority": 1,
         "match_type": "range",
-        "calendars": ["julian"],
+        "calendars": ["Jalali"],
         "languages": ["persian_ar"],
         "components":["day", "month", "year", "era"],
         "date": {
@@ -3115,7 +3115,7 @@ FULL_DATE_RANGE_PATTERNS = [
         "gregorian_end": {
             "weekday": None, "day": None, "month": None, "year": None, "century": None, "era": None, "calendar" : None
             },
-        "julian_end": {
+        "Jalali_end": {
             "weekday": None, "day": None, "month": None, "year": None, "century": None, "era": None, "calendar" : None
             } 
     },
@@ -3150,7 +3150,7 @@ FULL_DATE_RANGE_PATTERNS = [
         "gregorian_end": {
             "weekday": None, "day": None, "month": None, "year": None, "century": None, "era": None, "calendar" : None
             },
-        "julian_end": {
+        "Jalali_end": {
             "weekday": None, "day": None, "month": None, "year": None, "century": None, "era": None, "calendar" : None
             } 
     },
@@ -3184,21 +3184,21 @@ FULL_DATE_RANGE_PATTERNS = [
         "gregorian_end": {
             "weekday": None, "day": None, "month": None, "year": None, "century": None, "era": None, "calendar" : None
             },
-        "julian_end": {
+        "Jalali_end": {
             "weekday": None, "day": None, "month": None, "year": None, "century": None, "era": None, "calendar" : None
             } 
     },
-    {  # Pattern 22 - julian Weekday-Date Range
-        "pattern": rf'\b{IndicatorPatterns.range_starter}?\s+{natural_julian_pattern}\s+{IndicatorPatterns.range_connector}\s+{natural_julian_pattern}\b',
-        "name": "range_julian_weekday_day_month_year",  # Original: "from_to_julian_julian_week_day_d_m_y"
-        "description": "Matches a range from julian date (with weekday) to julian date using Arabic or Persian connectors",
+    {  # Pattern 22 - Jalali Weekday-Date Range
+        "pattern": rf'\b{IndicatorPatterns.range_starter}?\s+{natural_Jalali_pattern}\s+{IndicatorPatterns.range_connector}\s+{natural_Jalali_pattern}\b',
+        "name": "range_Jalali_weekday_day_month_year",  # Original: "from_to_Jalali_Jalali_week_day_d_m_y"
+        "description": "Matches a range from Jalali date (with weekday) to Jalali date using Arabic or Persian connectors",
         "examples": [
             "من شنبه - 10 فروردین 1402 هـ.ش إلى پنج‌شنبه - 20 خرداد 1405 هـ.ش",
             "سه‌شنبه 1 اسفند 1399 هـ.ش حتى جمعه 10 فروردین 1400 هـ.ش"
         ],
         "priority": 1,
         "match_type": "range",
-        "calendars": ["julian"],
+        "calendars": ["Jalali"],
         "languages": ["persian_ar"],
         "components":["weekday", "day", "month", "year", "era"],
         "date": {
@@ -3218,7 +3218,7 @@ FULL_DATE_RANGE_PATTERNS = [
         "gregorian_end": {
             "weekday": None, "day": None, "month": None, "year": None, "century": None, "era": None, "calendar" : None
             },
-        "julian_end": {
+        "Jalali_end": {
             "weekday": None, "day": None, "month": None, "year": None, "century": None, "era": None, "calendar" : None
             } 
     },
@@ -3252,7 +3252,7 @@ FULL_DATE_RANGE_PATTERNS = [
         "gregorian_end": {
             "weekday": None, "day": None, "month": None, "year": None, "century": None, "era": None, "calendar" : None
             },
-        "julian_end": {
+        "Jalali_end": {
             "weekday": None, "day": None, "month": None, "year": None, "century": None, "era": None, "calendar" : None
             } 
     },
@@ -3286,21 +3286,21 @@ FULL_DATE_RANGE_PATTERNS = [
         "gregorian_end": {
             "weekday": None, "day": None, "month": None, "year": None, "century": None, "era": None, "calendar" : None
             },
-        "julian_end": {
+        "Jalali_end": {
             "weekday": None, "day": None, "month": None, "year": None, "century": None, "era": None, "calendar" : None
             } 
     },
-    {   # Pattern 25 - julian Weekday-Date Range (start with suffix)
-        "pattern": rf'\b{IndicatorPatterns.range_starter}?\s+{natural_julian_pattern_s}\s+{IndicatorPatterns.range_connector}\s+{natural_julian_pattern}\b',
-        "name": "range_julian_weekday_day_month_year_alt_suffixed",  # Original: "from_to_julian_julian_week_day_d_m_y"
-        "description": "Alternate julian date range: suffix on first date only (with weekday)",
+    {   # Pattern 25 - Jalali Weekday-Date Range (start with suffix)
+        "pattern": rf'\b{IndicatorPatterns.range_starter}?\s+{natural_Jalali_pattern_s}\s+{IndicatorPatterns.range_connector}\s+{natural_Jalali_pattern}\b',
+        "name": "range_Jalali_weekday_day_month_year_alt_suffixed",  # Original: "from_to_Jalali_Jalali_week_day_d_m_y"
+        "description": "Alternate Jalali date range: suffix on first date only (with weekday)",
         "examples": [
             "من شنبه - 10 فروردین 1402 هـ.ش إلى پنج‌شنبه - 20 خرداد 1405 هـ.ش",
             "جمعه - 1 آذر 1397 هـ.ش حتى دوشنبه 12 دی 1400 هـ.ش"
         ],
         "priority": 1,
         "match_type": "range",
-        "calendars": ["julian"],
+        "calendars": ["Jalali"],
         "languages": ["persian_ar"],
         "components":["weekday", "day", "month", "year", "era"],
         "date": {
@@ -3320,7 +3320,7 @@ FULL_DATE_RANGE_PATTERNS = [
         "gregorian_end": {
             "weekday": None, "day": None, "month": None, "year": None, "century": None, "era": None, "calendar" : None
             },
-        "julian_end": {
+        "Jalali_end": {
             "weekday": None, "day": None, "month": None, "year": None, "century": None, "era": None, "calendar" : None
             } 
     },    

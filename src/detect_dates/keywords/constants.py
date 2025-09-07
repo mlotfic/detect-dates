@@ -13,7 +13,7 @@ class Calendar(Enum):
     HIJRI = "hijri"
     GREGORIAN = "gregorian"
     PERSIAN = "persian"
-    JULIAN = "julian"
+    Jalali = "Jalali"
 
 class OutputFormat(Enum):
     NUMBER = "num"
@@ -22,11 +22,12 @@ class OutputFormat(Enum):
 
 # Calendar system aliases for user convenience
 CALENDAR_ALIASES = {
-    'solar_hijri': 'julian',
-    'persian': 'julian',
+    'solar_hijri': 'Jalali',
+    'persian': 'Jalali',
     'islamic': 'hijri',
     'greg': 'gregorian'
 }
+
 # Precision levels for date parsing
 PRECISION_LEVELS = {
     'exact': 'Complete date with day, month, year',
@@ -40,7 +41,7 @@ PRECISION_LEVELS = {
 SUPPORTED_CALENDARS_COLUMNS = {
     'gregorian': ['Gregorian Day', 'Gregorian Month', 'Gregorian Year'],
     'hijri': ['Hijri Day', 'Hijri Month', 'Hijri Year'],
-    'julian': ['Solar Hijri Day', 'Solar Hijri Month', 'Solar Hijri Year']
+    'Jalali': ['Solar Hijri Day', 'Solar Hijri Month', 'Solar Hijri Year']
 }
 
 class RelationType(Enum):

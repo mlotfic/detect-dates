@@ -106,9 +106,9 @@ months_gregorian_ar = []
 months_hijri_en = []
 months_hijri_ar = []
 
-# Persian/julian months - Iranian solar calendar (365-366 days/year, first 6 months 31 days, next 5 months 30 days, last month 29-30 days)
-months_julian_en = []
-months_julian_ar = []
+# Persian/Jalali months - Iranian solar calendar (365-366 days/year, first 6 months 31 days, next 5 months 30 days, last month 29-30 days)
+months_Jalali_en = []
+months_Jalali_ar = []
 
 # Process month name variations and categorize by calendar system
 for key, value in months_variations_list.items():    
@@ -122,7 +122,7 @@ for key, value in months_variations_list.items():
         
     # Handle English Persian month variations  
     elif key.startswith("persian_en"):
-        months_julian_en = months_julian_en + months_variations_list[key]
+        months_Jalali_en = months_Jalali_en + months_variations_list[key]
         
     # Handle Arabic Gregorian month variations (including Levantine)
     elif key.startswith("gregorian_ar"):
@@ -134,15 +134,15 @@ for key, value in months_variations_list.items():
         
     # Handle Persian/Farsi month variations
     elif key.startswith("persian_ar"):
-        months_julian_ar = months_julian_ar + months_variations_list[key]
+        months_Jalali_ar = months_Jalali_ar + months_variations_list[key]
         
 # Remove duplicates using set() - order doesn't matter for month name matching
 months_gregorian_en = list(set(months_gregorian_en))
 months_gregorian_ar = list(set(months_gregorian_ar))
 months_hijri_en = list(set(months_hijri_en))
 months_hijri_ar = list(set(months_hijri_ar))
-months_julian_en = list(set(months_julian_en))
-months_julian_ar = list(set(months_julian_ar))
+months_Jalali_en = list(set(months_Jalali_en))
+months_Jalali_ar = list(set(months_Jalali_ar))
 
 months_keywords = [
     # ===================================================================================
@@ -233,11 +233,11 @@ months_keywords = [
     },
     
     # ===================================================================================
-    # julian/PERSIAN CALENDAR MONTHS - Solar Hijri calendar
+    # Jalali/PERSIAN CALENDAR MONTHS - Solar Hijri calendar
     # ===================================================================================
     {
-        "name": "julian_months_persian_arabic_script",  # Original: months_julian_ar
-        "keywords": months_julian_ar,  
+        "name": "Jalali_months_persian_arabic_script",  # Original: months_Jalali_ar
+        "keywords": months_Jalali_ar,  
         "description": "Persian Solar Hijri month names in Arabic script",
         "examples": [  # Original: example (single string) - Fixed to examples list
             "فروردین",    # Farvardin
@@ -256,12 +256,12 @@ months_keywords = [
         "language": "persian_ar",
         "priority": 100,  # Highest priority for Persian in Arabic script
         "component": "month",
-        "calendar": "julian"
+        "calendar": "Jalali"
     },
     
     {
-        "name": "julian_months_persian_latin_script",  # Original: months_julian_en
-        "keywords": months_julian_en,  
+        "name": "Jalali_months_persian_latin_script",  # Original: months_Jalali_en
+        "keywords": months_Jalali_en,  
         "description": "Persian Solar Hijri month names in Latin script",
         "examples": [  # Original: example (single string) - Fixed to examples list
             "farvardin",     # Spring month 1
@@ -280,6 +280,6 @@ months_keywords = [
         "language": "persian_en",
         "priority": 100,  # Highest priority for Persian in Latin script
         "component": "month",
-        "calendar": "julian"
+        "calendar": "Jalali"
     }
 ]

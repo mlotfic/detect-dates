@@ -73,7 +73,7 @@ def normalize_month(month, lang="ar", calendar="gregorian", force_calendar=False
     if lang.lower() not in ["ar", "en", "fa"]:  # Added "fa" for Farsi support
         lang = "ar"  # Default to Arabic
     
-    if calendar.lower() not in ["hijri", "gregorian", "julian", ""]:
+    if calendar.lower() not in ["hijri", "gregorian", "Jalali", ""]:
         calendar = ""  # Default to empty (more common than hijri)
     
     # Initialize return variables

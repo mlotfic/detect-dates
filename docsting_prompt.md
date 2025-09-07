@@ -83,7 +83,7 @@ example usage
                 print(f"   📝 Sample record:")
                 print(f"      Gregorian: {sample['gregorian']}")
                 print(f"      Hijri: {sample['hijri']}")
-                print(f"      Solar Hijri: {sample['julian']}")
+                print(f"      Solar Hijri: {sample['Jalali']}")
                 print(f"      Weekday: {sample['weekday']}")
             print()
             
@@ -100,7 +100,7 @@ example usage
             test_dates = [
                 ('gregorian', 1, 1, 2024, 'New Year 2024'),
                 ('hijri', 1, 1, 1445, 'Islamic New Year 1445'),
-                ('julian', 1, 1, 1403, 'Persian New Year 1403')
+                ('Jalali', 1, 1, 1403, 'Persian New Year 1403')
             ]
             
             for calendar, day, month, year, description in test_dates:
@@ -116,7 +116,7 @@ example usage
             conversion_examples = [
                 ('gregorian', 1, 1, 2024, 'January 1, 2024 (Gregorian)'),
                 ('hijri', 1, 1, 1445, 'Muharram 1, 1445 (Hijri)'),
-                ('julian', 1, 1, 1403, 'Farvardin 1, 1403 (Solar Hijri)')
+                ('Jalali', 1, 1, 1403, 'Farvardin 1, 1403 (Solar Hijri)')
             ]
             
             for calendar, day, month, year, description in conversion_examples:
@@ -161,7 +161,7 @@ example usage
                 ('gregorian', 29, 2, 2024, 'Feb 29, 2024 (leap year)'),
                 ('gregorian', 29, 2, 2023, 'Feb 29, 2023 (non-leap year)'),
                 ('hijri', 30, 12, 1445, 'Dhu al-Hijjah 30, 1445'),
-                ('julian', 31, 12, 1403, 'Esfand 31, 1403 (invalid - max 29/30)')
+                ('Jalali', 31, 12, 1403, 'Esfand 31, 1403 (invalid - max 29/30)')
             ]
             
             for calendar, day, month, year, description in validation_tests:
@@ -217,7 +217,7 @@ class DateComponents:
     era : str, optional
         Era designation ('CE', 'BCE', 'AH')
     calendar : str, optional
-        Calendar system ('gregorian', 'hijri', 'julian')
+        Calendar system ('gregorian', 'hijri', 'Jalali')
 
     Examples
     --------

@@ -138,7 +138,7 @@ def get_calendar_variants(input_date: Dict[str, any]) -> List[Dict[str, any]]:
     Args:
         input_date: Dictionary with keys 'calendar' and 'year' (required),
                    'day' and 'month' (optional)
-                   calendar should be one of: 'gregorian', 'hijri', 'julian'
+                   calendar should be one of: 'gregorian', 'hijri', 'Jalali'
                    If 'day' or 'month' is missing, returns all matching dates
     
     Returns:
@@ -174,7 +174,7 @@ def get_calendar_variants(input_date: Dict[str, any]) -> List[Dict[str, any]]:
     calendar_columns = {
         'gregorian': ['Gregorian Day', 'Gregorian Month', 'Gregorian Year'],
         'hijri': ['Hijri Day', 'Hijri Month', 'Hijri Year'],
-        'julian': ['Solar Hijri Day', 'Solar Hijri Month', 'Solar Hijri Year']
+        'Jalali': ['Solar Hijri Day', 'Solar Hijri Month', 'Solar Hijri Year']
     }
     
     if cal not in calendar_columns:
@@ -243,7 +243,7 @@ def get_calendar_variants(input_date: Dict[str, any]) -> List[Dict[str, any]]:
                 "day": int(row['Solar Hijri Day']),
                 "month": int(row['Solar Hijri Month']),
                 "year": int(row['Solar Hijri Year']),
-                "calendar": "julian"
+                "calendar": "Jalali"
             }
         ]
         results.extend(date_variants)

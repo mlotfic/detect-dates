@@ -173,7 +173,7 @@ def normalize_month(
     Args:
         month (Union[int, str]): Month name in any supported language/calendar system or month number (1-12)
         to_lang (Optional[str]): Target language ('ar', 'en', 'fa'). If None, uses detected language.
-        to_calendar (Optional[str]): Target calendar ('hijri', 'gregorian', 'persian', 'julian').
+        to_calendar (Optional[str]): Target calendar ('hijri', 'gregorian', 'persian', 'Jalali').
                                     If None, uses detected calendar.
         output_format (Optional[str]): Output format ('num', 'full', 'abbr').
                                     If None, defaults to 'num' for number output.
@@ -248,9 +248,9 @@ def normalize_month(
         calendar_lower = to_calendar.lower().strip()
         if calendar_lower in SUPPORTED_CALENDARS:
             target_calendar = calendar_lower
-            # Special handling for Julian calendar
-            if calendar_lower == "julian":
-                target_calendar = "persian"  # Julian maps to Persian calendar
+            # Special handling for Jalali calendar
+            if calendar_lower == "Jalali":
+                target_calendar = "persian"  # Jalali maps to Persian calendar
 
     # Determine output format
     format_type = output_format or OutputFormat.NUMBER.value

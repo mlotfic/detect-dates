@@ -85,12 +85,12 @@ def get_date_patterns(lang: str) -> Tuple[BasePatterns, MonthPatterns, EraPatter
         ), MonthPatterns(
             hijri           = get_month_pattern(months_keywords, lang, calendar="Hijri"),
             gregorian       = get_month_pattern(months_keywords, lang, calendar="Gregorian"),
-            julian          = get_month_pattern(months_keywords, f"persian_{lang}", calendar="julian")
+            Jalali          = get_month_pattern(months_keywords, f"persian_{lang}", calendar="Jalali")
 
         ), EraPatterns(
             hijri           = get_era_pattern(era_keywords, lang, calendar="Hijri"),
             gregorian       = get_era_pattern(era_keywords, lang, calendar="Gregorian"),
-            julian          = get_era_pattern(era_keywords, f"persian_{lang}", calendar="julian")
+            Jalali          = get_era_pattern(era_keywords, f"persian_{lang}", calendar="Jalali")
 
         ), IndicatorPatterns(
             day             = get_day_indicator_pattern(indicators_keywords, lang),
@@ -124,11 +124,11 @@ class DatePatterns:
 
     hijri_era_pattern: str
     gregorian_era_pattern: str
-    julian_era_pattern: str
+    Jalali_era_pattern: str
     day_pattern: str
     hijri_month_pattern: str
     gregorian_month_pattern: str
-    julian_month_pattern: str
+    Jalali_month_pattern: str
 
 
     return DatePatterns(
@@ -142,10 +142,10 @@ class DatePatterns:
 
         hijri_era_pattern           = rf"({hijri_era})",
         gregorian_era_pattern       = rf"({gregorian_era})",
-        julian_era_pattern          = rf"({julian_era})",
+        Jalali_era_pattern          = rf"({Jalali_era})",
         day_pattern                 = rf"({day})",
         hijri_month_pattern         = rf"({hijri_month})",
         gregorian_month_pattern     = rf"({gregorian_month})",
-        julian_month_pattern        = rf"({julian_month})",
+        Jalali_month_pattern        = rf"({Jalali_month})",
     )
     '''

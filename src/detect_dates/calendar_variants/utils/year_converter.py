@@ -4,7 +4,7 @@ Calendar Conversion Utilities Module
 
 This module provides calendar conversion utilities and functions to get calendar variants
 across three major calendar systems: Gregorian (Western), Hijri (Islamic), and 
-Julian/Persian Solar calendars.
+Jalali/Persian Solar calendars.
 
 :author: m
 :created: Sun Jun 22 21:38:10 2025
@@ -17,13 +17,13 @@ class YearConverter:
     A utility class for converting years between different calendar systems.
     
     This class handles conversions between Gregorian (Western), Hijri (Islamic),
-    and Julian (Persian Solar) calendar systems. Note that conversions are 
+    and Jalali (Persian Solar) calendar systems. Note that conversions are 
     approximate due to the fundamental differences in calendar structures.
     
     Parameters
     ----------
     calendar : str
-        The source calendar system. Must be one of: 'gregorian', 'hijri', 'julian'
+        The source calendar system. Must be one of: 'gregorian', 'hijri', 'Jalali'
     year : int
         The year value in the source calendar system
         
@@ -33,8 +33,8 @@ class YearConverter:
         The original year value in the source calendar
     calendar : str
         The source calendar system identifier
-    julian_year : int
-        The equivalent year in the Julian/Persian Solar calendar
+    Jalali_year : int
+        The equivalent year in the Jalali/Persian Solar calendar
     gregorian_year : int
         The equivalent year in the Gregorian calendar
     hijri_year : int
@@ -44,13 +44,13 @@ class YearConverter:
     --------
     >>> # Convert from Gregorian year 2023
     >>> converter = YearConverter('gregorian', 2023)
-    >>> print(f"Julian: {converter.julian_year}")
+    >>> print(f"Jalali: {converter.Jalali_year}")
     >>> print(f"Hijri: {converter.hijri_year}")
     
     >>> # Convert from Hijri year 1445
     >>> converter = YearConverter('hijri', 1445)
     >>> print(f"Gregorian: {converter.gregorian_year}")
-    >>> print(f"Julian: {converter.julian_year}")
+    >>> print(f"Jalali: {converter.Jalali_year}")
     
     Raises
     ------
@@ -75,7 +75,7 @@ class YearConverter:
         Parameters
         ----------
         calendar : str
-            Source calendar system ('gregorian', 'hijri', or 'julian')
+            Source calendar system ('gregorian', 'hijri', or 'Jalali')
         year : int
             Year value in the source calendar system
         """
@@ -83,45 +83,45 @@ class YearConverter:
         self.calendar = calendar.lower()  # Normalize to lowercase for consistency
         
         # Validate calendar type
-        if self.calendar not in ['gregorian', 'hijri', 'julian']:
+        if self.calendar not in ['gregorian', 'hijri', 'Jalali']:
             raise ValueError(
                 f"Unsupported calendar type: '{calendar}'. "
-                "Supported types are 'gregorian', 'hijri', and 'julian'."
+                "Supported types are 'gregorian', 'hijri', and 'Jalali'."
             )
         
         # Initialize all year conversions
-        self.julian_year = self._convert_to_julian()
+        self.Jalali_year = self._convert_to_Jalali()
         self.gregorian_year = self._convert_to_gregorian()
         self.hijri_year = self._convert_to_hijri()
         
-    def _convert_to_julian(self):
+    def _convert_to_Jalali(self):
         """
-        Convert the source year to Julian/Persian Solar calendar year.
+        Convert the source year to Jalali/Persian Solar calendar year.
         
         Returns
         -------
         int
-            Equivalent year in the Julian/Persian Solar calendar
+            Equivalent year in the Jalali/Persian Solar calendar
             
         Notes
         -----
         Conversion formulas:
-        - From Gregorian: julian = gregorian - 621
-        - From Hijri: julian = (hijri - 1) * 0.97 + 622
-        - From Julian: julian = julian (no conversion needed)
+        - From Gregorian: Jalali = gregorian - 621
+        - From Hijri: Jalali = (hijri - 1) * 0.97 + 622
+        - From Jalali: Jalali = Jalali (no conversion needed)
         """
         if self.calendar == 'gregorian':
             # Persian Solar calendar is approximately 621 years behind Gregorian
             return int(self.year - 621)
             
         elif self.calendar == 'hijri':
-            # Convert Hijri to Julian via approximate formula
+            # Convert Hijri to Jalali via approximate formula
             # Hijri years are shorter (354 days) than solar years (365 days)
             # Ratio of approximately 0.97 accounts for this difference
             return int((self.year - 1) * 0.97 + 622)
             
-        elif self.calendar == 'julian':
-            # Already in Julian calendar
+        elif self.calendar == 'Jalali':
+            # Already in Jalali calendar
             return self.year
     
     def _convert_to_gregorian(self):
@@ -138,7 +138,7 @@ class YearConverter:
         Conversion formulas:
         - From Gregorian: gregorian = gregorian (no conversion needed)
         - From Hijri: gregorian = (hijri - 1) * 0.97 + 622
-        - From Julian: gregorian = julian + 621
+        - From Jalali: gregorian = Jalali + 621
         """
         if self.calendar == 'gregorian':
             # Already in Gregorian calendar
@@ -146,11 +146,11 @@ class YearConverter:
             
         elif self.calendar == 'hijri':
             # Convert Hijri to Gregorian via approximate formula
-            # Similar to Julian conversion as both are solar-based
+            # Similar to Jalali conversion as both are solar-based
             return int((self.year - 1) * 0.97 + 622)
             
-        elif self.calendar == 'julian':
-            # Julian/Persian Solar is approximately 621 years ahead of Gregorian
+        elif self.calendar == 'Jalali':
+            # Jalali/Persian Solar is approximately 621 years ahead of Gregorian
             return int(self.year + 621)
     
     def _convert_to_hijri(self):
@@ -167,7 +167,7 @@ class YearConverter:
         Conversion formulas:
         - From Gregorian: hijri = (gregorian - 622) / 0.97 + 1
         - From Hijri: hijri = hijri (no conversion needed)  
-        - From Julian: hijri = (julian - 622) / 0.97 + 1
+        - From Jalali: hijri = (Jalali - 622) / 0.97 + 1
         """
         if self.calendar == 'gregorian':
             # Convert Gregorian to Hijri using inverse of the Hijri->Gregorian formula
@@ -177,8 +177,8 @@ class YearConverter:
             # Already in Hijri calendar
             return self.year
             
-        elif self.calendar == 'julian':
-            # Convert Julian to Hijri (Julian and Gregorian have similar relationship to Hijri)
+        elif self.calendar == 'Jalali':
+            # Convert Jalali to Hijri (Jalali and Gregorian have similar relationship to Hijri)
             return int((self.year - 622) / 0.97 + 1)
     
     def get_all_years(self):
@@ -188,7 +188,7 @@ class YearConverter:
         Returns
         -------
         dict
-            Dictionary with keys 'gregorian', 'hijri', 'julian' and their
+            Dictionary with keys 'gregorian', 'hijri', 'Jalali' and their
             corresponding year values
             
         Examples
@@ -196,12 +196,12 @@ class YearConverter:
         >>> converter = YearConverter('gregorian', 2023)
         >>> all_years = converter.get_all_years()
         >>> print(all_years)
-        {'gregorian': 2023, 'hijri': 1444, 'julian': 1402}
+        {'gregorian': 2023, 'hijri': 1444, 'Jalali': 1402}
         """
         return {
             'gregorian': self.gregorian_year,
             'hijri': self.hijri_year,
-            'julian': self.julian_year
+            'Jalali': self.Jalali_year
         }
     
     def __str__(self):
@@ -217,7 +217,7 @@ class YearConverter:
             f"YearConverter(source: {self.calendar} {self.year}) -> "
             f"Gregorian: {self.gregorian_year}, "
             f"Hijri: {self.hijri_year}, "
-            f"Julian: {self.julian_year}"
+            f"Jalali: {self.Jalali_year}"
         )
     
     def __repr__(self):
@@ -244,21 +244,21 @@ def basic_usage_examples():
     gregorian_converter = YearConverter('gregorian', 2023)
     print(f"   Original: Gregorian {gregorian_converter.year}")
     print(f"   → Hijri: {gregorian_converter.hijri_year}")
-    print(f"   → Julian/Persian: {gregorian_converter.julian_year}")
+    print(f"   → Jalali/Persian: {gregorian_converter.Jalali_year}")
     
     # Example 2: Converting from Hijri year
     print("\n2. Converting from Hijri year 1445:")
     hijri_converter = YearConverter('hijri', 1445)
     print(f"   Original: Hijri {hijri_converter.year}")
     print(f"   → Gregorian: {hijri_converter.gregorian_year}")
-    print(f"   → Julian/Persian: {hijri_converter.julian_year}")
+    print(f"   → Jalali/Persian: {hijri_converter.Jalali_year}")
     
-    # Example 3: Converting from Julian/Persian year
-    print("\n3. Converting from Julian/Persian year 1402:")
-    julian_converter = YearConverter('julian', 1402)
-    print(f"   Original: Julian/Persian {julian_converter.year}")
-    print(f"   → Gregorian: {julian_converter.gregorian_year}")
-    print(f"   → Hijri: {julian_converter.hijri_year}")
+    # Example 3: Converting from Jalali/Persian year
+    print("\n3. Converting from Jalali/Persian year 1402:")
+    Jalali_converter = YearConverter('Jalali', 1402)
+    print(f"   Original: Jalali/Persian {Jalali_converter.year}")
+    print(f"   → Gregorian: {Jalali_converter.gregorian_year}")
+    print(f"   → Hijri: {Jalali_converter.hijri_year}")
 
 
 def practical_applications():
@@ -273,7 +273,7 @@ def practical_applications():
     print("   Analyzing the year of a historical Persian document...")
     
     persian_year = 1380  # A year from a Persian document
-    converter = YearConverter('julian', persian_year)
+    converter = YearConverter('Jalali', persian_year)
     
     print(f"   Persian Solar year {persian_year} corresponds to:")
     print(f"   → Gregorian: ~{converter.gregorian_year} CE")
@@ -296,7 +296,7 @@ def practical_applications():
     print("   Converting current Persian calendar year to other systems...")
     
     current_persian = 1403  # Example current Persian year
-    converter = YearConverter('julian', current_persian)
+    converter = YearConverter('Jalali', current_persian)
     
     print(f"   Persian Solar {current_persian}:")
     print(f"   → Western calendar: {converter.gregorian_year}")
@@ -330,7 +330,7 @@ def advanced_usage():
     converters = [
         YearConverter('GREGORIAN', 2023),
         YearConverter('Hijri', 1444),
-        YearConverter('julian', 1401)
+        YearConverter('Jalali', 1401)
     ]
     
     for conv in converters:
@@ -350,7 +350,7 @@ def batch_processing_example():
         ("Birth of Prophet Muhammad", 'gregorian', 570),
         ("Start of Islamic Calendar", 'gregorian', 622),
         ("Fall of Baghdad", 'hijri', 656),
-        ("Persian Constitutional Revolution", 'julian', 1285)
+        ("Persian Constitutional Revolution", 'Jalali', 1285)
     ]
     
     print("   Event Timeline Conversions:")
@@ -364,7 +364,7 @@ def batch_processing_example():
         print(f"   └─ Original: {cal_type.capitalize()} {year}")
         print(f"   └─ Gregorian: {all_years['gregorian']}")
         print(f"   └─ Hijri: {all_years['hijri']}")
-        print(f"   └─ Julian/Persian: {all_years['julian']}")
+        print(f"   └─ Jalali/Persian: {all_years['Jalali']}")
         print()
 
 
@@ -387,7 +387,7 @@ def error_handling_examples():
     edge_cases = [
         ('gregorian', 1),      # Very early year
         ('hijri', 1),          # First Hijri year
-        ('julian', 1),         # First Julian year
+        ('Jalali', 1),         # First Jalali year
         ('gregorian', 3000)    # Future year
     ]
     
@@ -398,7 +398,7 @@ def error_handling_examples():
             print(f"   {cal_type.capitalize()} {year} → "
                   f"G:{converter.gregorian_year}, "
                   f"H:{converter.hijri_year}, "
-                  f"J:{converter.julian_year}")
+                  f"J:{converter.Jalali_year}")
         except Exception as e:
             print(f"   Error with {cal_type} {year}: {e}")
 
@@ -421,12 +421,12 @@ def comparison_table():
     
     print("\n   Recent Years Comparison:")
     print("   " + "-" * 45)
-    print("   Gregorian | Hijri  | Julian/Persian")
+    print("   Gregorian | Hijri  | Jalali/Persian")
     print("   " + "-" * 45)
     
     for cal_type, year in sample_years:
         converter = YearConverter(cal_type, year)
-        print(f"   {converter.gregorian_year:9} | {converter.hijri_year:6} | {converter.julian_year:10}")
+        print(f"   {converter.gregorian_year:9} | {converter.hijri_year:6} | {converter.Jalali_year:10}")
 
 
 if __name__ == "__main__":
@@ -435,7 +435,7 @@ if __name__ == "__main__":
     print("YEAR CALENDAR CONVERTER - COMPREHENSIVE EXAMPLES")
     print("=" * 60)
     print("This script demonstrates various ways to use the YearConverter class")
-    print("for converting years between Gregorian, Hijri, and Julian calendar systems.")
+    print("for converting years between Gregorian, Hijri, and Jalali calendar systems.")
     
     # Run all example functions
     basic_usage_examples()
@@ -466,11 +466,11 @@ def quick_convert(source_calendar: str, year: int, target_calendar: str) -> int:
     Parameters
     ----------
     source_calendar : str
-        Source calendar system ('gregorian', 'hijri', 'julian')
+        Source calendar system ('gregorian', 'hijri', 'Jalali')
     year : int
         Year in source calendar
     target_calendar : str
-        Target calendar system ('gregorian', 'hijri', 'julian')
+        Target calendar system ('gregorian', 'hijri', 'Jalali')
         
     Returns
     -------
@@ -481,7 +481,7 @@ def quick_convert(source_calendar: str, year: int, target_calendar: str) -> int:
     --------
     >>> quick_convert('gregorian', 2023, 'hijri')
     1444
-    >>> quick_convert('hijri', 1445, 'julian')
+    >>> quick_convert('hijri', 1445, 'Jalali')
     1402
     """
     converter = YearConverter(source_calendar, year)
@@ -490,8 +490,8 @@ def quick_convert(source_calendar: str, year: int, target_calendar: str) -> int:
         return converter.gregorian_year
     elif target_calendar.lower() == 'hijri':
         return converter.hijri_year
-    elif target_calendar.lower() == 'julian':
-        return converter.julian_year
+    elif target_calendar.lower() == 'Jalali':
+        return converter.Jalali_year
     else:
         raise ValueError(f"Invalid target calendar: {target_calendar}")
 
@@ -513,7 +513,7 @@ def create_conversion_table(start_year: int, end_year: int, source_calendar: str
     --------
     >>> table = create_conversion_table(2020, 2025)
     >>> for row in table:
-    ...     print(f"G:{row['gregorian']} H:{row['hijri']} J:{row['julian']}")
+    ...     print(f"G:{row['gregorian']} H:{row['hijri']} J:{row['Jalali']}")
     """
     conversion_table = []
     
@@ -524,7 +524,7 @@ def create_conversion_table(start_year: int, end_year: int, source_calendar: str
             'source_calendar': source_calendar,
             'gregorian': converter.gregorian_year,
             'hijri': converter.hijri_year,
-            'julian': converter.julian_year
+            'Jalali': converter.Jalali_year
         })
     
     return conversion_table

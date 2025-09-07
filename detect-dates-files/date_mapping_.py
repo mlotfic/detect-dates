@@ -92,7 +92,7 @@ logger = logging.getLogger(__name__)
 SUPPORTED_CALENDARS = {
     'gregorian': ['Gregorian Day', 'Gregorian Month', 'Gregorian Year'],
     'hijri': ['Hijri Day', 'Hijri Month', 'Hijri Year'],
-    'julian': ['Solar Hijri Day', 'Solar Hijri Month', 'Solar Hijri Year']  # Note: 'julian' maps to Solar Hijri
+    'Jalali': ['Solar Hijri Day', 'Solar Hijri Month', 'Solar Hijri Year']  # Note: 'Jalali' maps to Solar Hijri
 }
 
 # Column name for weekday information in the CSV file
@@ -100,8 +100,8 @@ WEEKDAY_COLUMN = 'Week Day'
 
 # Calendar system aliases for user convenience
 CALENDAR_ALIASES = {
-    'solar_hijri': 'julian',
-    'persian': 'julian',
+    'solar_hijri': 'Jalali',
+    'persian': 'Jalali',
     'islamic': 'hijri',
     'greg': 'gregorian'
 }
@@ -235,7 +235,7 @@ class DateMapping:
             era (str): Era string (e.g., 'AD', 'AH', 'CE', 'BCE')
 
         Returns:
-            str: Normalized calendar name ('gregorian', 'hijri', 'julian')
+            str: Normalized calendar name ('gregorian', 'hijri', 'Jalali')
 
         Raises:
             ValueError: If the era string is not recognized
@@ -295,7 +295,7 @@ class DateMapping:
         mapping data. The lookup is fast and accurate, based on astronomical calculations.
 
         Args:
-            calendar (str): Calendar system ('gregorian', 'hijri', 'julian', or aliases) or era ('AD', 'AH', etc.)
+            calendar (str): Calendar system ('gregorian', 'hijri', 'Jalali', or aliases) or era ('AD', 'AH', etc.)
             day (int): Day of the month (1-31 depending on calendar and month)
             month (int): Month of the year (1-12)
             year (int): Year in the specified calendar system
@@ -365,7 +365,7 @@ class DateMapping:
         This is the core conversion functionality of the module.
 
         Args:
-            calendar (str): Source calendar system ('gregorian', 'hijri', 'julian', or aliases)
+            calendar (str): Source calendar system ('gregorian', 'hijri', 'Jalali', or aliases)
             day (int): Day of the month in the source calendar
             month (int): Month of the year in the source calendar
             year (int): Year in the source calendar
@@ -377,7 +377,7 @@ class DateMapping:
                 {
                     'gregorian': {'day': int, 'month': int, 'year': int},
                     'hijri': {'day': int, 'month': int, 'year': int},
-                    'julian': {'day': int, 'month': int, 'year': int},
+                    'Jalali': {'day': int, 'month': int, 'year': int},
                     'weekday': str
                 }
 
@@ -398,8 +398,8 @@ class DateMapping:
                     print(f"January 1, 2024 (Gregorian) equals:")
                     hijri = result['hijri']
                     print(f"  Hijri: {hijri['day']}/{hijri['month']}/{hijri['year']}")
-                    julian = result['julian']
-                    print(f"  Julian : {julian['day']}/{julian['month']}/{julian['year']}")
+                    Jalali = result['Jalali']
+                    print(f"  Jalali : {Jalali['day']}/{Jalali['month']}/{Jalali['year']}")
                     print(f"  Weekday: {result['weekday']}")
 
                 # Convert from Hijri
@@ -449,7 +449,7 @@ class DateMapping:
                 'month': int(row['Hijri Month']),
                 'year': int(row['Hijri Year'])
             },
-            'julian': {
+            'Jalali': {
                 'day': int(row['Solar Hijri Day']),
                 'month': int(row['Solar Hijri Month']),
                 'year': int(row['Solar Hijri Year'])
@@ -468,7 +468,7 @@ class DateMapping:
         conversions or other operations.
 
         Args:
-            calendar (str): Calendar system ('gregorian', 'hijri', 'julian', or aliases)
+            calendar (str): Calendar system ('gregorian', 'hijri', 'Jalali', or aliases)
             day (int): Day of the month
             month (int): Month of the year
             year (int): Year
@@ -554,7 +554,7 @@ class DateMapping:
             mapper = DateMapping()
             calendars = mapper.get_supported_calendars()
             print(f"Supported calendars: {', '.join(calendars)}")
-            # Output: "Supported calendars: gregorian, hijri, julian"
+            # Output: "Supported calendars: gregorian, hijri, Jalali"
         
         Note:
             This returns only the primary calendar names. For aliases,
@@ -576,7 +576,7 @@ class DateMapping:
                 {
                     'gregorian': {'min_year': int, 'max_year': int},
                     'hijri': {'min_year': int, 'max_year': int},
-                    'julian': {'min_year': int, 'max_year': int}
+                    'Jalali': {'min_year': int, 'max_year': int}
                 }
                 
         Example:
@@ -825,7 +825,7 @@ class DateMapping:
         elif calendar == 'hijri':
             # Hijri leap year has 355 days (normal has 354)
             return day_count == 355
-        elif calendar == 'julian':
+        elif calendar == 'Jalali':
             # Solar Hijri leap year has 366 days
             return day_count == 366
         
@@ -869,7 +869,7 @@ def main():
             print(f"   📝 Sample record:")
             print(f"      Gregorian: {sample['gregorian']}")
             print(f"      Hijri: {sample['hijri']}")
-            print(f"      Solar Hijri: {sample['julian']}")
+            print(f"      Solar Hijri: {sample['Jalali']}")
             print(f"      Weekday: {sample['weekday']}")
         print()
         
@@ -886,7 +886,7 @@ def main():
         test_dates = [
             ('gregorian', 1, 1, 2024, 'New Year 2024'),
             ('hijri', 1, 1, 1445, 'Islamic New Year 1445'),
-            ('julian', 1, 1, 1403, 'Persian New Year 1403')
+            ('Jalali', 1, 1, 1403, 'Persian New Year 1403')
         ]
         
         for calendar, day, month, year, description in test_dates:
@@ -902,7 +902,7 @@ def main():
         conversion_examples = [
             ('gregorian', 1, 1, 2024, 'January 1, 2024 (Gregorian)'),
             ('hijri', 1, 1, 1445, 'Muharram 1, 1445 (Hijri)'),
-            ('julian', 1, 1, 1403, 'Farvardin 1, 1403 (Solar Hijri)')
+            ('Jalali', 1, 1, 1403, 'Farvardin 1, 1403 (Solar Hijri)')
         ]
         
         for calendar, day, month, year, description in conversion_examples:
@@ -947,7 +947,7 @@ def main():
             ('gregorian', 29, 2, 2024, 'Feb 29, 2024 (leap year)'),
             ('gregorian', 29, 2, 2023, 'Feb 29, 2023 (non-leap year)'),
             ('hijri', 30, 12, 1445, 'Dhu al-Hijjah 30, 1445'),
-            ('julian', 31, 12, 1403, 'Esfand 31, 1403 (invalid - max 29/30)')
+            ('Jalali', 31, 12, 1403, 'Esfand 31, 1403 (invalid - max 29/30)')
         ]
         
         for calendar, day, month, year, description in validation_tests:

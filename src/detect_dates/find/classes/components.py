@@ -24,7 +24,7 @@ class DateComponents:
     era : str, optional
         Era designation ('CE', 'BCE', 'AH')
     calendar : str, optional
-        Calendar system ('gregorian', 'hijri', 'julian')
+        Calendar system ('gregorian', 'hijri', 'Jalali')
 
     Examples
     --------

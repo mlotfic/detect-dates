@@ -5,7 +5,7 @@ Date Pattern Recognition Module
 ===============================
 
 A comprehensive module for recognizing date patterns across multiple calendar systems
-including Hijri (Islamic), Gregorian (Western), and julian (Persian) calendars.
+including Hijri (Islamic), Gregorian (Western), and Jalali (Persian) calendars.
 This module provides structured dataclasses for building complex regex patterns
 to match various date formats in natural language text.
 

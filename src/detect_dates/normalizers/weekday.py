@@ -55,7 +55,7 @@ class Calendar(Enum):
     HIJRI = "hijri"
     GREGORIAN = "gregorian"
     PERSIAN = "persian"
-    JULIAN = "julian"
+    Jalali = "Jalali"
 
 class OutputFormat(Enum):
     NUMBER = "num"

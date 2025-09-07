@@ -1,15 +1,15 @@
-example_julian = [
+example_Jalali = [
     # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-    # variable: date_patterns.yy.julian.numeric
-    # type: "numeric", name : "yy_julian", format: [YYYY-ERA], calendar: julian  
+    # variable: date_patterns.yy.Jalali.numeric
+    # type: "numeric", name : "yy_Jalali", format: [YYYY-ERA], calendar: Jalali  
     "1402 هـ.ش",     # Year 1402 SH (≈ 2023-2024 CE)
     "1400 شمسی",     # Year 1400 SH with Persian marker
     "1405 ه.ش",      # Year 1405 SH with simplified marker
     "1398 هجری شمسی", # Year 1398 SH with full Persian marker
     "1401 ش",        # Year 1401 SH with abbreviated marker
     "1403 شمسى",      # Year 1403 SH with Persian marker
-    # variable: date_patterns.mm_yy.julian.combined 
-    # type:"combined", name:"mm_yy_julian", format:[MM-YYYY-ERA], calendar: julian 
+    # variable: date_patterns.mm_yy.Jalali.combined 
+    # type:"combined", name:"mm_yy_Jalali", format:[MM-YYYY-ERA], calendar: Jalali 
     "فروردین 1402 هـ.ش",    # Farvardin 1402 SH
     "مهر 1401 شمسی",      # Mehr 1401 SH
     "01/1403 ه.ش",          # Farvardin 1403 SH (numeric)
@@ -17,8 +17,8 @@ example_julian = [
     "12/1404 هجری شمسی",  # Esfand 1404 SH
     "دی 1399 ش",           # Dey 1399 SH
 
-    # variable: date_patterns.dd_mm_yy.julian.combined
-    # type: "combined", name : "dd_mm_yy_julian", format: [DD-MM-YYYY-ERA], calendar: julian
+    # variable: date_patterns.dd_mm_yy.Jalali.combined
+    # type: "combined", name : "dd_mm_yy_Jalali", format: [DD-MM-YYYY-ERA], calendar: Jalali
     "15/03/1402 هـ.ش",     # 15th Khordad 1402 SH
     "01/فروردین/1403 شمسی", # 1st Farvardin 1403 SH (Nowruz)
     "21/مهر/1401 ه.ش",     # 21st Mehr 1401 SH
@@ -26,8 +26,8 @@ example_julian = [
     "10/06/1404 هجری شمسی", # 10th Shahrivar 1404 SH
     "25/آبان/1399 ش",       # 25th Aban 1399 SH
 
-    # variable: date_patterns.natural_language.julian.combined
-    # type: "combined", name : "natural_language_julian", format: [WD-MM-YYYY-ERA], calendar: julian
+    # variable: date_patterns.natural_language.Jalali.combined
+    # type: "combined", name : "natural_language_Jalali", format: [WD-MM-YYYY-ERA], calendar: Jalali
     "جمعه 15 فروردین 1402 هـ.ش",    # Friday 15th Farvardin 1402 SH
     "یکشنبه 01 فروردین 1403 شمسی", # Sunday 1st Farvardin 1403 SH (Nowruz)
     "دوشنبه 21 مهر 1401 ه.ش",      # Monday 21st Mehr 1401 SH

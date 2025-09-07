@@ -52,7 +52,7 @@ def get_century_from_year(year: Union[int, str]) -> Tuple[Optional[int], Optiona
     
     This function calculates the century for any given year using the standard
     mathematical formula. The calculation is universal across all calendar systems
-    (Gregorian, Hijri, Julian/Persian) since only the year number matters, not
+    (Gregorian, Hijri, Jalali/Persian) since only the year number matters, not
     the calendar type.
     
     Parameters

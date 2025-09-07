@@ -3,7 +3,7 @@ Date Pattern Recognition Module
 ===============================
 
 A comprehensive module for recognizing date patterns across multiple calendar systems
-including Hijri (Islamic), Gregorian (Western), and julian (Persian) calendars.
+including Hijri (Islamic), Gregorian (Western), and Jalali (Persian) calendars.
 
 This module provides structured dataclasses for building complex regex patterns
 to match various date formats in natural language text. It supports multilingual
@@ -26,7 +26,7 @@ Architecture Overview:
 Supported Calendar Systems:
     - **Hijri**: Islamic lunar calendar with Arabic month names and AH era
     - **Gregorian**: Western solar calendar with Latin month names and AD/CE era
-    - **julian**: Persian solar calendar with Farsi month names and SH era
+    - **Jalali**: Persian solar calendar with Farsi month names and SH era
 
 Example:
     .. code-block:: python
@@ -115,10 +115,10 @@ class CenturyPatterns(PatternValidator):
             - ``'numeric'``: Century with required Gregorian era marker
             - ``'optional'``: Century with optional Gregorian era marker
 
-        julian (Dict[str, str]): Persian calendar century patterns with keys:
+        Jalali (Dict[str, str]): Persian calendar century patterns with keys:
 
-            - ``'numeric'``: Century with required julian era marker
-            - ``'optional'``: Century with optional julian era marker
+            - ``'numeric'``: Century with required Jalali era marker
+            - ``'optional'``: Century with optional Jalali era marker
 
     Example:
         .. code-block:: python
@@ -134,7 +134,7 @@ class CenturyPatterns(PatternValidator):
             eras = EraPatterns(
                 hijri=r"(?:AH|هـ)",
                 gregorian=r"(?:AD|CE)",
-                julian=r"(?:ش\.ه)"
+                Jalali=r"(?:ش\.ه)"
             )
             base = BasePatterns(numeric_words=r"(?:fifteenth|پانزدهم)")
 
@@ -162,7 +162,7 @@ class CenturyPatterns(PatternValidator):
     # Calendar-specific pattern dictionaries
     hijri: Dict[str, str] = None
     gregorian: Dict[str, str] = None
-    julian: Dict[str, str] = None
+    Jalali: Dict[str, str] = None
 
     def __post_init__(self):
         """Initialize and validate all century patterns after dataclass creation.
@@ -196,7 +196,7 @@ class CenturyPatterns(PatternValidator):
         # Initialize calendar-specific dictionaries
         self.hijri = {}
         self.gregorian = {}
-        self.julian = {}
+        self.Jalali = {}
 
         # Build Hijri century patterns
         self.hijri['numeric'] = (
@@ -222,16 +222,16 @@ class CenturyPatterns(PatternValidator):
             rf"{self.indicator_patterns.separator}?\s*(?:{self.era_patterns.gregorian})?"
         )
 
-        # Build julian century patterns
-        self.julian['numeric'] = (
+        # Build Jalali century patterns
+        self.Jalali['numeric'] = (
             rf"{self.numeric}\s*"
             rf"{self.indicator_patterns.separator}?\s*"
-            rf"{self.era_patterns.julian}"
+            rf"{self.era_patterns.Jalali}"
         )
 
-        self.julian['optional'] = (
+        self.Jalali['optional'] = (
             rf"{self.numeric}\s*"
-            rf"{self.indicator_patterns.separator}?\s*(?:{self.era_patterns.julian})?"
+            rf"{self.indicator_patterns.separator}?\s*(?:{self.era_patterns.Jalali})?"
         )
 
         # Validate all generated patterns
@@ -243,7 +243,7 @@ class YearPatterns(PatternValidator):
     """Comprehensive year pattern generator for multi-calendar date recognition.
 
     Generates sophisticated regex patterns for matching year expressions across
-    Hijri, Gregorian, and julian calendar systems. Supports complex scenarios
+    Hijri, Gregorian, and Jalali calendar systems. Supports complex scenarios
     including cross-calendar references, parenthetical notations, date ranges,
     and mixed-format expressions commonly found in multilingual texts.
 
@@ -280,7 +280,7 @@ class YearPatterns(PatternValidator):
         gregorian (Dict[str, str]): Gregorian year patterns with similar structure
             to Hijri patterns, adapted for Western calendar expressions.
 
-        julian (Dict[str, str]): Persian calendar year patterns following the
+        Jalali (Dict[str, str]): Persian calendar year patterns following the
             same comprehensive pattern structure.
 
     Example:
@@ -298,7 +298,7 @@ class YearPatterns(PatternValidator):
             eras = EraPatterns(
                 hijri=r"(?:AH|هـ)",
                 gregorian=r"(?:AD|CE|BC)",
-                julian=r"(?:ش\.ه)"
+                Jalali=r"(?:ش\.ه)"
             )
 
             # Build year patterns
@@ -340,7 +340,7 @@ class YearPatterns(PatternValidator):
     # Calendar-specific pattern dictionaries
     hijri: Dict[str, str] = None
     gregorian: Dict[str, str] = None
-    julian: Dict[str, str] = None
+    Jalali: Dict[str, str] = None
 
     def __post_init__(self):
         """Initialize comprehensive year patterns for all supported calendars.
@@ -383,7 +383,7 @@ class YearPatterns(PatternValidator):
         # Initialize calendar-specific dictionaries
         self.hijri = {}
         self.gregorian = {}
-        self.julian = {}
+        self.Jalali = {}
 
         # Build Hijri year patterns
         self.hijri['numeric'] = (
@@ -409,16 +409,16 @@ class YearPatterns(PatternValidator):
             rf"{self.indicator_patterns.separator}?\s*(?:{self.era_patterns.gregorian})?"
         )
 
-        # Build julian year patterns
-        self.julian['numeric'] = (
+        # Build Jalali year patterns
+        self.Jalali['numeric'] = (
             rf"{self.numeric_patterns.year}\s*"
             rf"{self.indicator_patterns.separator}?\s*"
-            rf"{self.era_patterns.julian}"
+            rf"{self.era_patterns.Jalali}"
         )
 
-        self.julian['numeric_optional'] = (
+        self.Jalali['numeric_optional'] = (
             rf"{self.numeric_patterns.year}\s*"
-            rf"{self.indicator_patterns.separator}?\s*(?:{self.era_patterns.julian})?"
+            rf"{self.indicator_patterns.separator}?\s*(?:{self.era_patterns.Jalali})?"
         )
 
         # Validate all generated patterns
@@ -430,7 +430,7 @@ class MonthYearPatterns(PatternValidator):
     """Advanced month-year pattern generator for multi-calendar date systems.
 
     Constructs sophisticated regex patterns for matching month-year combinations
-    across Hijri, Gregorian, and julian calendars. Handles both numeric and
+    across Hijri, Gregorian, and Jalali calendars. Handles both numeric and
     named month formats with comprehensive cross-calendar support, parenthetical
     notations, and mixed-format expressions.
 
@@ -475,7 +475,7 @@ class MonthYearPatterns(PatternValidator):
             parallel structure to Hijri patterns, optimized for Western calendar
             month names and formatting conventions.
 
-        julian (Dict[str, str]): Persian calendar month-year patterns supporting
+        Jalali (Dict[str, str]): Persian calendar month-year patterns supporting
             Farsi month names and Persian calendar formatting standards.
 
     Example:
@@ -487,7 +487,7 @@ class MonthYearPatterns(PatternValidator):
             month_names = MonthPatterns(
                 hijri=r"(?:محرم|صفر|ربیع‌الاول)",
                 gregorian=r"(?:January|February|December)",
-                julian=r"(?:فروردین|اردیبهشت)"
+                Jalali=r"(?:فروردین|اردیبهشت)"
             )
 
             # Build month-year patterns
@@ -509,7 +509,7 @@ class MonthYearPatterns(PatternValidator):
             "12/1445 AH"                        # Numeric Hijri
             "Muharram 1445 AH"                  # Named Hijri
             "December 2024"                     # Named Gregorian (era optional)
-            "فروردین 1403 ش.ه"                  # Named julian
+            "فروردین 1403 ش.ه"                  # Named Jalali
             "12/1445 AH (01/2024 AD)"           # Cross-calendar parenthetical
             "Muharram 1445 / January 2024"     # Mixed clear format
 
@@ -537,7 +537,7 @@ class MonthYearPatterns(PatternValidator):
     # Calendar-specific pattern dictionaries
     hijri: Dict[str, str] = None
     gregorian: Dict[str, str] = None
-    julian: Dict[str, str] = None
+    Jalali: Dict[str, str] = None
 
     def __post_init__(self):
         """Initialize comprehensive month-year patterns for all calendar systems.
@@ -576,7 +576,7 @@ class MonthYearPatterns(PatternValidator):
         # Initialize calendar-specific dictionaries
         self.hijri = {}
         self.gregorian = {}
-        self.julian = {}
+        self.Jalali = {}
 
         # Build Hijri month-year patterns
         self.hijri['numeric'] = (
@@ -632,31 +632,31 @@ class MonthYearPatterns(PatternValidator):
             rf"(?:{self.gregorian['numeric_optional']})|(?:{self.gregorian['named']})"
         )
 
-        # Build julian month-year patterns
-        self.julian['numeric'] = (
+        # Build Jalali month-year patterns
+        self.Jalali['numeric'] = (
             rf"{self.numeric_patterns.month}\s*"
             rf"{self.indicator_patterns.separator}?\s*"
-            rf"{self.year_patterns.julian['numeric']}"
+            rf"{self.year_patterns.Jalali['numeric']}"
         )
 
-        self.julian['numeric_optional'] = (
+        self.Jalali['numeric_optional'] = (
             rf"{self.numeric_patterns.month}\s*"
             rf"{self.indicator_patterns.separator}?\s*"
-            rf"{self.year_patterns.julian['numeric_optional']}"
+            rf"{self.year_patterns.Jalali['numeric_optional']}"
         )
 
-        self.julian['named'] = (
-            rf"{self.month_patterns.julian}\s*"
+        self.Jalali['named'] = (
+            rf"{self.month_patterns.Jalali}\s*"
             rf"{self.indicator_patterns.separator}?\s*"
-            rf"{self.year_patterns.julian['numeric_optional']}"
+            rf"{self.year_patterns.Jalali['numeric_optional']}"
         )
 
-        self.julian['combined'] = (
-            rf"(?:{self.julian['numeric']})|(?:{self.julian['named']})"
+        self.Jalali['combined'] = (
+            rf"(?:{self.Jalali['numeric']})|(?:{self.Jalali['named']})"
         )
 
-        self.julian['combined_optional'] = (
-            rf"(?:{self.julian['numeric_optional']})|(?:{self.julian['named']})"
+        self.Jalali['combined_optional'] = (
+            rf"(?:{self.Jalali['numeric_optional']})|(?:{self.Jalali['named']})"
         )
 
         # Validate all generated patterns
@@ -713,7 +713,7 @@ class DayMonthYearPatterns(PatternValidator):
             structure parallel to Hijri patterns, optimized for Western date
             formats and conventions.
 
-        julian (Dict[str, str]): Persian calendar date patterns supporting
+        Jalali (Dict[str, str]): Persian calendar date patterns supporting
             Farsi formatting and Persian date conventions.
 
     Example:
@@ -745,7 +745,7 @@ class DayMonthYearPatterns(PatternValidator):
             "15/12/1445 AH"                           # Basic numeric Hijri
             "15 Muharram 1445 AH"                     # Named month Hijri
             "15 December 2024"                        # Named Gregorian (era optional)
-            "15 فروردین 1403 ش.ه"                    # Named julian
+            "15 فروردین 1403 ش.ه"                    # Named Jalali
             "15 Muharram 1445 AH (15 January 2024 AD)"  # Cross-calendar reference
             "15/12/1445 - 20/01/1446 AH"             # Date ranges (if supported)
             "15 محرم 1445 هـ / 15 يناير 2024 م"        # Arabic era markers
@@ -777,7 +777,7 @@ class DayMonthYearPatterns(PatternValidator):
     # Calendar-specific pattern dictionaries
     hijri: Dict[str, str] = None
     gregorian: Dict[str, str] = None
-    julian: Dict[str, str] = None
+    Jalali: Dict[str, str] = None
 
     def __post_init__(self):
         """Initialize comprehensive day-month-year patterns for all calendars.
@@ -816,7 +816,7 @@ class DayMonthYearPatterns(PatternValidator):
         # Initialize calendar-specific dictionaries
         self.hijri = {}
         self.gregorian = {}
-        self.julian = {}
+        self.Jalali = {}
 
         # Build Hijri day-month-year patterns
         self.hijri['numeric'] = (
@@ -896,43 +896,43 @@ class DayMonthYearPatterns(PatternValidator):
             rf"(?:{self.gregorian['numeric_optional']})|(?:{self.gregorian['named']})"
         )
 
-        # Build julian day-month-year patterns
-        self.julian['numeric'] = (
+        # Build Jalali day-month-year patterns
+        self.Jalali['numeric'] = (
             rf"{self.numeric_patterns.day}\s*"
             rf"{self.indicator_patterns.separator}?\s*"
-            rf"{self.month_year_patterns.julian['numeric']}"
+            rf"{self.month_year_patterns.Jalali['numeric']}"
         )
 
-        self.julian['numeric_optional'] = (
+        self.Jalali['numeric_optional'] = (
             rf"{self.numeric_patterns.day}\s*"
             rf"{self.indicator_patterns.separator}?\s*"
-            rf"{self.month_year_patterns.julian['numeric_optional']}"
+            rf"{self.month_year_patterns.Jalali['numeric_optional']}"
         )
 
-        self.julian['named1'] = (
+        self.Jalali['named1'] = (
             rf"{self.numeric_patterns.day}\s*"
             rf"{self.indicator_patterns.separator}?\s*"
-            rf"{self.month_year_patterns.julian['named']}"
+            rf"{self.month_year_patterns.Jalali['named']}"
         )
 
-        self.julian['named2'] = (
-            rf"{self.month_patterns.julian}"
+        self.Jalali['named2'] = (
+            rf"{self.month_patterns.Jalali}"
             rf"{self.indicator_patterns.separator}?\s*"
             rf"{self.numeric_patterns.day}\s*"
             rf"{self.indicator_patterns.separator}?\s*"
-            rf"{self.year_patterns.julian['numeric_optional']}"
+            rf"{self.year_patterns.Jalali['numeric_optional']}"
         )
 
-        self.julian['named'] = (
-            rf"(?:{self.julian['named1']})|(?:{self.julian['named2']})"
+        self.Jalali['named'] = (
+            rf"(?:{self.Jalali['named1']})|(?:{self.Jalali['named2']})"
         )
 
-        self.julian['combined'] = (
-            rf"(?:{self.julian['numeric']})|(?:{self.julian['named']})"
+        self.Jalali['combined'] = (
+            rf"(?:{self.Jalali['numeric']})|(?:{self.Jalali['named']})"
         )
 
-        self.julian['combined_optional'] = (
-            rf"(?:{self.julian['numeric_optional']})|(?:{self.julian['named']})"
+        self.Jalali['combined_optional'] = (
+            rf"(?:{self.Jalali['numeric_optional']})|(?:{self.Jalali['named']})"
         )
 
         # Validate all generated patterns
@@ -982,7 +982,7 @@ class NaturalLanguagePatterns(PatternValidator):
         gregorian (Dict[str, str]): Natural language Gregorian patterns with
             parallel structure optimized for Western weekday and date conventions.
 
-        julian (Dict[str, str]): Persian natural language patterns supporting
+        Jalali (Dict[str, str]): Persian natural language patterns supporting
             Farsi weekday names and Persian calendar date expressions.
 
     Example:
@@ -1012,7 +1012,7 @@ class NaturalLanguagePatterns(PatternValidator):
             "Monday 15/12/2024"                      # Simple weekday + numeric
             "Friday 15 December 2024"                # Weekday + named month
             "الجمعة 15 محرم 1445 هـ"                  # Arabic weekday + Hijri
-            "دوشنبه 15 فروردین 1403 ش.ه"             # Persian weekday + julian
+            "دوشنبه 15 فروردین 1403 ش.ه"             # Persian weekday + Jalali
             "Friday 15 Muharram 1445 AH (Jan 15, 2024)" # Cross-calendar natural
             "Tuesday, December 15th, 2024"           # Formal natural language
 
@@ -1048,7 +1048,7 @@ class NaturalLanguagePatterns(PatternValidator):
     # Calendar-specific pattern dictionaries
     hijri: Dict[str, str] = None
     gregorian: Dict[str, str] = None
-    julian: Dict[str, str] = None
+    Jalali: Dict[str, str] = None
 
     def __post_init__(self):
         """Initialize comprehensive natural language date patterns.
@@ -1087,7 +1087,7 @@ class NaturalLanguagePatterns(PatternValidator):
         # Initialize calendar-specific dictionaries
         self.hijri = {}
         self.gregorian = {}
-        self.julian = {}
+        self.Jalali = {}
 
         # Build Hijri natural language patterns
         self.hijri['numeric'] = (
@@ -1143,31 +1143,31 @@ class NaturalLanguagePatterns(PatternValidator):
             rf"(?:{self.gregorian['numeric_optional']})|(?:{self.gregorian['named']})"
         )
 
-        # Build julian natural language patterns
-        self.julian['numeric'] = (
+        # Build Jalali natural language patterns
+        self.Jalali['numeric'] = (
             rf"{self.base_patterns.weekday}\s*"
             rf"{self.indicator_patterns.separator}?\s*"
-            rf"{self.day_month_year_patterns.julian['numeric']}"
+            rf"{self.day_month_year_patterns.Jalali['numeric']}"
         )
 
-        self.julian['numeric_optional'] = (
+        self.Jalali['numeric_optional'] = (
             rf"{self.base_patterns.weekday}\s*"
             rf"{self.indicator_patterns.separator}?\s*"
-            rf"{self.day_month_year_patterns.julian['numeric_optional']}"
+            rf"{self.day_month_year_patterns.Jalali['numeric_optional']}"
         )
 
-        self.julian['named'] = (
+        self.Jalali['named'] = (
             rf"{self.base_patterns.weekday}\s*"
             rf"{self.indicator_patterns.separator}?\s*"
-            rf"{self.day_month_year_patterns.julian['named']}"
+            rf"{self.day_month_year_patterns.Jalali['named']}"
         )
 
-        self.julian['combined'] = (
-            rf"(?:{self.julian['numeric']})|(?:{self.julian['named']})"
+        self.Jalali['combined'] = (
+            rf"(?:{self.Jalali['numeric']})|(?:{self.Jalali['named']})"
         )
 
-        self.julian['combined_optional'] = (
-            rf"(?:{self.julian['numeric_optional']})|(?:{self.julian['named']})"
+        self.Jalali['combined_optional'] = (
+            rf"(?:{self.Jalali['numeric_optional']})|(?:{self.Jalali['named']})"
         )
 
         # Validate all generated patterns

@@ -38,7 +38,7 @@ from dataclasses import dataclass
 SUPPORTED_CALENDARS = {
     'gregorian': ['Gregorian Day', 'Gregorian Month', 'Gregorian Year'],
     'hijri': ['Hijri Day', 'Hijri Month', 'Hijri Year'],
-    'julian': ['Solar Hijri Day', 'Solar Hijri Month', 'Solar Hijri Year']
+    'Jalali': ['Solar Hijri Day', 'Solar Hijri Month', 'Solar Hijri Year']
 }
 
 # Column name for weekday information
@@ -142,7 +142,7 @@ class DateMapping:
         Get the weekday name for a specific date in the given calendar system.
 
         Args:
-            era (str): Calendar system ('gregorian', 'hijri', or 'julian')
+            era (str): Calendar system ('gregorian', 'hijri', or 'Jalali')
             day (int): Day of the month (1-31 depending on calendar and month)
             month (int): Month of the year (1-12)
             year (int): Year in the specified calendar system
@@ -192,7 +192,7 @@ class DateMapping:
         dates in all supported calendar systems along with weekday information.
 
         Args:
-            era (str): Source calendar system ('gregorian', 'hijri', or 'julian')
+            era (str): Source calendar system ('gregorian', 'hijri', or 'Jalali')
             day (int): Day of the month in the source calendar
             month (int): Month of the year in the source calendar
             year (int): Year in the source calendar
@@ -247,7 +247,7 @@ class DateMapping:
                 'month': int(row['Hijri Month']),
                 'year': int(row['Hijri Year'])
             },
-            'julian': {
+            'Jalali': {
                 'day': int(row['Solar Hijri Day']),
                 'month': int(row['Solar Hijri Month']),
                 'year': int(row['Solar Hijri Year'])
@@ -265,7 +265,7 @@ class DateMapping:
         in the given calendar system, returning equivalent dates in all calendar systems.
 
         Args:
-            era (str): Calendar system ('gregorian', 'hijri', or 'julian')
+            era (str): Calendar system ('gregorian', 'hijri', or 'Jalali')
             month (int): Month of the year (1-12)
             year (int): Year in the specified calendar system
 
@@ -314,7 +314,7 @@ class DateMapping:
                     'month': int(row['Hijri Month']),
                     'year': int(row['Hijri Year'])
                 },
-                'julian': {
+                'Jalali': {
                     'day': int(row['Solar Hijri Day']),
                     'month': int(row['Solar Hijri Month']),
                     'year': int(row['Solar Hijri Year'])
@@ -332,7 +332,7 @@ class DateMapping:
         Validate if a date exists in the specified calendar system.
 
         Args:
-            era (str): Calendar system ('gregorian', 'hijri', or 'julian')
+            era (str): Calendar system ('gregorian', 'hijri', or 'Jalali')
             day (int): Day of the month
             month (int): Month of the year
             year (int): Year
@@ -381,7 +381,7 @@ class DateMapping:
             info['sample_record'] = {
                 'gregorian': f"{sample_row['Gregorian Day']}/{sample_row['Gregorian Month']}/{sample_row['Gregorian Year']}",
                 'hijri': f"{sample_row['Hijri Day']}/{sample_row['Hijri Month']}/{sample_row['Hijri Year']}",
-                'julian': f"{sample_row['Solar Hijri Day']}/{sample_row['Solar Hijri Month']}/{sample_row['Solar Hijri Year']}",
+                'Jalali': f"{sample_row['Solar Hijri Day']}/{sample_row['Solar Hijri Month']}/{sample_row['Solar Hijri Year']}",
                 'weekday': sample_row[WEEKDAY_COLUMN]
             }
 
@@ -395,7 +395,7 @@ class DateMapping:
         Example:
             >>> mapper = DateMapping()
             >>> calendars = mapper.get_supported_calendars()
-            >>> print(calendars)  # Output: ['gregorian', 'hijri', 'julian']
+            >>> print(calendars)  # Output: ['gregorian', 'hijri', 'Jalali']
         """
         return list(SUPPORTED_CALENDARS.keys())
 
@@ -450,7 +450,7 @@ def main():
         info = mapper.get_calendar_info()
         print(f"  Total records: {info['total_records']:,}")
         print(f"  Available weekdays: {', '.join(info['weekdays'])}")
-        print(f"  Sample record: {info['sample_record']['gregorian']} = {info['sample_record']['hijri']} (Hijri) = {info['sample_record']['julian']} (Solar Hijri) - {info['sample_record']['weekday']}")
+        print(f"  Sample record: {info['sample_record']['gregorian']} = {info['sample_record']['hijri']} (Hijri) = {info['sample_record']['Jalali']} (Solar Hijri) - {info['sample_record']['weekday']}")
         print()
 
         # Display supported calendars
@@ -471,7 +471,7 @@ def main():
         test_dates = [
             ('gregorian', 1, 1, 2024),
             ('hijri', 1, 1, 1445),
-            ('julian', 1, 1, 1403)
+            ('Jalali', 1, 1, 1403)
         ]
 
         for era, day, month, year in test_dates:
@@ -485,7 +485,7 @@ def main():
         if alternatives:
             print(f"  Gregorian 1/1/2024 equals:")
             print(f"    Hijri: {alternatives['hijri']['day']}/{alternatives['hijri']['month']}/{alternatives['hijri']['year']}")
-            print(f"    Solar Hijri: {alternatives['julian']['day']}/{alternatives['julian']['month']}/{alternatives['julian']['year']}")
+            print(f"    Solar Hijri: {alternatives['Jalali']['day']}/{alternatives['Jalali']['month']}/{alternatives['Jalali']['year']}")
             print(f"    Weekday: {alternatives['weekday']}")
         print()
 

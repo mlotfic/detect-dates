@@ -18,7 +18,7 @@ class Era(Enum):
 class CalendarSystem(Enum):
     """Enumeration for different calendar systems."""
     GREGORIAN = "Gregorian"
-    JULIAN = "Julian"
+    Jalali = "Jalali"
     ISLAMIC = "Islamic"
     HEBREW = "Hebrew"
     CHINESE = "Chinese"
@@ -285,7 +285,7 @@ class DateAlternative:
     
     Examples:
     - "2023CE/1445AH" (Gregorian/Islamic)
-    - "1066AD/1066CE" (Julian/Gregorian)
+    - "1066AD/1066CE" (Jalali/Gregorian)
     """
     primary: ParsedDate
     alternative: ParsedDate
@@ -368,7 +368,7 @@ class DateRangeAlternative:
     
     Examples:
     - "(١٤١١ - ١٤١٢ هـ) = (١٩٩٠ - ١٩٩٢ م)" (Islamic/Gregorian range)
-    - "1066-1087 AD / 1066-1087 CE" (Julian/Gregorian range)
+    - "1066-1087 AD / 1066-1087 CE" (Jalali/Gregorian range)
     """
     primary_range: DateRange
     alternative_range: DateRange

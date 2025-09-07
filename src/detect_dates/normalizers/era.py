@@ -47,7 +47,7 @@ def get_era_info(era: str) -> Tuple[Optional[str], Optional[str], Optional[str]]
     Returns
     -------
     Tuple[Optional[str], Optional[str], Optional[str]]
-        - detected_calendar: Calendar system ('gregorian', 'hijri', 'julian') or None
+        - detected_calendar: Calendar system ('gregorian', 'hijri', 'Jalali') or None
         - detected_language: Language code ('ar', 'en') or None 
         - normalized_era: Standard era code ('AH', 'CE', 'SH' etc) or None
 
@@ -91,7 +91,7 @@ def normalize_era(
     to_lang : str, optional
         Target language code ('ar', 'en')
     to_calendar : str, optional
-        Target calendar system ('gregorian', 'hijri', 'julian')
+        Target calendar system ('gregorian', 'hijri', 'Jalali')
 
     Returns
     -------
@@ -119,7 +119,7 @@ def normalize_era(
         logger.error(f"Unsupported target language: {target_lang}")
         return None
 
-    if target_calendar not in ['gregorian', 'hijri', 'julian']:
+    if target_calendar not in ['gregorian', 'hijri', 'Jalali']:
         logger.error(f"Unsupported target calendar: {target_calendar}")
         return None
 
@@ -147,7 +147,7 @@ def get_calendar(era: str) -> Optional[str]:
     Returns
     -------
     str or None
-        Set of calendar system names ('gregorian', 'hijri', 'julian')
+        Set of calendar system names ('gregorian', 'hijri', 'Jalali')
 
     Examples
     --------

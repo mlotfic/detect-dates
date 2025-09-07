@@ -38,10 +38,10 @@ def _fetch_simple_unknown(date_patterns: DatePatterns):
                 "examples": [
                     "1445",    # Could be Hijri (year 1445 AH ≈ 2023-2024 CE)
                     "2023",    # Likely Gregorian (contemporary year)
-                    "1398",    # Could be julian (year 1398 SH ≈ 2019-2020 CE)
+                    "1398",    # Could be Jalali (year 1398 SH ≈ 2019-2020 CE)
                     "1446",    # Could be Hijri (year 1446 AH ≈ 2024-2025 CE)
                     "2024",    # Likely Gregorian (contemporary year)
-                    "1401"     # Could be julian (year 1401 SH ≈ 2022-2023 CE)
+                    "1401"     # Could be Jalali (year 1401 SH ≈ 2022-2023 CE)
                 ],
                 "date": {
                     "weekday": None, "day": None, "month": None, "year": 1, "century": None, "era": None, "calendar": ""
@@ -54,14 +54,14 @@ def _fetch_simple_unknown(date_patterns: DatePatterns):
                 "examples": [
                     "12/1440",    # Could be Hijri (year 1440 AH ≈ 2018-2019 CE)
                     "01/2023",    # Likely Gregorian (contemporary year)
-                    "03/1398",    # Could be julian (year 1398 SH ≈ 2019-2020 CE)
+                    "03/1398",    # Could be Jalali (year 1398 SH ≈ 2019-2020 CE)
                     "06/1445",    # Could be Hijri (year 1445 AH ≈ 2023-2024 CE)
                     "11/2024",    # Likely Gregorian (contemporary year)
-                    "02/1401",    # Could be julian (year 1401 SH ≈ 2022-2023 CE)
+                    "02/1401",    # Could be Jalali (year 1401 SH ≈ 2022-2023 CE)
                     "12/1440",    # Could be Hijri (year 1440 AH ≈ 2018-2019 CE)
                     "01/2023",    # Likely Gregorian (contemporary year)
                     "1440/2024",  # This could be problematic - year/year format
-                    "03-1401"     # Could be julian (year 1401 SH ≈ 2022-2023 CE)
+                    "03-1401"     # Could be Jalali (year 1401 SH ≈ 2022-2023 CE)
                 ],
                 "date": { "weekday": None, "day": None, "month": 1, "year": 2, "century": None, "era": None, "calendar": "" },
             },
@@ -75,7 +75,7 @@ def _fetch_simple_unknown(date_patterns: DatePatterns):
                     "15/03/1398",  # 15th month invalid - likely day/month confusion
                     "25/12/2024",  # 25th December 2024 CE (Gregorian)
                     "10/06/1445",  # Could be 10th Jumada al-Thani 1445 AH (Hijri)
-                    "31/01/1401"   # Could be julian format
+                    "31/01/1401"   # Could be Jalali format
                 ],
                 "date": { "weekday": None, "day": 1, "month": 2, "year": 3, "century": None, "era": None,  "calendar": "" },
             },
@@ -89,7 +89,7 @@ def _fetch_simple_unknown(date_patterns: DatePatterns):
                     "الثلاثاء 15/03/1398",       # Tuesday - needs calendar validation
                     "الأربعاء 25/12/2024",       # Wednesday 25th December 2024 CE
                     "الخميس 10/06/1445",      # Thursday - Hijri date
-                    "الجمعة 20/11/1401"        # Friday - could be julian
+                    "الجمعة 20/11/1401"        # Friday - could be Jalali
                 ],
                 "date": { "weekday": 1, "day": 2,  "month": 3, "year": 4, "century": None, "era": None, "calendar": ""},
             },

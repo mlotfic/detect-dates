@@ -30,7 +30,7 @@ is_valid = mapper.validate_date('gregorian', 29, 2, 2024)  # True (leap year)
 first_monday = mapper.find_date_by_weekday('gregorian', 'Monday', 3, 2024, 1)
 
 # Get supported calendars and date ranges
-calendars = mapper.get_supported_calendars()  # ['gregorian', 'hijri', 'julian']
+calendars = mapper.get_supported_calendars()  # ['gregorian', 'hijri', 'Jalali']
 ranges = mapper.get_data_range()
 ```
 
@@ -233,7 +233,7 @@ class DateMapping:
         Parameters
         ----------
         calendar : str
-            Calendar system ('gregorian', 'hijri', 'julian', or aliases)
+            Calendar system ('gregorian', 'hijri', 'Jalali', or aliases)
         day : int, optional
             Day of the month (1-31 depending on calendar and month)
         month : int or str, optional
@@ -283,7 +283,7 @@ class DateMapping:
         Parameters
         ----------
         era : str
-            Calendar system ('gregorian', 'hijri', 'julian', or aliases) or era ('AD', 'AH', etc.)
+            Calendar system ('gregorian', 'hijri', 'Jalali', or aliases) or era ('AD', 'AH', etc.)
         day : int, optional
             Day of the month (1-31 depending on calendar and month)
         month : int or str, optional
@@ -354,7 +354,7 @@ class DateMapping:
         Parameters
         ----------
         calendar : str
-            Source calendar system ('gregorian', 'hijri', 'julian', or aliases)
+            Source calendar system ('gregorian', 'hijri', 'Jalali', or aliases)
         day : int
             Day of the month in the source calendar
         month : int
@@ -370,7 +370,7 @@ class DateMapping:
             {
                 'gregorian': {'day': int, 'month': int, 'year': int},
                 'hijri': {'day': int, 'month': int, 'year': int},
-                'julian': {'day': int, 'month': int, 'year': int},
+                'Jalali': {'day': int, 'month': int, 'year': int},
                 'weekday': str
             }
 
@@ -394,8 +394,8 @@ class DateMapping:
         ...     print(f"January 1, 2024 (Gregorian) equals:")
         ...     hijri = result['hijri']
         ...     print(f"  Hijri: {hijri['day']}/{hijri['month']}/{hijri['year']}")
-        ...     julian = result['julian']
-        ...     print(f"  Julian : {julian['day']}/{julian['month']}/{julian['year']}")
+        ...     Jalali = result['Jalali']
+        ...     print(f"  Jalali : {Jalali['day']}/{Jalali['month']}/{Jalali['year']}")
         ...     print(f"  Weekday: {result['weekday']}")
         >>> # Convert from Hijri
         >>> result = mapper.find_calendars('hijri', 1, 1, 1445)
@@ -436,7 +436,7 @@ class DateMapping:
                 'month': int(row['Hijri Month']),
                 'year': int(row['Hijri Year'])
             },
-            'julian': {
+            'Jalali': {
                 'day': int(row['Solar Hijri Day']),
                 'month': int(row['Solar Hijri Month']),
                 'year': int(row['Solar Hijri Year'])
@@ -457,7 +457,7 @@ class DateMapping:
         Parameters
         ----------
         calendar : str
-            Calendar system ('gregorian', 'hijri', 'julian', or aliases)
+            Calendar system ('gregorian', 'hijri', 'Jalali', or aliases)
         day : int
             Day of the month
         month : int
@@ -490,7 +490,7 @@ class DateMapping:
         This method is more efficient than find_weekday() when you
         only need to check validity without retrieving additional information.
         """
-        if not self._is_data_loaded() or self.df is None:
+        if not self._is_data_loaded() or self.df is None or self.year is None:
             return False
         found_hijri_list = pd.DataFrame()
         found_gregorian_list = pd.DataFrame()
@@ -503,7 +503,7 @@ class DateMapping:
                     print(f"Found Matches Dates: {calendar} {day}/{month}/{year}")
                     if "hijri" == test_calendar: found_hijri_list = matching_rows.copy()
                     if "gregorian" == test_calendar: found_gregorian_list = matching_rows.copy()
-                    if "julian" == test_calendar: found_julain_list = matching_rows.copy()
+                    if "Jalali" == test_calendar: found_julain_list = matching_rows.copy()
         
         if (len(found_hijri_list) + len(found_gregorian_list) + len(found_julain_list)) < 1:
             return None
@@ -511,41 +511,10 @@ class DateMapping:
             return {
                 "hijri" : found_hijri_list,
                 "gregorian": found_gregorian_list,
-                "julian": found_julain_list
+                "Jalali": found_julain_list
             }
     
-    def _get_data_quality_metrics(self) -> Dict[str, Any]:
-        """
-        Calculate data quality metrics for the loaded dataset.
-        
-        Returns
-        -------
-        Dict[str, Any]
-            Data quality metrics including record count, date coverage, etc.
-        """
-        if not self._is_data_loaded() or self.df is None:
-            return {'status': 'no_data'}
-        
-        metrics = {
-            'status': 'good',
-            'total_records': len(self.df),
-            'unique_weekdays': len(self.df[WEEKDAY_COLUMN].unique()),
-            'date_coverage': {}
-        }
-        
-        # Check date coverage for each calendar
-        for calendar_name, columns in SUPPORTED_CALENDARS_COLUMNS.items():
-            year_col = columns[2]  # Year column is always third
-            year_range = self.df[year_col].max() - self.df[year_col].min() + 1
-            unique_years = len(self.df[year_col].unique())
-            
-            metrics['date_coverage'][calendar_name] = {
-                'year_span': year_range,
-                'unique_years': unique_years,
-                'coverage_ratio': unique_years / year_range if year_range > 0 else 0
-            }
-        
-        return metrics
+    
     
     def month_info(self) -> Optional[Dict[str, Any]]:
         """
@@ -724,7 +693,7 @@ class DateMapping:
         elif self.calendar == 'hijri':
             # Hijri leap year has 355 days (normal has 354)
             return day_count == 355
-        elif self.calendar == 'julian':
+        elif self.calendar == 'Jalali':
             # Solar Hijri leap year has 366 days
             return day_count == 366
         
@@ -823,7 +792,7 @@ if __name__ == "__main__":
                 print(f"   📝 Sample record:")
                 print(f"      Gregorian: {sample['gregorian']}")
                 print(f"      Hijri: {sample['hijri']}")
-                print(f"      Solar Hijri: {sample['julian']}")
+                print(f"      Solar Hijri: {sample['Jalali']}")
                 print(f"      Weekday: {sample['weekday']}")
             print()
             
@@ -840,7 +809,7 @@ if __name__ == "__main__":
             test_dates = [
                 ('gregorian', 1, 1, 2024, 'New Year 2024'),
                 ('hijri', 1, 1, 1445, 'Islamic New Year 1445'),
-                ('julian', 1, 1, 1403, 'Persian New Year 1403')
+                ('Jalali', 1, 1, 1403, 'Persian New Year 1403')
             ]
             
             for calendar, day, month, year, description in test_dates:
@@ -856,7 +825,7 @@ if __name__ == "__main__":
             conversion_examples = [
                 ('gregorian', 1, 1, 2024, 'January 1, 2024 (Gregorian)'),
                 ('hijri', 1, 1, 1445, 'Muharram 1, 1445 (Hijri)'),
-                ('julian', 1, 1, 1403, 'Farvardin 1, 1403 (Solar Hijri)')
+                ('Jalali', 1, 1, 1403, 'Farvardin 1, 1403 (Solar Hijri)')
             ]
             
             for calendar, day, month, year, description in conversion_examples:
@@ -901,7 +870,7 @@ if __name__ == "__main__":
                 ('gregorian', 29, 2, 2024, 'Feb 29, 2024 (leap year)'),
                 ('gregorian', 29, 2, 2023, 'Feb 29, 2023 (non-leap year)'),
                 ('hijri', 30, 12, 1445, 'Dhu al-Hijjah 30, 1445'),
-                ('julian', 31, 12, 1403, 'Esfand 31, 1403 (invalid - max 29/30)')
+                ('Jalali', 31, 12, 1403, 'Esfand 31, 1403 (invalid - max 29/30)')
             ]
             
             for calendar, day, month, year, description in validation_tests:

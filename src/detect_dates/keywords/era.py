@@ -33,16 +33,16 @@ era_standard_keywords = {
     "before_hijrah_ar": "ق.هـ",     # Before Hijrah (Arabic) 
     "after_christ_ar": "م",         # After Christ/Common Era (Arabic)
     "before_christ_ar": "ق.م",      # Before Christ (Arabic)
-    "after_julian_ar": "هـ.ش",      # After Solar Hijrah (Persian in Arabic script)
-    "before_julian_ar": "ق.هـ.ش",   # Before Solar Hijrah (Persian in Arabic script)
+    "after_Jalali_ar": "هـ.ش",      # After Solar Hijrah (Persian in Arabic script)
+    "before_Jalali_ar": "ق.هـ.ش",   # Before Solar Hijrah (Persian in Arabic script)
     
     # Gregorian calendar - English variations
     "after_hijrah_en": "AH",        # After Hijrah (English)
     "before_hijrah_en": "BH",       # Before Hijrah (English)
     "after_christ_en": "AD",        # Anno Domini (English)
     "before_christ_en": "BC",       # Before Christ (English)
-    "after_julian_en": "SH",        # Solar Hijri (English)
-    "before_julian_en": "BSH"       # Before Solar Hijri (English)
+    "after_Jalali_en": "SH",        # Solar Hijri (English)
+    "before_Jalali_en": "BSH"       # Before Solar Hijri (English)
 }
 
 # ===================================================================================
@@ -138,9 +138,9 @@ era_keywords_dict = {
                 "normalized": "ق.م"
             }
         },
-        "julian": {  # Persian/Solar Hijri in Arabic script
+        "Jalali": {  # Persian/Solar Hijri in Arabic script
             "after_hijrah": {
-                "name": "julian_after_hijrah_persian_arabic_script",
+                "name": "Jalali_after_hijrah_persian_arabic_script",
                 "description": "Keywords indicating Solar Hijri era after Hijrah in Persian/Arabic script",
                 "keywords": [
                     # Solar/Persian year indicators
@@ -156,7 +156,7 @@ era_keywords_dict = {
                 "normalized": "هـ.ش"
             },
             "before_hijrah": {
-                "name": "julian_before_hijrah_persian_arabic_script",
+                "name": "Jalali_before_hijrah_persian_arabic_script",
                 "description": "Keywords indicating Solar Hijri era before Hijrah in Persian/Arabic script", 
                 "keywords": [
                     # "Before" + solar indicators
@@ -225,9 +225,9 @@ era_keywords_dict = {
                 "normalized": "BCE"  # Using secular standard
             }
         },
-        "julian": {  # Persian/Solar Hijri in English script
+        "Jalali": {  # Persian/Solar Hijri in English script
             "after_hijrah": {
-                "name": "julian_after_hijrah_persian_english_script",
+                "name": "Jalali_after_hijrah_persian_english_script",
                 "description": "Keywords indicating Solar Hijri era after Hijrah in Persian/English script",
                 "keywords": [
                     # Standard abbreviations
@@ -235,19 +235,19 @@ era_keywords_dict = {
                     # Full forms
                     "Solar Hijri", "Anno Persico", "Jalali", "Persian",
                     # Explicit "after" forms
-                    "After Solar Hijri", "After Hegira julian"
+                    "After Solar Hijri", "After Hegira Jalali"
                 ],
                 "normalized": "SH"
             },
             "before_hijrah": {
-                "name": "julian_before_hijrah_persian_english_script",
+                "name": "Jalali_before_hijrah_persian_english_script",
                 "description": "Keywords indicating Solar Hijri era before Hijrah in Persian/English script",
                 "keywords": [
                     # Standard abbreviations
                     "BSH", "B.SH", "B.S.H.", "B.P.", "B.Persian",
                     # Full "before" forms
                     "Before Solar Hijri", "Before Jalali", "Before Anno Persico",
-                    "Before Hegira julian", "Before Persian"
+                    "Before Hegira Jalali", "Before Persian"
                 ],
                 "normalized": "BSH"
             }
@@ -423,9 +423,9 @@ era_keywords = [
     # PERSIAN/SOLAR HIJRI CALENDAR KEYWORDS
     # ===============================================================================
     {
-        "name": "julian_after_hijrah_persian_arabic_script", 
-        "keywords": era_keywords_dict["ar"]["julian"]["after_hijrah"]["keywords"],
-        "normalized": era_keywords_dict["ar"]["julian"]["after_hijrah"]["normalized"],
+        "name": "Jalali_after_hijrah_persian_arabic_script", 
+        "keywords": era_keywords_dict["ar"]["Jalali"]["after_hijrah"]["keywords"],
+        "normalized": era_keywords_dict["ar"]["Jalali"]["after_hijrah"]["normalized"],
         "description": "Keywords indicating Solar Hijri era after Hijrah in Persian/Arabic script",
         "examples": [
             "1402 هـ.ش",             # Standard Solar Hijri form
@@ -437,12 +437,12 @@ era_keywords = [
         "language": "persian_ar",  # Persian in Arabic script
         "priority": 100,
         "era": "SH",
-        "calendar": "julian"  # Persian/Solar Hijri uses julian naming
+        "calendar": "Jalali"  # Persian/Solar Hijri uses Jalali naming
     },
     {
-        "name": "julian_after_hijrah_persian_english_script",
-        "keywords": era_keywords_dict["en"]["julian"]["after_hijrah"]["keywords"],
-        "normalized": era_keywords_dict["en"]["julian"]["after_hijrah"]["normalized"],
+        "name": "Jalali_after_hijrah_persian_english_script",
+        "keywords": era_keywords_dict["en"]["Jalali"]["after_hijrah"]["keywords"],
+        "normalized": era_keywords_dict["en"]["Jalali"]["after_hijrah"]["normalized"],
         "description": "Keywords indicating Solar Hijri era after Hijrah in Persian/English script", 
         "examples": [
             "1402 SH",              # Standard Solar Hijri abbreviation
@@ -454,12 +454,12 @@ era_keywords = [
         "language": "persian_en",  # Persian in English script
         "priority": 100,
         "era": "SH", 
-        "calendar": "julian"
+        "calendar": "Jalali"
     },
     {
-        "name": "julian_before_hijrah_persian_arabic_script",
-        "keywords": era_keywords_dict["ar"]["julian"]["before_hijrah"]["keywords"],
-        "normalized": era_keywords_dict["ar"]["julian"]["before_hijrah"]["normalized"],
+        "name": "Jalali_before_hijrah_persian_arabic_script",
+        "keywords": era_keywords_dict["ar"]["Jalali"]["before_hijrah"]["keywords"],
+        "normalized": era_keywords_dict["ar"]["Jalali"]["before_hijrah"]["normalized"],
         "description": "Keywords indicating Solar Hijri era before Hijrah in Persian/Arabic script",
         "examples": [
             "10 ق.هـ.ش",            # Before Solar Hijri abbreviation
@@ -471,12 +471,12 @@ era_keywords = [
         "language": "persian_ar",
         "priority": 100,
         "era": "BSH",
-        "calendar": "julian"
+        "calendar": "Jalali"
     },
     {
-        "name": "julian_before_hijrah_persian_english_script",
-        "keywords": era_keywords_dict["en"]["julian"]["before_hijrah"]["keywords"], 
-        "normalized": era_keywords_dict["en"]["julian"]["before_hijrah"]["normalized"],
+        "name": "Jalali_before_hijrah_persian_english_script",
+        "keywords": era_keywords_dict["en"]["Jalali"]["before_hijrah"]["keywords"], 
+        "normalized": era_keywords_dict["en"]["Jalali"]["before_hijrah"]["normalized"],
         "description": "Keywords indicating Solar Hijri era before Hijrah in Persian/English script",
         "examples": [
             "10 BSH",               # Before Solar Hijri abbreviation
@@ -488,6 +488,6 @@ era_keywords = [
         "language": "persian_en", 
         "priority": 100,
         "era": "BSH",
-        "calendar": "julian"
+        "calendar": "Jalali"
     }
 ]

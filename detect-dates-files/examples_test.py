@@ -77,10 +77,10 @@ unknown_calendar = {
             "examples": [  
                 "1445",    # Could be Hijri (year 1445 AH ≈ 2023-2024 CE)
                 "2023",    # Likely Gregorian (contemporary year)
-                "1398",    # Could be julian (year 1398 SH ≈ 2019-2020 CE)
+                "1398",    # Could be Jalali (year 1398 SH ≈ 2019-2020 CE)
                 "1446",    # Could be Hijri (year 1446 AH ≈ 2024-2025 CE)
                 "2024",    # Likely Gregorian (contemporary year)
-                "1401"     # Could be julian (year 1401 SH ≈ 2022-2023 CE)
+                "1401"     # Could be Jalali (year 1401 SH ≈ 2022-2023 CE)
             ],
             "date": {
                 "weekday": None, "day": None, "month": None, "year": 1, "century": None, "era": None, "calendar": ""
@@ -93,14 +93,14 @@ unknown_calendar = {
             "examples": [  
                 "12/1440",    # Could be Hijri (year 1440 AH ≈ 2018-2019 CE)
                 "01/2023",    # Likely Gregorian (contemporary year)
-                "03/1398",    # Could be julian (year 1398 SH ≈ 2019-2020 CE)
+                "03/1398",    # Could be Jalali (year 1398 SH ≈ 2019-2020 CE)
                 "06/1445",    # Could be Hijri (year 1445 AH ≈ 2023-2024 CE)
                 "11/2024",    # Likely Gregorian (contemporary year)
-                "02/1401",    # Could be julian (year 1401 SH ≈ 2022-2023 CE)
+                "02/1401",    # Could be Jalali (year 1401 SH ≈ 2022-2023 CE)
                 "12/1440",    # Could be Hijri (year 1440 AH ≈ 2018-2019 CE)
                 "01/2023",    # Likely Gregorian (contemporary year)
                 "1440/2024",  # This could be problematic - year/year format
-                "03-1401"     # Could be julian (year 1401 SH ≈ 2022-2023 CE)
+                "03-1401"     # Could be Jalali (year 1401 SH ≈ 2022-2023 CE)
             ],
             "date": { "weekday": None, "day": None, "month": 1, "year": 2, "century": None, "era": None, "calendar": "" },
         },
@@ -114,7 +114,7 @@ unknown_calendar = {
                 "15/03/1398",  # 15th month invalid - likely day/month confusion
                 "25/12/2024",  # 25th December 2024 CE (Gregorian)
                 "10/06/1445",  # Could be 10th Jumada al-Thani 1445 AH (Hijri)
-                "31/01/1401"   # Could be julian format
+                "31/01/1401"   # Could be Jalali format
             ],
             "date": { "weekday": None, "day": 1, "month": 2, "year": 3, "century": None, "era": None,  "calendar": "" },
         },
@@ -180,10 +180,10 @@ date_components_patterns_dict = {
             ],
             "date": { "weekday": None, "day": None, "month": 1, "year": None, "century": None, "era": None, "calendar": "" },
         },
-        {  # Pattern 4 - Month Component (julian Calendar)
-            "pattern": date_patterns.mm.julian,
-            "name": "month_component_julian",
-            "description": "Month component - julian calendar",
+        {  # Pattern 4 - Month Component (Jalali Calendar)
+            "pattern": date_patterns.mm.Jalali,
+            "name": "month_component_Jalali",
+            "description": "Month component - Jalali calendar",
             "examples": [
                 "فروردین",
                 "اردیبهشت",
@@ -229,12 +229,12 @@ date_components_patterns_dict = {
             "date": { "weekday": None, "day": None, "month": None, "year": None, "century": None, "era": 1, "calendar": "" },
         },
         {  # Pattern 4 - Era Component
-            "pattern": date_patterns.era.julian,
+            "pattern": date_patterns.era.Jalali,
             "name": "era_component",
-            "description": "Era component - julian calendar",
+            "description": "Era component - Jalali calendar",
             "examples": [
-                "هجری شمسی",  # julian era (Persian)
-                "شمسي",      # julian era
+                "هجری شمسی",  # Jalali era (Persian)
+                "شمسي",      # Jalali era
             ],
             "date": { "weekday": None, "day": None, "month": None, "year": None, "century": None, "era": 1, "calendar": "" },
         },
@@ -260,7 +260,7 @@ basic_date_pattern_dict = {
                 "الثلاثاء 15/03/1398",   # Tuesday - needs calendar validation
                 "الأربعاء 25/12/2024",   # Wednesday 25th December 2024 CE
                 "الخميس 10/06/1445",     # Thursday - Hijri date
-                "الجمعة 20/11/1401"      # Friday - could be julian
+                "الجمعة 20/11/1401"      # Friday - could be Jalali
             ],
             "date": { "weekday": 1, "day": 2,  "month": 3, "year": 4, "century": None, "era": None, "calendar": ""},
         },
@@ -308,10 +308,10 @@ basic_date_pattern_dict = {
                 "calendar": "gregorian"
             },        
         },        
-        {  # Pattern 3 - Basic julian Year with Era Marker
-            "pattern": date_patterns.yy.julian.numeric,
-            "name": "date_patterns.yy.julian.numeric",
-            "description": "julian/Solar Hijri year with explicit era marker - unambiguous calendar identification",
+        {  # Pattern 3 - Basic Jalali Year with Era Marker
+            "pattern": date_patterns.yy.Jalali.numeric,
+            "name": "date_patterns.yy.Jalali.numeric",
+            "description": "Jalali/Solar Hijri year with explicit era marker - unambiguous calendar identification",
             "examples": [
                 "1402 هـ.ش",     # Year 1402 SH (≈ 2023-2024 CE)
                 "1400 شمسی",     # Year 1400 SH with Persian marker
@@ -327,7 +327,7 @@ basic_date_pattern_dict = {
                 "year": 1,
                 "century": None,
                 "era": 2,
-                "calendar": "julian"
+                "calendar": "Jalali"
             },
         },
         # ================================================= #
@@ -375,10 +375,10 @@ basic_date_pattern_dict = {
                 "calendar": "gregorian"
             },
         },        
-        {  # Pattern 6 - julian Month/Year with Era Marker
-            "pattern": date_patterns.mm_yy.julian.combined,
-            "name": "date_patterns.mm_yy.julian.combined",
-            "description": "julian month/year with explicit era marker - supports Persian month names",
+        {  # Pattern 6 - Jalali Month/Year with Era Marker
+            "pattern": date_patterns.mm_yy.Jalali.combined,
+            "name": "date_patterns.mm_yy.Jalali.combined",
+            "description": "Jalali month/year with explicit era marker - supports Persian month names",
             "examples": [
                 "فروردین 1402 هـ.ش",  # Farvardin 1402 SH
                 "مهر 1401 شمسی",      # Mehr 1401 SH
@@ -394,7 +394,7 @@ basic_date_pattern_dict = {
                 "year": [2, 5],    
                 "century": None, 
                 "era": [3, 6],     
-                "calendar": "julian"
+                "calendar": "Jalali"
             },
         },
         # ===================================================== #
@@ -442,10 +442,10 @@ basic_date_pattern_dict = {
                 "calendar": "gregorian"
             },
         },
-        {  # Pattern 9 - Complete julian Date with Era Marker
-            "pattern": date_patterns.dd_mm_yy.julian.combined,
-            "name": "date_patterns.dd_mm_yy.julian.combined",
-            "description": "Complete julian date with day/month/year and explicit era marker",
+        {  # Pattern 9 - Complete Jalali Date with Era Marker
+            "pattern": date_patterns.dd_mm_yy.Jalali.combined,
+            "name": "date_patterns.dd_mm_yy.Jalali.combined",
+            "description": "Complete Jalali date with day/month/year and explicit era marker",
             "examples": [
                 "15/03/1402 هـ.ش",     # 15th Khordad 1402 SH
                 "01/فروردین/1403 شمسی", # 1st Farvardin 1403 SH (Nowruz)
@@ -461,7 +461,7 @@ basic_date_pattern_dict = {
                 "year": [3, 7],    
                 "century": None, 
                 "era": [4, 8],     
-                "calendar": "julian"
+                "calendar": "Jalali"
             },  
         },
         # ===================================================== #
@@ -509,10 +509,10 @@ basic_date_pattern_dict = {
                 "calendar": "gregorian"
             },
         },        
-        {  # Pattern 12 - Natural Language julian Date
-            "pattern": date_patterns.natural_language.julian.combined,
-            "name": "date_patterns.natural_language.julian.combined",
-            "description": "Natural language julian date with weekday, day, month name, year, and era marker",
+        {  # Pattern 12 - Natural Language Jalali Date
+            "pattern": date_patterns.natural_language.Jalali.combined,
+            "name": "date_patterns.natural_language.Jalali.combined",
+            "description": "Natural language Jalali date with weekday, day, month name, year, and era marker",
             "examples": [
                 "جمعه 15 فروردین 1402 هـ.ش",    # Friday 15th Farvardin 1402 SH
                 "یکشنبه 01 فروردین 1403 شمسی", # Sunday 1st Farvardin 1403 SH (Nowruz)
@@ -528,7 +528,7 @@ basic_date_pattern_dict = {
                 "year": [4, 9],
                 "century": None, 
                 "era": [5, 10],
-                "calendar": "julian"
+                "calendar": "Jalali"
             },
         },
     ]

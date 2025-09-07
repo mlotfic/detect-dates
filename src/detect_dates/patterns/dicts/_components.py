@@ -94,17 +94,17 @@ def _fetch_components(date_patterns: DatePatterns):
                     "calendar": "gregorian"
                 },
             },
-            {  # Pattern 5 - Month Component (julian Calendar)
-                "pattern": re.compile(date_patterns.mm.julian, flags=re.IGNORECASE | re.UNICODE),
-                "name": "month_component_julian",
-                "description": "Month component - julian calendar",
+            {  # Pattern 5 - Month Component (Jalali Calendar)
+                "pattern": re.compile(date_patterns.mm.Jalali, flags=re.IGNORECASE | re.UNICODE),
+                "name": "month_component_Jalali",
+                "description": "Month component - Jalali calendar",
                 "examples": [
                     "فروردین",
                     "اردیبهشت",
                 ],
                 "date": {
                     "month": 1,
-                    "calendar": "julian"
+                    "calendar": "Jalali"
                 },
             },
             {  # Pattern 6 - Year Component (Ambiguous Calendar)
@@ -156,16 +156,16 @@ def _fetch_components(date_patterns: DatePatterns):
                 },
             },
             {  # Pattern 10 - Era Component
-                "pattern": re.compile(date_patterns.era.julian, flags=re.IGNORECASE | re.UNICODE),
+                "pattern": re.compile(date_patterns.era.Jalali, flags=re.IGNORECASE | re.UNICODE),
                 "name": "era_component",
-                "description": "Era component - julian calendar",
+                "description": "Era component - Jalali calendar",
                 "examples": [
-                    "هجری شمسی",  # julian era (Persian)
-                    "شمسي",      # julian era
+                    "هجری شمسی",  # Jalali era (Persian)
+                    "شمسي",      # Jalali era
                 ],
                 "date": {
                     "era": 1,
-                    "calendar": "julian"
+                    "calendar": "Jalali"
                     },
             }
         ]

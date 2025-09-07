@@ -103,7 +103,7 @@ def generate_hijri_month_range(start_year, end_year):
 
 def main():
     # Define Hijri year range
-    start_hijri_year = 1182  # Year 1 AH (622 CE)
+    start_hijri_year = 1429  # Year 1 AH (622 CE)
     end_hijri_year = 1500  # Current approximate Hijri year (2025 CE)
     
     # For testing, you might want to use a smaller range

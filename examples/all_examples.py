@@ -5,23 +5,23 @@ ambagious_examples = [
     # type: "numeric", name : "numeric", format: [DD, MM, YYYY], calendar: UNKNOWN
     "1445",    # Could be Hijri (year 1445 AH ≈ 2023-2024 CE)
     "2023",    # Likely Gregorian (contemporary year)
-    "1398",    # Could be julian (year 1398 SH ≈ 2019-2020 CE)
+    "1398",    # Could be Jalali (year 1398 SH ≈ 2019-2020 CE)
     "1446",    # Could be Hijri (year 1446 AH ≈ 2024-2025 CE)
     "2024",    # Likely Gregorian (contemporary year)
-    "140",     # Could be julian (year 1401 SH ≈ 2022-2023 CE)
+    "140",     # Could be Jalali (year 1401 SH ≈ 2022-2023 CE)
 
     # variable: date_patterns.mm_yy.numeric, 
     # type: "numeric", name : "numeric_numeric", format: [MM-YYYY], calendar: UNKNOWN
     "12/1440",    # Could be Hijri (year 1440 AH ≈ 2018-2019 CE)
     "01/2023",    # Likely Gregorian (contemporary year)
-    "03/1398",    # Could be julian (year 1398 SH ≈ 2019-2020 CE)
+    "03/1398",    # Could be Jalali (year 1398 SH ≈ 2019-2020 CE)
     "06/1445",    # Could be Hijri (year 1445 AH ≈ 2023-2024 CE)
     "11/2024",    # Likely Gregorian (contemporary year)
-    "02/1401",    # Could be julian (year 1401 SH ≈ 2022-2023 CE)
+    "02/1401",    # Could be Jalali (year 1401 SH ≈ 2022-2023 CE)
     "12/1440",    # Could be Hijri (year 1440 AH ≈ 2018-2019 CE)
     "01/2023",    # Likely Gregorian (contemporary year)
     "1440/2024",  # This could be problematic - year/year format
-    "03-1401",    # Could be julian (year 1401 SH ≈ 2022-2023 CE)
+    "03-1401",    # Could be Jalali (year 1401 SH ≈ 2022-2023 CE)
 
     # variable: date_patterns.dd_mm_yy.numeric, 
     # type: "numeric", name : "numeric_full_date", format: [DD-MM-YYYY], calendar: UNKNOWN
@@ -30,7 +30,7 @@ ambagious_examples = [
     "15/03/1398",  # 15th month invalid - likely day/month confusion
     "25/12/2024",  # 25th December 2024 CE (Gregorian)
     "10/06/1445",  # Could be 10th Jumada al-Thani 1445 AH (Hijri)
-    "31/01/1401",   # Could be julian format
+    "31/01/1401",   # Could be Jalali format
 
     # variable: date_patterns.dd, 
     # type: "numeric", name : "Weekday_component", format: [WD], calendar: UNKNOWN
@@ -57,8 +57,8 @@ ambagious_examples = [
     "January",
     "فبراير",
 
-    # variable: date_patterns.mm.julian
-    # type: "named", name : "month_component_julian", format: [MM-ERA], calendar: julian 
+    # variable: date_patterns.mm.Jalali
+    # type: "named", name : "month_component_Jalali", format: [MM-ERA], calendar: Jalali 
     "فروردین",
     "اردیبهشت",
 
@@ -81,10 +81,10 @@ ambagious_examples = [
     # type: "named" , name : "era_component_gregorian", format: [ERA], calendar: GREGORIAN  
     "ميلادي",     # Gregorian era
 
-    # variable: date_patterns.era.julian, [ERA]
-    # type: "named", name : "era_component_julian", format: [ERA], calendar: julian 
-    "هجری شمسی",  # julian era (Persian)
-    "شمسي",      # julian era
+    # variable: date_patterns.era.Jalali, [ERA]
+    # type: "named", name : "era_component_Jalali", format: [ERA], calendar: Jalali 
+    "هجری شمسی",  # Jalali era (Persian)
+    "شمسي",      # Jalali era
     
     # Comprehensive date patterns
     # ===================================================================================
@@ -97,21 +97,21 @@ ambagious_examples = [
     "الثلاثاء 15/03/1398",   # Tuesday - needs calendar validation
     "الأربعاء 25/12/2024",   # Wednesday 25th December 2024 CE
     "الخميس 10/06/1445",     # Thursday - Hijri date
-    "الجمعة 20/11/1401",      # Friday - could be julian
+    "الجمعة 20/11/1401",      # Friday - could be Jalali
 ]
 
-example_julian = [
+example_Jalali = [
     # ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-    # variable: date_patterns.yy.julian.numeric
-    # type: "numeric", name : "yy_julian", format: [YYYY-ERA], calendar: julian  
+    # variable: date_patterns.yy.Jalali.numeric
+    # type: "numeric", name : "yy_Jalali", format: [YYYY-ERA], calendar: Jalali  
     "1402 هـ.ش",     # Year 1402 SH (≈ 2023-2024 CE)
     "1400 شمسی",     # Year 1400 SH with Persian marker
     "1405 ه.ش",      # Year 1405 SH with simplified marker
     "1398 هجری شمسی", # Year 1398 SH with full Persian marker
     "1401 ش",        # Year 1401 SH with abbreviated marker
     "1403 شمسى",      # Year 1403 SH with Persian marker
-    # variable: date_patterns.mm_yy.julian.combined 
-    # type:"combined", name:"mm_yy_julian", format:[MM-YYYY-ERA], calendar: julian 
+    # variable: date_patterns.mm_yy.Jalali.combined 
+    # type:"combined", name:"mm_yy_Jalali", format:[MM-YYYY-ERA], calendar: Jalali 
     "فروردین 1402 هـ.ش",    # Farvardin 1402 SH
     "مهر 1401 شمسی",      # Mehr 1401 SH
     "01/1403 ه.ش",          # Farvardin 1403 SH (numeric)
@@ -119,8 +119,8 @@ example_julian = [
     "12/1404 هجری شمسی",  # Esfand 1404 SH
     "دی 1399 ش",           # Dey 1399 SH
 
-    # variable: date_patterns.dd_mm_yy.julian.combined
-    # type: "combined", name : "dd_mm_yy_julian", format: [DD-MM-YYYY-ERA], calendar: julian
+    # variable: date_patterns.dd_mm_yy.Jalali.combined
+    # type: "combined", name : "dd_mm_yy_Jalali", format: [DD-MM-YYYY-ERA], calendar: Jalali
     "15/03/1402 هـ.ش",     # 15th Khordad 1402 SH
     "01/فروردین/1403 شمسی", # 1st Farvardin 1403 SH (Nowruz)
     "21/مهر/1401 ه.ش",     # 21st Mehr 1401 SH
@@ -128,8 +128,8 @@ example_julian = [
     "10/06/1404 هجری شمسی", # 10th Shahrivar 1404 SH
     "25/آبان/1399 ش",       # 25th Aban 1399 SH
 
-    # variable: date_patterns.natural_language.julian.combined
-    # type: "combined", name : "natural_language_julian", format: [WD-MM-YYYY-ERA], calendar: julian
+    # variable: date_patterns.natural_language.Jalali.combined
+    # type: "combined", name : "natural_language_Jalali", format: [WD-MM-YYYY-ERA], calendar: Jalali
     "جمعه 15 فروردین 1402 هـ.ش",    # Friday 15th Farvardin 1402 SH
     "یکشنبه 01 فروردین 1403 شمسی", # Sunday 1st Farvardin 1403 SH (Nowruz)
     "دوشنبه 21 مهر 1401 ه.ش",      # Monday 21st Mehr 1401 SH

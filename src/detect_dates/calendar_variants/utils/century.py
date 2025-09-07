@@ -48,7 +48,7 @@ class CalendarUtilities:
     A comprehensive utility class for calendar operations and century calculations.
     
     This class provides static methods for working with calendar years and centuries
-    across different calendar systems (Gregorian, Hijri, Julian/Persian). All methods
+    across different calendar systems (Gregorian, Hijri, Jalali/Persian). All methods
     are calendar-agnostic since they work with numeric year values regardless of
     the calendar system.
     
@@ -86,7 +86,7 @@ class CalendarUtilities:
         
         This method calculates the century for any given year using the standard
         mathematical formula. The calculation is universal across all calendar systems
-        (Gregorian, Hijri, Julian/Persian) since only the year number matters, not
+        (Gregorian, Hijri, Jalali/Persian) since only the year number matters, not
         the calendar type.
         
         Parameters

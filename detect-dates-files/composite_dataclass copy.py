@@ -39,7 +39,7 @@ class CompositeYearPatterns(PatternValidator):
     - "1445" (numeric only)
     - "1445 AH" (Hijri with era)
     - "2024 AD" (Gregorian with era)
-    - "1403 ش.ه" (julian with era)
+    - "1403 ش.ه" (Jalali with era)
     
     Attributes:
         numeric_patterns (NumericPatterns): Basic numeric patterns
@@ -47,7 +47,7 @@ class CompositeYearPatterns(PatternValidator):
         era_patterns (EraPatterns): Era indicator patterns
         hijri (Dict[str, str]): Hijri year patterns
         gregorian (Dict[str, str]): Gregorian year patterns
-        julian (Dict[str, str]): julian year patterns
+        Jalali (Dict[str, str]): Jalali year patterns
     """
     year_patterns: YearPatterns
     indicator_patterns: IndicatorPatterns
@@ -55,7 +55,7 @@ class CompositeYearPatterns(PatternValidator):
     # Calendar-specific pattern dictionaries
     hijri: Dict[str, str] = None
     gregorian: Dict[str, str] = None
-    julian: Dict[str, str] = None
+    Jalali: Dict[str, str] = None
     
     def __post_init__(self):
         """Initialize all year patterns after dataclass creation."""
@@ -63,7 +63,7 @@ class CompositeYearPatterns(PatternValidator):
         # Initialize calendar-specific dictionaries
         self.hijri = {}
         self.gregorian = {}
-        self.julian = {}
+        self.Jalali = {}
         
         # Build Hijri Mixed Year Patterns (financial year, range, etc.)        
         self.hijri['mixed'] = (
@@ -81,7 +81,7 @@ class CompositeYearPatterns(PatternValidator):
         self.hijri['alternative_s'] = (
             rf"{year_patterns.hijri['numeric']}\s*"
             rf"{self.indicator_patterns.separator}?\s*"
-            rf"{year_patterns.julian['numeric']}"
+            rf"{year_patterns.Jalali['numeric']}"
         )
         
         self.hijri['complex_mixed_parenthetical'] = (
@@ -134,7 +134,7 @@ class CompositeYearPatterns(PatternValidator):
             rf"{year_patterns.hijri['numeric']}\s*"
             rf"{self.indicator_patterns.separator}?\s*"
             rf"{self.indicator_patterns.parentheses_start}\s*"
-            rf"{year_patterns.julian['numeric']}\s*"
+            rf"{year_patterns.Jalali['numeric']}\s*"
             rf"{self.indicator_patterns.parentheses_end}"
         )
         
@@ -219,52 +219,52 @@ class CompositeYearPatterns(PatternValidator):
             rf"{year_patterns.gregorian['numeric']}\s*"
             rf"{self.indicator_patterns.separator}?\s*"
             rf"{self.indicator_patterns.parentheses_start}\s*"
-            rf"{year_patterns.julian['numeric']}\s*"
+            rf"{year_patterns.Jalali['numeric']}\s*"
             rf"{self.indicator_patterns.parentheses_end}"
         )
         
-        # Build julian year patterns
-        year_patterns.julian['numeric'] = (
+        # Build Jalali year patterns
+        year_patterns.Jalali['numeric'] = (
             rf"{self.numeric_patterns.year}\s*"
             rf"{self.indicator_patterns.separator}?\s*"
-            rf"{self.era_patterns.julian}"
+            rf"{self.era_patterns.Jalali}"
         )
         
-        self.julian['numeric_optional'] = (
+        self.Jalali['numeric_optional'] = (
             rf"{self.numeric_patterns.year}\s*"
-            rf"{self.indicator_patterns.separator}?\s*(?:{self.era_patterns.julian})?"
+            rf"{self.indicator_patterns.separator}?\s*(?:{self.era_patterns.Jalali})?"
         )
         
-        self.julian['mixed_clear'] = (
-            rf"{year_patterns.julian['numeric']}\s*"
+        self.Jalali['mixed_clear'] = (
+            rf"{year_patterns.Jalali['numeric']}\s*"
             rf"{self.indicator_patterns.separator}?\s*"
-            rf"{year_patterns.julian['numeric']}"
+            rf"{year_patterns.Jalali['numeric']}"
         )
         
-        self.julian['mixed_tricky'] = (
-            rf"{self.julian['numeric_optional']}\s*"
+        self.Jalali['mixed_tricky'] = (
+            rf"{self.Jalali['numeric_optional']}\s*"
             rf"{self.indicator_patterns.separator}?\s*"
-            rf"{year_patterns.julian['numeric']}"
+            rf"{year_patterns.Jalali['numeric']}"
         )
         
-        self.julian['ss_parenthetical'] = (
-            rf"{year_patterns.julian['numeric']}\s*"
+        self.Jalali['ss_parenthetical'] = (
+            rf"{year_patterns.Jalali['numeric']}\s*"
             rf"{self.indicator_patterns.separator}?\s*"
             rf"{self.indicator_patterns.parentheses_start}\s*"
-            rf"{year_patterns.julian['numeric']}\s*"
+            rf"{year_patterns.Jalali['numeric']}\s*"
             rf"{self.indicator_patterns.parentheses_end}"
         )
         
-        self.julian['sh_parenthetical'] = (
-            rf"{year_patterns.julian['numeric']}\s*"
+        self.Jalali['sh_parenthetical'] = (
+            rf"{year_patterns.Jalali['numeric']}\s*"
             rf"{self.indicator_patterns.separator}?\s*"
             rf"{self.indicator_patterns.parentheses_start}\s*"
             rf"{year_patterns.hijri['numeric']}\s*"
             rf"{self.indicator_patterns.parentheses_end}"
         )
         
-        self.julian['sg_parenthetical'] = (
-            rf"{year_patterns.julian['numeric']}\s*"
+        self.Jalali['sg_parenthetical'] = (
+            rf"{year_patterns.Jalali['numeric']}\s*"
             rf"{self.indicator_patterns.separator}?\s*"
             rf"{self.indicator_patterns.parentheses_start}\s*"
             rf"{year_patterns.gregorian['numeric']}\s*"
@@ -292,7 +292,7 @@ class CompositeMonthYearPatterns(PatternValidator):
         indicator_patterns (IndicatorPatterns): Date indicator patterns
         hijri (Dict[str, str]): Hijri month-year patterns
         gregorian (Dict[str, str]): Gregorian month-year patterns  
-        julian (Dict[str, str]): julian month-year patterns
+        Jalali (Dict[str, str]): Jalali month-year patterns
     """
     numeric_patterns: NumericPatterns
     year_patterns: YearPatterns
@@ -303,7 +303,7 @@ class CompositeMonthYearPatterns(PatternValidator):
     # Calendar-specific pattern dictionaries
     hijri: Dict[str, str] = None
     gregorian: Dict[str, str] = None
-    julian: Dict[str, str] = None
+    Jalali: Dict[str, str] = None
     
     def __post_init__(self):
         """Initialize all month-year patterns after dataclass creation."""
@@ -318,7 +318,7 @@ class CompositeMonthYearPatterns(PatternValidator):
         # Initialize calendar-specific dictionaries
         self.hijri = {}
         self.gregorian = {}
-        self.julian = {}
+        self.Jalali = {}
         
         # Build Hijri month-year patterns
         year_patterns.hijri['numeric'] = (
@@ -379,7 +379,7 @@ class CompositeMonthYearPatterns(PatternValidator):
             rf"{year_patterns.hijri['numeric']}\s*"
             rf"{self.indicator_patterns.separator}?\s*"
             rf"{self.indicator_patterns.parentheses_start}\s*"
-            rf"{year_patterns.julian['numeric']}\s*"
+            rf"{year_patterns.Jalali['numeric']}\s*"
             rf"{self.indicator_patterns.parentheses_end}"
         )
         
@@ -442,67 +442,67 @@ class CompositeMonthYearPatterns(PatternValidator):
             rf"{year_patterns.gregorian['numeric']}\s*"
             rf"{self.indicator_patterns.separator}?\s*"
             rf"{self.indicator_patterns.parentheses_start}\s*"
-            rf"{year_patterns.julian['numeric']}\s*"
+            rf"{year_patterns.Jalali['numeric']}\s*"
             rf"{self.indicator_patterns.parentheses_end}"
         )
         
-        # Build julian month-year patterns
-        year_patterns.julian['numeric'] = (
+        # Build Jalali month-year patterns
+        year_patterns.Jalali['numeric'] = (
             rf"{self.numeric_patterns.month}\s*"
             rf"{self.indicator_patterns.separator}?\s*"
-            rf"{self.year_patterns.julian['numeric']}"
+            rf"{self.year_patterns.Jalali['numeric']}"
         )
         
-        self.julian['numeric_optional'] = (
+        self.Jalali['numeric_optional'] = (
             rf"{self.numeric_patterns.month}\s*"
             rf"{self.indicator_patterns.separator}?\s*"
-            rf"{self.year_patterns.julian['numeric_optional']}"
+            rf"{self.year_patterns.Jalali['numeric_optional']}"
         )
         
-        self.julian['named'] = (
-            rf"{self.month_patterns.julian}\s*"
+        self.Jalali['named'] = (
+            rf"{self.month_patterns.Jalali}\s*"
             rf"{self.indicator_patterns.separator}?\s*"
-            rf"{self.year_patterns.julian['numeric_optional']}"
+            rf"{self.year_patterns.Jalali['numeric_optional']}"
         )
         
-        self.julian['combined'] = (
-            rf"(?:{year_patterns.julian['numeric']})|(?:{self.julian['named']})"
+        self.Jalali['combined'] = (
+            rf"(?:{year_patterns.Jalali['numeric']})|(?:{self.Jalali['named']})"
         )
         
-        self.julian['combined_optional'] = (
-            rf"(?:{self.julian['numeric_optional']})|(?:{self.julian['named']})"
+        self.Jalali['combined_optional'] = (
+            rf"(?:{self.Jalali['numeric_optional']})|(?:{self.Jalali['named']})"
         )
         
-        self.julian['mixed_clear'] = (
-            rf"{self.julian['combined']}\s*"
+        self.Jalali['mixed_clear'] = (
+            rf"{self.Jalali['combined']}\s*"
             rf"{self.indicator_patterns.separator}?\s*"
-            rf"{self.julian['combined']}"
+            rf"{self.Jalali['combined']}"
         )
         
-        self.julian['mixed_tricky'] = (
-            rf"{self.julian['combined_optional']}\s*"
+        self.Jalali['mixed_tricky'] = (
+            rf"{self.Jalali['combined_optional']}\s*"
             rf"{self.indicator_patterns.separator}?\s*"
-            rf"{self.julian['combined']}"
+            rf"{self.Jalali['combined']}"
         )
         
-        self.julian['ss_parenthetical'] = (
-            rf"{year_patterns.julian['numeric']}\s*"
+        self.Jalali['ss_parenthetical'] = (
+            rf"{year_patterns.Jalali['numeric']}\s*"
             rf"{self.indicator_patterns.separator}?\s*"
             rf"{self.indicator_patterns.parentheses_start}\s*"
-            rf"{year_patterns.julian['numeric']}\s*"
+            rf"{year_patterns.Jalali['numeric']}\s*"
             rf"{self.indicator_patterns.parentheses_end}"
         )
         
-        self.julian['sh_parenthetical'] = (
-            rf"{year_patterns.julian['numeric']}\s*"
+        self.Jalali['sh_parenthetical'] = (
+            rf"{year_patterns.Jalali['numeric']}\s*"
             rf"{self.indicator_patterns.separator}?\s*"
             rf"{self.indicator_patterns.parentheses_start}\s*"
             rf"{year_patterns.hijri['numeric']}\s*"
             rf"{self.indicator_patterns.parentheses_end}"
         )
         
-        self.julian['sg_parenthetical'] = (
-            rf"{year_patterns.julian['numeric']}\s*"
+        self.Jalali['sg_parenthetical'] = (
+            rf"{year_patterns.Jalali['numeric']}\s*"
             rf"{self.indicator_patterns.separator}?\s*"
             rf"{self.indicator_patterns.parentheses_start}\s*"
             rf"{year_patterns.gregorian['numeric']}\s*"
@@ -532,7 +532,7 @@ class CompositeDayMonthYearPatterns(PatternValidator):
         month_year_patterns (MonthYearPatterns): Month-year pattern combinations
         hijri (Dict[str, str]): Hijri day-month-year patterns
         gregorian (Dict[str, str]): Gregorian day-month-year patterns
-        julian (Dict[str, str]): julian day-month-year patterns
+        Jalali (Dict[str, str]): Jalali day-month-year patterns
     """
     numeric_patterns: NumericPatterns
     year_patterns: YearPatterns
@@ -544,7 +544,7 @@ class CompositeDayMonthYearPatterns(PatternValidator):
     # Calendar-specific pattern dictionaries
     hijri: Dict[str, str] = None
     gregorian: Dict[str, str] = None
-    julian: Dict[str, str] = None
+    Jalali: Dict[str, str] = None
     
     def __post_init__(self):
         """Initialize all day-month-year patterns after dataclass creation."""
@@ -559,7 +559,7 @@ class CompositeDayMonthYearPatterns(PatternValidator):
         # Initialize calendar-specific dictionaries
         self.hijri = {}
         self.gregorian = {}
-        self.julian = {}
+        self.Jalali = {}
         
         # Build Hijri day-month-year patterns
         year_patterns.hijri['numeric'] = (
@@ -620,7 +620,7 @@ class CompositeDayMonthYearPatterns(PatternValidator):
             rf"{year_patterns.hijri['numeric']}\s*"
             rf"{self.indicator_patterns.separator}?\s*"
             rf"{self.indicator_patterns.parentheses_start}\s*"
-            rf"{year_patterns.julian['numeric']}\s*"
+            rf"{year_patterns.Jalali['numeric']}\s*"
             rf"{self.indicator_patterns.parentheses_end}"
         )
         
@@ -683,67 +683,67 @@ class CompositeDayMonthYearPatterns(PatternValidator):
             rf"{year_patterns.gregorian['numeric']}\s*"
             rf"{self.indicator_patterns.separator}?\s*"
             rf"{self.indicator_patterns.parentheses_start}\s*"
-            rf"{year_patterns.julian['numeric']}\s*"
+            rf"{year_patterns.Jalali['numeric']}\s*"
             rf"{self.indicator_patterns.parentheses_end}"
         )
         
-        # Build julian day-month-year patterns
-        year_patterns.julian['numeric'] = (
+        # Build Jalali day-month-year patterns
+        year_patterns.Jalali['numeric'] = (
             rf"{self.numeric_patterns.day}\s*"
             rf"{self.indicator_patterns.separator}?\s*"
-            rf"{self.month_year_patterns.julian['numeric']}"
+            rf"{self.month_year_patterns.Jalali['numeric']}"
         )
         
-        self.julian['numeric_optional'] = (
+        self.Jalali['numeric_optional'] = (
             rf"{self.numeric_patterns.day}\s*"
             rf"{self.indicator_patterns.separator}?\s*"
-            rf"{self.month_year_patterns.julian['numeric_optional']}"
+            rf"{self.month_year_patterns.Jalali['numeric_optional']}"
         )
         
-        self.julian['named'] = (
+        self.Jalali['named'] = (
             rf"{self.numeric_patterns.day}\s*"
             rf"{self.indicator_patterns.separator}?\s*"
-            rf"{self.month_year_patterns.julian['named']}"
+            rf"{self.month_year_patterns.Jalali['named']}"
         )
         
-        self.julian['combined'] = (
-            rf"(?:{year_patterns.julian['numeric']})|(?:{self.julian['named']})"
+        self.Jalali['combined'] = (
+            rf"(?:{year_patterns.Jalali['numeric']})|(?:{self.Jalali['named']})"
         )
         
-        self.julian['combined_optional'] = (
-            rf"(?:{self.julian['numeric_optional']})|(?:{self.julian['named']})"
+        self.Jalali['combined_optional'] = (
+            rf"(?:{self.Jalali['numeric_optional']})|(?:{self.Jalali['named']})"
         )
         
-        self.julian['mixed_clear'] = (
-            rf"{self.julian['combined']}\s*"
+        self.Jalali['mixed_clear'] = (
+            rf"{self.Jalali['combined']}\s*"
             rf"{self.indicator_patterns.separator}?\s*"
-            rf"{self.julian['combined']}"
+            rf"{self.Jalali['combined']}"
         )
         
-        self.julian['mixed_tricky'] = (
-            rf"{self.julian['combined_optional']}\s*"
+        self.Jalali['mixed_tricky'] = (
+            rf"{self.Jalali['combined_optional']}\s*"
             rf"{self.indicator_patterns.separator}?\s*"
-            rf"{self.julian['combined']}"
+            rf"{self.Jalali['combined']}"
         )
         
-        self.julian['ss_parenthetical'] = (
-            rf"{year_patterns.julian['numeric']}\s*"
+        self.Jalali['ss_parenthetical'] = (
+            rf"{year_patterns.Jalali['numeric']}\s*"
             rf"{self.indicator_patterns.separator}?\s*"
             rf"{self.indicator_patterns.parentheses_start}\s*"
-            rf"{year_patterns.julian['numeric']}\s*"
+            rf"{year_patterns.Jalali['numeric']}\s*"
             rf"{self.indicator_patterns.parentheses_end}"
         )
         
-        self.julian['sh_parenthetical'] = (
-            rf"{year_patterns.julian['numeric']}\s*"
+        self.Jalali['sh_parenthetical'] = (
+            rf"{year_patterns.Jalali['numeric']}\s*"
             rf"{self.indicator_patterns.separator}?\s*"
             rf"{self.indicator_patterns.parentheses_start}\s*"
             rf"{year_patterns.hijri['numeric']}\s*"
             rf"{self.indicator_patterns.parentheses_end}"
         )
         
-        self.julian['sg_parenthetical'] = (
-            rf"{year_patterns.julian['numeric']}\s*"
+        self.Jalali['sg_parenthetical'] = (
+            rf"{year_patterns.Jalali['numeric']}\s*"
             rf"{self.indicator_patterns.separator}?\s*"
             rf"{self.indicator_patterns.parentheses_start}\s*"
             rf"{year_patterns.gregorian['numeric']}\s*"
@@ -770,7 +770,7 @@ class CompositeNaturalLanguagePatterns(PatternValidator):
         day_month_year_patterns (DayMonthYearPatterns): Complete date patterns
         hijri (Dict[str, str]): Hijri natural language patterns
         gregorian (Dict[str, str]): Gregorian natural language patterns
-        julian (Dict[str, str]): julian natural language patterns
+        Jalali (Dict[str, str]): Jalali natural language patterns
     """
     base_patterns: BasePatterns
     era_patterns: EraPatterns  
@@ -780,7 +780,7 @@ class CompositeNaturalLanguagePatterns(PatternValidator):
     # Calendar-specific pattern dictionaries
     hijri: Dict[str, str] = None
     gregorian: Dict[str, str] = None
-    julian: Dict[str, str] = None
+    Jalali: Dict[str, str] = None
         
     def __post_init__(self):
         """Initialize all natural language patterns after dataclass creation."""
@@ -795,7 +795,7 @@ class CompositeNaturalLanguagePatterns(PatternValidator):
         # Initialize calendar-specific dictionaries
         self.hijri = {}
         self.gregorian = {}
-        self.julian = {}
+        self.Jalali = {}
         
         # Build Hijri natural language patterns
         year_patterns.hijri['numeric'] = (
@@ -856,7 +856,7 @@ class CompositeNaturalLanguagePatterns(PatternValidator):
             rf"{year_patterns.hijri['numeric']}\s*"
             rf"{self.indicator_patterns.separator}?\s*"
             rf"{self.indicator_patterns.parentheses_start}\s*"
-            rf"{year_patterns.julian['numeric']}\s*"
+            rf"{year_patterns.Jalali['numeric']}\s*"
             rf"{self.indicator_patterns.parentheses_end}"
         )
                         
@@ -919,67 +919,67 @@ class CompositeNaturalLanguagePatterns(PatternValidator):
             rf"{year_patterns.gregorian['numeric']}\s*"
             rf"{self.indicator_patterns.separator}?\s*"
             rf"{self.indicator_patterns.parentheses_start}\s*"
-            rf"{year_patterns.julian['numeric']}\s*"
+            rf"{year_patterns.Jalali['numeric']}\s*"
             rf"{self.indicator_patterns.parentheses_end}"
         )
         
-        # Build julian natural language patterns
-        year_patterns.julian['numeric'] = (
+        # Build Jalali natural language patterns
+        year_patterns.Jalali['numeric'] = (
             rf"{self.base_patterns.weekday}\s*"
             rf"{self.indicator_patterns.separator}?\s*"
-            rf"{self.day_month_year_patterns.julian['numeric']}"
+            rf"{self.day_month_year_patterns.Jalali['numeric']}"
         )
         
-        self.julian['numeric_optional'] = (
+        self.Jalali['numeric_optional'] = (
             rf"{self.base_patterns.weekday}\s*"
             rf"{self.indicator_patterns.separator}?\s*"
-            rf"{self.day_month_year_patterns.julian['numeric_optional']}"
+            rf"{self.day_month_year_patterns.Jalali['numeric_optional']}"
         )
         
-        self.julian['named'] = (
+        self.Jalali['named'] = (
             rf"{self.base_patterns.weekday}\s*"
             rf"{self.indicator_patterns.separator}?\s*"
-            rf"{self.day_month_year_patterns.julian['named']}"
+            rf"{self.day_month_year_patterns.Jalali['named']}"
         )
         
-        self.julian['combined'] = (
-            rf"(?:{year_patterns.julian['numeric']})|(?:{self.julian['named']})"
+        self.Jalali['combined'] = (
+            rf"(?:{year_patterns.Jalali['numeric']})|(?:{self.Jalali['named']})"
         )
         
-        self.julian['combined_optional'] = (
-            rf"(?:{self.julian['numeric_optional']})|(?:{self.julian['named']})"
+        self.Jalali['combined_optional'] = (
+            rf"(?:{self.Jalali['numeric_optional']})|(?:{self.Jalali['named']})"
         )
         
-        self.julian['mixed_clear'] = (
-            rf"{self.julian['combined']}\s*"
+        self.Jalali['mixed_clear'] = (
+            rf"{self.Jalali['combined']}\s*"
             rf"{self.indicator_patterns.separator}?\s*"
-            rf"{self.julian['combined']}"
+            rf"{self.Jalali['combined']}"
         )
         
-        self.julian['mixed_tricky'] = (
-            rf"{self.julian['combined_optional']}\s*"
+        self.Jalali['mixed_tricky'] = (
+            rf"{self.Jalali['combined_optional']}\s*"
             rf"{self.indicator_patterns.separator}?\s*"
-            rf"{self.julian['combined']}"
+            rf"{self.Jalali['combined']}"
         )
         
-        self.julian['ss_parenthetical'] = (
-            rf"{year_patterns.julian['numeric']}\s*"
+        self.Jalali['ss_parenthetical'] = (
+            rf"{year_patterns.Jalali['numeric']}\s*"
             rf"{self.indicator_patterns.separator}?\s*"
             rf"{self.indicator_patterns.parentheses_start}\s*"
-            rf"{year_patterns.julian['numeric']}\s*"
+            rf"{year_patterns.Jalali['numeric']}\s*"
             rf"{self.indicator_patterns.parentheses_end}"
         )
         
-        self.julian['sh_parenthetical'] = (
-            rf"{year_patterns.julian['numeric']}\s*"
+        self.Jalali['sh_parenthetical'] = (
+            rf"{year_patterns.Jalali['numeric']}\s*"
             rf"{self.indicator_patterns.separator}?\s*"
             rf"{self.indicator_patterns.parentheses_start}\s*"
             rf"{year_patterns.hijri['numeric']}\s*"
             rf"{self.indicator_patterns.parentheses_end}"
         )
         
-        self.julian['sg_parenthetical'] = (
-            rf"{year_patterns.julian['numeric']}\s*"
+        self.Jalali['sg_parenthetical'] = (
+            rf"{year_patterns.Jalali['numeric']}\s*"
             rf"{self.indicator_patterns.separator}?\s*"
             rf"{self.indicator_patterns.parentheses_start}\s*"
             rf"{year_patterns.gregorian['numeric']}\s*"
@@ -1016,14 +1016,14 @@ class DateRangePatterns(PatternValidator):
         day_month_year_patterns (DayMonthYearPatterns): Complete date patterns for each calendar.
         hijri (Dict[str, str]): Hijri date range patterns.
         gregorian (Dict[str, str]): Gregorian date range patterns.
-        julian (Dict[str, str]): julian date range patterns.
+        Jalali (Dict[str, str]): Jalali date range patterns.
     """
     indicator_patterns: IndicatorPatterns
     day_month_year_patterns: DayMonthYearPatterns
 
     hijri: Dict[str, str] = None
     gregorian: Dict[str, str] = None
-    julian: Dict[str, str] = None
+    Jalali: Dict[str, str] = None
 
     def __post_init__(self):
         """Initialize all date range patterns after dataclass creation."""
@@ -1039,7 +1039,7 @@ class DateRangePatterns(PatternValidator):
         # Init dicts
         self.hijri = {}
         self.gregorian = {}
-        self.julian = {}
+        self.Jalali = {}
 
         # Hijri date range patterns
         year_patterns.hijri['numeric'] = (
@@ -1093,30 +1093,30 @@ class DateRangePatterns(PatternValidator):
             rf"(?:{self.gregorian['numeric_optional']})|(?:{self.gregorian['named']})"
         )
 
-        # julian date range patterns
-        year_patterns.julian['numeric'] = (
+        # Jalali date range patterns
+        year_patterns.Jalali['numeric'] = (
             rf"(?:{self.indicator_patterns.range_starter}\s*)?"
-            rf"{self.day_month_year_patterns.julian['numeric']}\s*"
+            rf"{self.day_month_year_patterns.Jalali['numeric']}\s*"
             rf"{self.indicator_patterns.range_connector}\s*"
-            rf"{self.day_month_year_patterns.julian['numeric']}"
+            rf"{self.day_month_year_patterns.Jalali['numeric']}"
         )
-        self.julian['numeric_optional'] = (
+        self.Jalali['numeric_optional'] = (
             rf"(?:{self.indicator_patterns.range_starter}\s*)?"
-            rf"{self.day_month_year_patterns.julian['numeric_optional']}\s*"
+            rf"{self.day_month_year_patterns.Jalali['numeric_optional']}\s*"
             rf"{self.indicator_patterns.range_connector}\s*"
-            rf"{self.day_month_year_patterns.julian['numeric_optional']}"
+            rf"{self.day_month_year_patterns.Jalali['numeric_optional']}"
         )
-        self.julian['named'] = (
+        self.Jalali['named'] = (
             rf"(?:{self.indicator_patterns.range_starter}\s*)?"
-            rf"{self.day_month_year_patterns.julian['named']}\s*"
+            rf"{self.day_month_year_patterns.Jalali['named']}\s*"
             rf"{self.indicator_patterns.range_connector}\s*"
-            rf"{self.day_month_year_patterns.julian['named']}"
+            rf"{self.day_month_year_patterns.Jalali['named']}"
         )
-        self.julian['combined'] = (
-            rf"(?:{year_patterns.julian['numeric']})|(?:{self.julian['named']})"
+        self.Jalali['combined'] = (
+            rf"(?:{year_patterns.Jalali['numeric']})|(?:{self.Jalali['named']})"
         )
-        self.julian['combined_optional'] = (
-            rf"(?:{self.julian['numeric_optional']})|(?:{self.julian['named']})"
+        self.Jalali['combined_optional'] = (
+            rf"(?:{self.Jalali['numeric_optional']})|(?:{self.Jalali['named']})"
         )
 
         # Validate patterns

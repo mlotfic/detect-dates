@@ -3,7 +3,7 @@
 Date Pattern Recognition Module
 
 A comprehensive module for recognizing date patterns across multiple calendar systems
-including Hijri (Islamic), Gregorian (Western), and Julian (Persian) calendars.
+including Hijri (Islamic), Gregorian (Western), and Jalali (Persian) calendars.
 This module provides structured dataclasses for building complex regex patterns
 to match various date formats in natural language text.
 
@@ -92,7 +92,7 @@ class MonthPatterns:
     gregorian : str
         Western calendar months pattern. Matches English month
         names and abbreviations like "January", "Jan", "February", "Feb"
-    julian : str
+    Jalali : str
         Persian solar calendar months pattern. Matches Farsi month
         names like "فروردین" (Farvardin), "اردیبهشت" (Ordibehesht)
 
@@ -101,7 +101,7 @@ class MonthPatterns:
     >>> months = MonthPatterns(
     ...     hijri=r"(?:محرم|صفر|ربیع‌الاول)",
     ...     gregorian=r"(?:January|Jan|February|Feb)",
-    ...     julian=r"(?:فروردین|اردیبهشت|خرداد)"
+    ...     Jalali=r"(?:فروردین|اردیبهشت|خرداد)"
     ... )
 
     Notes
@@ -111,7 +111,7 @@ class MonthPatterns:
     """
     hijri: str
     gregorian: str
-    julian: str
+    Jalali: str
 
     def __post_init__(self):
         """
@@ -126,7 +126,7 @@ class MonthPatterns:
         for field_name, pattern in [
             ("hijri", self.hijri),
             ("gregorian", self.gregorian),
-            ("julian", self.julian)
+            ("Jalali", self.Jalali)
         ]:
             try:
                 re.compile(pattern, re.IGNORECASE | re.UNICODE)
@@ -151,7 +151,7 @@ class EraPatterns:
     gregorian : str
         Western calendar era indicators. Matches "AD", "CE",
         "BC", "BCE" and their variations with optional periods and spacing
-    julian : str
+    Jalali : str
         Persian solar calendar indicators. Matches "ش.ه"
         (Solar Hijri), "هجری شمسی" and related Persian era markers
 
@@ -160,7 +160,7 @@ class EraPatterns:
     >>> eras = EraPatterns(
     ...     hijri=r"(?:AH|A\.H\.|هـ|ه\.ق)",
     ...     gregorian=r"(?:AD|A\.D\.|CE|BC|BCE)",
-    ...     julian=r"(?:ش\.ه|هجری\s*شمسی)"
+    ...     Jalali=r"(?:ش\.ه|هجری\s*شمسی)"
     ... )
 
     Warnings
@@ -170,7 +170,7 @@ class EraPatterns:
     """
     hijri: str
     gregorian: str
-    julian: str
+    Jalali: str
 
     def __post_init__(self):
         """
@@ -185,7 +185,7 @@ class EraPatterns:
         for field_name, pattern in [
             ("hijri", self.hijri),
             ("gregorian", self.gregorian),
-            ("julian", self.julian)
+            ("Jalali", self.Jalali)
         ]:
             try:
                 re.compile(pattern, re.IGNORECASE | re.UNICODE)

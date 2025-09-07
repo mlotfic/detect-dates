@@ -42,7 +42,7 @@ def find_date_row(
         Parameters
         ----------
         era : str, default "AD"
-            Calendar system ('gregorian', 'hijri', 'julian', or aliases) or era ('AD', 'AH', etc.)
+            Calendar system ('gregorian', 'hijri', 'Jalali', or aliases) or era ('AD', 'AH', etc.)
         day : int, default 1
             Day of the month (1-31 depending on calendar and month)
         month : int or str, default 1

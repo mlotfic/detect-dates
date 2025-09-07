@@ -124,7 +124,7 @@ class DateEntity(ParsedDate):
             if date.is_complete():
                 # Convert to other calendars
                 hijri = date.get_hijri()
-                julian = date.get_julian()
+                Jalali = date.get_Jalali()
 
             # Format in different ways
             iso_format = date.to_iso_format()  # "2023-03-15"
@@ -679,9 +679,9 @@ class DateEntity(ParsedDate):
             }
         )
 
-    def get_julian(self) -> 'DateEntity':
+    def get_Jalali(self) -> 'DateEntity':
         """
-        Convert date to Solar Hijri (Persian/Julian) calendar system.
+        Convert date to Solar Hijri (Persian/Jalali) calendar system.
 
         Returns:
             DateEntity: New DateEntity instance in Solar Hijri calendar system
@@ -692,7 +692,7 @@ class DateEntity(ParsedDate):
         if not self.is_complete():
             raise ValueError("Cannot convert incomplete date to Solar Hijri calendar.")
 
-        if self.calendar == 'julian':
+        if self.calendar == 'Jalali':
             return self._create_copy()
 
         mapper = DateMapping()
@@ -703,14 +703,14 @@ class DateEntity(ParsedDate):
         if result is None:
             raise ValueError(f"Cannot convert date from {self.calendar} to Solar Hijri.")
 
-        julian_data = result['julian']
+        Jalali_data = result['Jalali']
         return DateEntity(
-            day=julian_data['day'],
-            month=julian_data['month'],
-            year=julian_data['year'],
+            day=Jalali_data['day'],
+            month=Jalali_data['month'],
+            year=Jalali_data['year'],
             weekday=result['weekday'],
             era='SH',  # Solar Hijri
-            calendar='julian',
+            calendar='Jalali',
             raw_text=self.raw_text,
             lang=self.lang,
             precision=self.precision,
@@ -839,7 +839,7 @@ def create_date_from_components(day: Optional[int] = None,
         month: Month as number (1-12) or name
         year: Full year
         era: Era designation (CE, BCE, AD, BC, etc.)
-        calendar: Calendar system ('gregorian', 'hijri', 'julian')
+        calendar: Calendar system ('gregorian', 'hijri', 'Jalali')
         **kwargs: Additional arguments passed to DateEntity constructor
 
     Returns:

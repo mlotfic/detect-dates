@@ -8,7 +8,7 @@ This package provides robust tools for working with dates in multilingual texts,
 
 - Hijri (Islamic) calendar
 - Gregorian (Western) calendar 
-- julian (Persian) calendar
+- Jalali (Persian) calendar
 
 ## Key Features
 

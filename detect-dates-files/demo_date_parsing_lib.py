@@ -41,7 +41,7 @@ def demo_basic_dates():
         month="March",  # Month as string
         year=44,
         era=Era.BCE,
-        calendar=CalendarSystem.JULIAN,
+        calendar=CalendarSystem.Jalali,
         precision=DatePrecision.EXACT,
         raw_text="Ides of March, 44 BCE"
     )
@@ -110,13 +110,13 @@ def demo_date_alternatives():
     print(f"Alternative only: {dual_calendar.get_alternative_readable()}")
     print()
     
-    # Julian/Gregorian historical date
-    julian_date = ParsedDate(
+    # Jalali/Gregorian historical date
+    Jalali_date = ParsedDate(
         day=3,
         month="October",
         year=1582,
         era=Era.AD,
-        calendar=CalendarSystem.JULIAN
+        calendar=CalendarSystem.Jalali
     )
     
     gregorian_date = ParsedDate(
@@ -128,11 +128,11 @@ def demo_date_alternatives():
     )
     
     calendar_switch = DateAlternative(
-        primary=julian_date,
+        primary=Jalali_date,
         alternative=gregorian_date
     )
     
-    print(f"Calendar switch date: {calendar_switch.to_combined_format(' (Julian) / ')}")
+    print(f"Calendar switch date: {calendar_switch.to_combined_format(' (Jalali) / ')}")
     print("(This represents the same day in two different calendar systems)")
     print()
 
@@ -372,14 +372,14 @@ def demo_real_world_examples():
     print(f"Moon Landing: {moon_landing.to_readable_format()}")
     
     # Fall of Constantinople (dual calendar)
-    julian_fall = ParsedDate(day=29, month=5, year=1453, era=Era.AD, calendar=CalendarSystem.JULIAN)
+    Jalali_fall = ParsedDate(day=29, month=5, year=1453, era=Era.AD, calendar=CalendarSystem.Jalali)
     gregorian_fall = ParsedDate(day=7, month=6, year=1453, era=Era.AD, calendar=CalendarSystem.GREGORIAN)
     
     constantinople_fall = DateAlternative(
-        primary=julian_fall,
+        primary=Jalali_fall,
         alternative=gregorian_fall
     )
-    print(f"Fall of Constantinople: {constantinople_fall.to_combined_format(' (Julian) / ')}(Gregorian)")
+    print(f"Fall of Constantinople: {constantinople_fall.to_combined_format(' (Jalali) / ')}(Gregorian)")
     
     # Approximate historical period
     renaissance_start = create_partial_date(year=1400, era=Era.AD)
@@ -393,7 +393,7 @@ def demo_real_world_examples():
     print(f"Renaissance Period: {renaissance.to_readable_format()}")
     
     # Islamic/Gregorian calendar example
-    islamic_conquest = ParsedDate(year=638, era=Era.AD, calendar=CalendarSystem.JULIAN)
+    islamic_conquest = ParsedDate(year=638, era=Era.AD, calendar=CalendarSystem.Jalali)
     islamic_hijri = ParsedDate(year=17, era=Era.AH, calendar=CalendarSystem.ISLAMIC)
     
     conquest_dual = DateAlternative(primary=islamic_conquest, alternative=islamic_hijri)

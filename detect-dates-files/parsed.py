@@ -59,7 +59,7 @@ class DateComponents:
     era : str, optional
         Era designation ('CE', 'BCE', 'AH')
     calendar : str, optional
-        Calendar system ('gregorian', 'hijri', 'julian')
+        Calendar system ('gregorian', 'hijri', 'Jalali')
 
     Attributes
     ----------
@@ -123,7 +123,7 @@ class DateComponentsDefault:
     era : str, optional
         Era designation ('CE', 'BCE', 'AH')
     calendar : str, optional
-        Calendar system ('gregorian', 'hijri', 'julian')
+        Calendar system ('gregorian', 'hijri', 'Jalali')
 
     Attributes
     ----------
@@ -163,7 +163,7 @@ class DateComponentsDefault:
     year: Optional[int] = None strict 1 to 3000
     century: Optional[int] = strict 1 to 30
     era: Optional[str] = None
-    calendar: Optional[str] = strict ('gregorian', 'hijri', 'julian', None)
+    calendar: Optional[str] = strict ('gregorian', 'hijri', 'Jalali', None)
 
 @dataclass
 class DateMeta:
@@ -271,11 +271,11 @@ class ParsedDate:
     raw_era : str, optional
         Raw era designation (e.g., "BCE", "CE", "AD", "BC", "هـ")
     raw_calendar : str, optional
-        Raw calendar system name (e.g., "gregorian", "hijri", "julian")
+        Raw calendar system name (e.g., "gregorian", "hijri", "Jalali")
     text : str, optional
         Original text that was parsed to create this date
     calendar : str, optional
-        Calendar system override ('gregorian', 'hijri', 'julian')
+        Calendar system override ('gregorian', 'hijri', 'Jalali')
     lang : str, optional
         Language of the original text (ISO 639-1 code like 'en', 'ar')
     precision : str, optional

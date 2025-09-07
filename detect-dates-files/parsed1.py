@@ -61,7 +61,7 @@ class DateComponents:
     era : str, optional
         Era designation ('CE', 'BCE', 'AH')
     calendar : str, optional
-        Calendar system ('gregorian', 'hijri', 'julian')
+        Calendar system ('gregorian', 'hijri', 'Jalali')
 
     Examples
     --------
@@ -103,7 +103,7 @@ class DateComponentsDefault:
     era : str, optional
         Era designation
     calendar : str, optional
-        Calendar system, must be one of ('gregorian', 'hijri', 'julian') if provided
+        Calendar system, must be one of ('gregorian', 'hijri', 'Jalali') if provided
 
     Notes
     -----
@@ -116,7 +116,7 @@ class DateComponentsDefault:
     year: Optional[int] = None  # strict 1 to 3000
     century: Optional[int] = None  # strict 1 to 30
     era: Optional[str] = None
-    calendar: Optional[str] = None  # strict ('gregorian', 'hijri', 'julian', None)
+    calendar: Optional[str] = None  # strict ('gregorian', 'hijri', 'Jalali', None)
     
     def __post_init__(self):
         """
@@ -138,8 +138,8 @@ class DateComponentsDefault:
             raise ValueError("Year must be between 1 and 3000")
         if self.century is not None and not (1 <= self.century <= 30):
             raise ValueError("Century must be between 1 and 30")
-        if self.calendar is not None and self.calendar not in ('gregorian', 'hijri', 'julian'):
-            raise ValueError("Calendar must be one of ('gregorian', 'hijri', 'julian') or None")
+        if self.calendar is not None and self.calendar not in ('gregorian', 'hijri', 'Jalali'):
+            raise ValueError("Calendar must be one of ('gregorian', 'hijri', 'Jalali') or None")
 
 
 @dataclass

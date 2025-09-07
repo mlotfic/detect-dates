@@ -6,7 +6,7 @@ Calendar utilities for date detection and calendar system management.
 
 This module provides functions and methods for normalizing calendar names,
 managing calendar data mappings, and retrieving comprehensive calendar information.
-It supports multiple calendar systems including Gregorian, Hijri, and Julian calendars.
+It supports multiple calendar systems including Gregorian, Hijri, and Jalali calendars.
 
 Usage
 -----
@@ -209,7 +209,7 @@ def get_calendar_info(self) -> Dict[str, Any]:
             print(f"Sample dates:")
             print(f"  Gregorian: {sample['gregorian']}")
             print(f"  Hijri: {sample['hijri']}")
-            print(f"  Julian: {sample['julian']}")
+            print(f"  Jalali: {sample['Jalali']}")
             print(f"  Weekday: {sample['weekday']}")
     
     Data quality assessment::
@@ -267,7 +267,7 @@ def get_calendar_info(self) -> Dict[str, Any]:
         info['sample_record'] = {
             'gregorian': f"{sample_row['Gregorian Day']}/{sample_row['Gregorian Month']}/{sample_row['Gregorian Year']}",
             'hijri': f"{sample_row['Hijri Day']}/{sample_row['Hijri Month']}/{sample_row['Hijri Year']}",
-            'julian': f"{sample_row['Solar Hijri Day']}/{sample_row['Solar Hijri Month']}/{sample_row['Solar Hijri Year']}",
+            'Jalali': f"{sample_row['Solar Hijri Day']}/{sample_row['Solar Hijri Month']}/{sample_row['Solar Hijri Year']}",
             'weekday': sample_row[WEEKDAY_COLUMN]
         }
     

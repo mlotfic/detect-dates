@@ -131,7 +131,7 @@ class ParsedDate(DateEntity):
     def get_gregorian(self) -> 'ParsedDate':
         """Convert to Gregorian calendar using CSV mapping if available."""
         if not self.is_complete():
-            raise ValueError("Cannot convert incomplete date to Julian")
+            raise ValueError("Cannot convert incomplete date to Jalali")
 
         return ParsedDate(
             day=self.day,
@@ -199,10 +199,10 @@ class ParsedDate(DateEntity):
             >>> partial_date.strftime("%Y-%m-%d")  # "2023-03-??"
         """
 
-    def get_julian(self) -> 'ParsedDate':
-        """Convert to Julian calendar using CSV mapping if available."""
+    def get_Jalali(self) -> 'ParsedDate':
+        """Convert to Jalali calendar using CSV mapping if available."""
         if not self.is_complete():
-            raise ValueError("Cannot convert incomplete date to Julian")
+            raise ValueError("Cannot convert incomplete date to Jalali")
 
     def get_readable(self) -> str:
         """Return a human-readable string representation of the date."""
@@ -216,7 +216,7 @@ class ParsedDate(DateEntity):
         Convert date using the loaded CSV mappings.
 
         Args:
-            target_calendar: Target calendar system ('gregorian', 'hijri', 'julian')
+            target_calendar: Target calendar system ('gregorian', 'hijri', 'Jalali')
 
         Returns:
             ParsedDate in target calendar system or None if conversion not available
@@ -237,19 +237,19 @@ class ParsedDate(DateEntity):
         if current_cal == 'gregorian' and target_calendar == 'hijri':
             mapping_key = 'g_to_h'
             target_era = 'AH'
-        elif current_cal == 'gregorian' and target_calendar == 'julian':
+        elif current_cal == 'gregorian' and target_calendar == 'Jalali':
             mapping_key = 'g_to_j'
             target_era = self.era or 'CE'
         elif current_cal == 'hijri' and target_calendar == 'gregorian':
             mapping_key = 'h_to_g'
             target_era = 'CE'
-        elif current_cal == 'hijri' and target_calendar == 'julian':
+        elif current_cal == 'hijri' and target_calendar == 'Jalali':
             mapping_key = 'h_to_j'
             target_era = self.era or 'CE'
-        elif current_cal == 'julian' and target_calendar == 'gregorian':
+        elif current_cal == 'Jalali' and target_calendar == 'gregorian':
             mapping_key = 'j_to_g'
             target_era = 'CE'
-        elif current_cal == 'julian' and target_calendar == 'hijri':
+        elif current_cal == 'Jalali' and target_calendar == 'hijri':
             mapping_key = 'j_to_h'
             target_era = 'AH'
         else:
@@ -390,25 +390,25 @@ class ParsedDate(DateEntity):
 
         return gregorian_date
 
-    def get_julian(self) -> 'ParsedDate':
-        """Convert to Julian calendar using CSV mapping if available."""
+    def get_Jalali(self) -> 'ParsedDate':
+        """Convert to Jalali calendar using CSV mapping if available."""
         if not self.is_complete():
-            raise ValueError("Cannot convert incomplete date to Julian")
+            raise ValueError("Cannot convert incomplete date to Jalali")
 
         # Try CSV mapping first
-        csv_result = self._convert_date_via_mapping('julian')
+        csv_result = self._convert_date_via_mapping('Jalali')
         if csv_result:
             return csv_result
 
         # Fallback implementation
         print("Warning: No CSV mapping available, using placeholder conversion")
-        julian_date = ParsedDate(
-            day=self.day,  # Would be adjusted for Julian conversion
+        Jalali_date = ParsedDate(
+            day=self.day,  # Would be adjusted for Jalali conversion
             month=self.month,
             year=self.year,
             weekday=self.weekday,
             era=self.era or 'CE',
-            calendar='julian',
+            calendar='Jalali',
             raw_text=self.raw_text,
             lang=self.lang,
             precision=self.precision,
@@ -423,7 +423,7 @@ class ParsedDate(DateEntity):
             }
         )
 
-        return julian_date
+        return Jalali_date
 
     def get_readable(self) -> str:
         """Return a human-readable string representation of the date."""
@@ -534,8 +534,8 @@ if __name__ == "__main__":
         print("Hijri conversion:", hijri_date.get_readable())
         print("Conversion method:", hijri_date.metadata.get('conversion_method', 'unknown'))
 
-        julian_date = date1.get_julian()
-        print("Julian conversion:", julian_date.get_readable())
+        Jalali_date = date1.get_Jalali()
+        print("Jalali conversion:", Jalali_date.get_readable())
     except ValueError as e:
         print(f"Conversion error: {e}")
 
@@ -901,7 +901,7 @@ class ParsedDate:
     def get_gregorian(self) -> ParsedDate:
         pass
 
-    def get_julian(self) -> ParsedDate:
+    def get_Jalali(self) -> ParsedDate:
         pass
 
     def get_readable(self) -> str:

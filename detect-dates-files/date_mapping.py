@@ -55,7 +55,7 @@ class DateMapping:
         Parameters
         ----------
         era : str
-            Calendar system: 'gregorian', 'hijri', 'solar_hijri', or 'julian'.
+            Calendar system: 'gregorian', 'hijri', 'solar_hijri', or 'Jalali'.
         day : int
             Day of the date.
         month : int
@@ -84,7 +84,7 @@ class DateMapping:
             'gregorian': ['Gregorian Day', 'Gregorian Month', 'Gregorian Year'],
             'hijri': ['Hijri Day', 'Hijri Month', 'Hijri Year'],
             'solar_hijri': ['Solar Hijri Day', 'Solar Hijri Month', 'Solar Hijri Year'],
-            'julian': ['Solar Hijri Day', 'Solar Hijri Month', 'Solar Hijri Year']  # Alias for Solar Hijri
+            'Jalali': ['Solar Hijri Day', 'Solar Hijri Month', 'Solar Hijri Year']  # Alias for Solar Hijri
         }
 
         if era not in era_columns:
@@ -110,7 +110,7 @@ class DateMapping:
         Parameters
         ----------
         era : str
-            Calendar system: 'gregorian', 'hijri', 'solar_hijri', or 'julian'.
+            Calendar system: 'gregorian', 'hijri', 'solar_hijri', or 'Jalali'.
         day : int
             Day of the date.
         month : int
@@ -145,7 +145,7 @@ class DateMapping:
             'gregorian': ['Gregorian Day', 'Gregorian Month', 'Gregorian Year'],
             'hijri': ['Hijri Day', 'Hijri Month', 'Hijri Year'],
             'solar_hijri': ['Solar Hijri Day', 'Solar Hijri Month', 'Solar Hijri Year'],
-            'julian': ['Solar Hijri Day', 'Solar Hijri Month', 'Solar Hijri Year']
+            'Jalali': ['Solar Hijri Day', 'Solar Hijri Month', 'Solar Hijri Year']
         }
 
         if era not in era_columns:
@@ -193,7 +193,7 @@ class DateMapping:
         Parameters
         ----------
         era : str
-            Calendar system: 'gregorian', 'hijri', 'solar_hijri', or 'julian'.
+            Calendar system: 'gregorian', 'hijri', 'solar_hijri', or 'Jalali'.
         month : int
             Month to search for.
         year : int
@@ -220,7 +220,7 @@ class DateMapping:
             'gregorian': ['Gregorian Day', 'Gregorian Month', 'Gregorian Year'],
             'hijri': ['Hijri Day', 'Hijri Month', 'Hijri Year'],
             'solar_hijri': ['Solar Hijri Day', 'Solar Hijri Month', 'Solar Hijri Year'],
-            'julian': ['Solar Hijri Day', 'Solar Hijri Month', 'Solar Hijri Year']
+            'Jalali': ['Solar Hijri Day', 'Solar Hijri Month', 'Solar Hijri Year']
         }
 
         if era not in era_columns:
@@ -271,7 +271,7 @@ class DateMapping:
         Parameters
         ----------
         era : str
-            Calendar system: 'gregorian', 'hijri', 'solar_hijri', or 'julian'.
+            Calendar system: 'gregorian', 'hijri', 'solar_hijri', or 'Jalali'.
         start_date : dict
             Start date with keys: 'day', 'month', 'year'.
         end_date : dict
@@ -297,7 +297,7 @@ class DateMapping:
             'gregorian': ['Gregorian Day', 'Gregorian Month', 'Gregorian Year'],
             'hijri': ['Hijri Day', 'Hijri Month', 'Hijri Year'],
             'solar_hijri': ['Solar Hijri Day', 'Solar Hijri Month', 'Solar Hijri Year'],
-            'julian': ['Solar Hijri Day', 'Solar Hijri Month', 'Solar Hijri Year']
+            'Jalali': ['Solar Hijri Day', 'Solar Hijri Month', 'Solar Hijri Year']
         }
 
         if era not in era_columns:
@@ -356,7 +356,7 @@ class DateMapping:
         Parameters
         ----------
         era : str
-            Calendar system: 'gregorian', 'hijri', 'solar_hijri', or 'julian'.
+            Calendar system: 'gregorian', 'hijri', 'solar_hijri', or 'Jalali'.
         day : int
             Day of the date.
         month : int

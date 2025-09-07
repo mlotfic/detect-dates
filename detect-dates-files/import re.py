@@ -13,14 +13,14 @@ class MonthPatterns:
     """Patterns for month names in different calendars"""
     hijri: str
     gregorian: str
-    julian: str
+    Jalali: str
 
 @dataclass
 class EraPatterns:
     """Patterns for different eras in date formats"""
     hijri: str
     gregorian: str
-    julian: str
+    Jalali: str
 
 @dataclass
 class IndicatorPatterns:

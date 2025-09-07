@@ -5,7 +5,7 @@
 Calendar normalization utilities for date detection systems.
 
 This module provides functionality to normalize calendar names and eras, supporting
-multiple calendar systems including Gregorian, Hijri, and Julian calendars.
+multiple calendar systems including Gregorian, Hijri, and Jalali calendars.
 
 Usage
 -----
@@ -16,7 +16,7 @@ Basic usage for normalizing calendar names from era strings::
     # Normalize from era abbreviations
     calendar = normalize_calendar_from_era("AD")      # Returns: "gregorian"
     calendar = normalize_calendar_from_era("AH")      # Returns: "hijri"
-    calendar = normalize_calendar_from_era("BCE")     # Returns: "julian"
+    calendar = normalize_calendar_from_era("BCE")     # Returns: "Jalali"
     
     # Normalize from calendar names/aliases
     calendar = normalize_calendar_from_era("islamic") # Returns: "hijri"
@@ -90,7 +90,7 @@ def normalize_calendar_from_era(era: Optional[str]) -> Optional[str]:
     Returns
     -------
     str or None
-        Normalized calendar name ('gregorian', 'hijri', 'julian') if recognized,
+        Normalized calendar name ('gregorian', 'hijri', 'Jalali') if recognized,
         None if input is invalid or not recognized.
 
     Examples

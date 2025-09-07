@@ -153,7 +153,7 @@ class DateDataLoader:
         --------
         >>> loader = DateDataLoader()
         >>> calendars = loader.get_supported_calendars()
-        >>> print(calendars)  # ['gregorian', 'hijri', 'julian']
+        >>> print(calendars)  # ['gregorian', 'hijri', 'Jalali']
         """
         return list(SUPPORTED_CALENDARS_COLUMNS.keys())
     
@@ -175,7 +175,7 @@ class DateDataLoader:
         {
             'gregorian': {'min_year': 622, 'max_year': 9999},
             'hijri': {'min_year': 1, 'max_year': 1500},
-            'julian': {'min_year': 1300, 'max_year': 1500}
+            'Jalali': {'min_year': 1300, 'max_year': 1500}
         }
         """
         data = self.load_data()

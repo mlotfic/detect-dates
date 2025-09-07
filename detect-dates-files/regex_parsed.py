@@ -305,7 +305,7 @@ class RegexParsedDate:
     era : int or list, optional
         Parsed era indicator(s). Can be group index or list of indices
     calendar : str, optional
-        Calendar system name if explicitly detected ('gregorian', 'hijri', 'julian')
+        Calendar system name if explicitly detected ('gregorian', 'hijri', 'Jalali')
         
     Raises
     ------
